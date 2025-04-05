@@ -1,7 +1,7 @@
 name: Testar GH_TOKEN
 
 on:
-  workflow_dispatch:  # permite rodar manualmente pela aba "Actions"
+  workflow_dispatch:  # permite rodar manualmente pla aba "Actions"
 
 jobs:
   test-token:

@@ -3,6 +3,7 @@ name: Atualizar Estatísticas de Commits
 on:
   schedule:
     - cron: '0 0 * * *'  # todo dia à meia-noite (UTC)
+  workflow_dispatch:       # permite execução manual pelo GitHub
 
 jobs:
   update-stats:
@@ -11,6 +12,8 @@ jobs:
     steps:
       - name: Checkout do código
         uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GH_TOKEN }}
 
       - name: Configurar Git
         run: |

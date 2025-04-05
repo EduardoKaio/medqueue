@@ -7,9 +7,9 @@
 - Kaio Eduardo : 1 commits
 
 🛠️ Commits por tipo:
-- feat: 0
+- feat: 1
 - fix: 0
-- docs: 1
+- docs: 0
 - chore: 0
 - refactor: 0
 - test: 0

@@ -1,0 +1,28 @@
+name: Testar GH_TOKEN
+
+on:
+  workflow_dispatch:  # permite rodar manualmente pela aba "Actions"
+
+jobs:
+  test-token:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clonar repositório com token
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          echo "Clonando repositório com token..."
+          git clone https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }} teste-repo
+          cd teste-repo
+
+          echo "Alterando README.md para testar push"
+          echo "✅ Token testado com sucesso em $(date)" >> README.md
+
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add README.md
+          git commit -m "test: validar GH_TOKEN via GitHub Actions"
+          
+          echo "Fazendo push com token..."
+          git push https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }} HEAD:main

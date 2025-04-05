@@ -4,11 +4,10 @@
 ## 📊 Estatísticas de Commits
 
 👤 Contribuições por autor:
-- Kaio Eduardo : 1 commits
 
 🛠️ Commits por tipo:
-- feat: 1
-- fix: 0
+- feat: 0
+- fix: 1
 - docs: 0
 - chore: 0
 - refactor: 0

@@ -28,13 +28,15 @@ jobs:
 
       - name: Verificar mudanças
         run: git diff
-
+      
       - name: Commit e Push se houver alterações
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           if [[ `git status --porcelain` ]]; then
             git add README.md
             git commit -m "chore(stats): atualizar estatísticas de commits"
-            git push
+            git push https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }} HEAD:main
           else
             echo "Sem alterações no README"
           fi

@@ -1,11 +1,8 @@
 name: Atualizar Estatísticas de Commits
 
 on:
-    push:
-      branches:
-        - main
-    schedule:
-      - cron: '0 0 * * *'  
+  schedule:
+    - cron: '0 0 * * *'  # todo dia à meia-noite (UTC)
 
 jobs:
   update-stats:
@@ -28,7 +25,7 @@ jobs:
 
       - name: Verificar mudanças
         run: git diff
-      
+
       - name: Commit e Push se houver alterações
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}

@@ -5,7 +5,7 @@ README="README.md"
 START_TAG="<!-- COMMIT_STATS_START -->"
 END_TAG="<!-- COMMIT_STATS_END -->"
 
-# 1) Gerar estatísticas em commit-stats.md
+# 1) Monta o conteúdo em commit-stats.md
 {
   echo "## 📊 Estatísticas de Commits"
   echo
@@ -19,17 +19,36 @@ END_TAG="<!-- COMMIT_STATS_END -->"
   echo "🛠️ Commits por tipo:"
   for type in feat fix docs chore refactor test style; do
     c=$(git log --grep="^${type}:" --oneline | wc -l | xargs)
-    # substituímos o printf problemático por echo:
     echo "- ${type}: ${c}"
   done
 } > commit-stats.md
 
-# 2) Substituir apenas a seção marcada no README.md
-awk -v start="$START_TAG" -v end="$END_TAG" '
-  $0 == start { print; system("cat commit-stats.md"); in=1; next }
-  $0 == end   { in=0; print; next }
-  !in         { print }
-' "$README" > README.tmp
+# 2) Substitui só a área entre os marcadores no README.md
+tmp=$(mktemp)
+in_block=0
 
-mv README.tmp "$README"
+while IFS= read -r line; do
+  if [[ "$line" == "$START_TAG" ]]; then
+    echo "$line" >> "$tmp"
+    cat commit-stats.md >> "$tmp"
+    in_block=1
+    continue
+  fi
+
+  if [[ "$line" == "$END_TAG" ]]; then
+    in_block=0
+    echo "$line" >> "$tmp"
+    continue
+  fi
+
+  if [[ $in_block -eq 1 ]]; then
+    # pula todas as linhas entre START e END
+    continue
+  fi
+
+  # fora do bloco, só copia
+  echo "$line" >> "$tmp"
+done < "$README"
+
+mv "$tmp" "$README"
 rm commit-stats.md

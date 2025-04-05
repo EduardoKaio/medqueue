@@ -10,7 +10,6 @@ END_TAG="<!-- COMMIT_STATS_END -->"
   echo "## 📊 Estatísticas de Commits"
   echo
   echo "👤 Contribuições por autor:"
-  # lista todos os autores, agrupa por nome completo e ordena
   git log --format='%aN' \
     | sort \
     | uniq -c \
@@ -18,14 +17,14 @@ END_TAG="<!-- COMMIT_STATS_END -->"
     | awk '{count=$1; $1=""; name=substr($0,2); printf "- %s: %s commits\n", name, count}'
   echo
   echo "🛠️ Commits por tipo:"
-  # conta commits que começam com feat:, fix:, etc.
   for type in feat fix docs chore refactor test style; do
     c=$(git log --grep="^${type}:" --oneline | wc -l | xargs)
-    printf "- %s: %s\n" "$type" "$c"
+    # substituímos o printf problemático por echo:
+    echo "- ${type}: ${c}"
   done
 } > commit-stats.md
 
-# 2) Substituir só a seção marcada no README.md
+# 2) Substituir apenas a seção marcada no README.md
 awk -v start="$START_TAG" -v end="$END_TAG" '
   $0 == start { print; system("cat commit-stats.md"); in=1; next }
   $0 == end   { in=0; print; next }

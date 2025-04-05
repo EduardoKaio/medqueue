@@ -1,0 +1,40 @@
+name: Atualizar Estatísticas de Commits
+
+on:
+    push:
+      branches:
+        - main
+    schedule:
+      - cron: '0 0 * * *'  
+
+jobs:
+  update-stats:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v3
+
+      - name: Configurar Git
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+      - name: Tornar script executável
+        run: chmod +x generate-commit-stats.sh
+
+      - name: Gerar estatísticas e atualizar README
+        run: ./generate-commit-stats.sh
+
+      - name: Verificar mudanças
+        run: git diff
+
+      - name: Commit e Push se houver alterações
+        run: |
+          if [[ `git status --porcelain` ]]; then
+            git add README.md
+            git commit -m "chore(stats): atualizar estatísticas de commits"
+            git push
+          else
+            echo "Sem alterações no README"
+          fi

@@ -8,7 +8,7 @@
 🛠️ Commits por tipo:
 - feat: 0
 - fix: 0
-- docs: 0
+- docs: 1
 - chore: 0
 - refactor: 0
 - test: 0

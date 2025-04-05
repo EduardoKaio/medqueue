@@ -5,7 +5,7 @@ echo "## 📊 Estatísticas de Commits" > commit-stats.md
 echo "" >> commit-stats.md
 
 echo "👤 Contribuições por autor:" >> commit-stats.md
-git log --format='%aN' | sort | uniq -c | sort -rn | awk '{author=""; for (i=2; i<=NF; i++) author = author $i " "; print "- " author ": " $1 " commits"}' >> commit-stats.md
+git shortlog -sn | sed -E 's/^[[:space:]]*([0-9]+)[[:space:]]+(.*)$/- \2 : \1 commits/' >> commit-stats.md
 echo "" >> commit-stats.md
 
 echo "🛠️ Commits por tipo:" >> commit-stats.md

@@ -4,6 +4,7 @@
 ## 📊 Estatísticas de Commits
 
 👤 Contribuições por autor:
+- Kaio Eduardo : 1 commits
 
 🛠️ Commits por tipo:
 - feat: 0

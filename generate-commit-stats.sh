@@ -5,25 +5,31 @@ README="README.md"
 START_TAG="<!-- COMMIT_STATS_START -->"
 END_TAG="<!-- COMMIT_STATS_END -->"
 
-# 1) Gera estatísticas em commit-stats.md
-cat <<EOF > commit-stats.md
-## 📊 Estatísticas de Commits
-
-👤 Contribuições por autor:
-$(git shortlog -sn | awk '{count=$1; $1=""; name=substr($0,2); printf "- %s: %s commits\n", name, count}')
-
-🛠️ Commits por tipo:
-$(for type in feat fix docs chore refactor test style; do
+# 1) Gerar estatísticas em commit-stats.md
+{
+  echo "## 📊 Estatísticas de Commits"
+  echo
+  echo "👤 Contribuições por autor:"
+  # lista todos os autores, agrupa por nome completo e ordena
+  git log --format='%aN' \
+    | sort \
+    | uniq -c \
+    | sort -rn \
+    | awk '{count=$1; $1=""; name=substr($0,2); printf "- %s: %s commits\n", name, count}'
+  echo
+  echo "🛠️ Commits por tipo:"
+  # conta commits que começam com feat:, fix:, etc.
+  for type in feat fix docs chore refactor test style; do
     c=$(git log --grep="^${type}:" --oneline | wc -l | xargs)
-    echo "- ${type}: ${c}"
-done)
-EOF
+    printf "- %s: %s\n" "$type" "$c"
+  done
+} > commit-stats.md
 
-# 2) Substitui apenas entre os marcadores no README.md
-awk -v start="$START_TAG" -v end="$END_TAG" -v stats="$(sed 's/\\/\\\\/g; s/&/\\&/g' commit-stats.md)" '
-  $0 == start { print; print stats; inblock=1; next }
-  $0 == end   { inblock=0; print; next }
-  !inblock    { print }
+# 2) Substituir só a seção marcada no README.md
+awk -v start="$START_TAG" -v end="$END_TAG" '
+  $0 == start { print; system("cat commit-stats.md"); in=1; next }
+  $0 == end   { in=0; print; next }
+  !in         { print }
 ' "$README" > README.tmp
 
 mv README.tmp "$README"

@@ -3,8 +3,8 @@
 ## 📊 Estatísticas de Commits
 
 👤 Contribuições por autor:
-- Kaio Eduardo: 20 commits
-- github-actions: 7 commits
+- Kaio Eduardo: 21 commits
+- github-actions: 8 commits
 
 🛠️ Commits por tipo:
 - feat: 1

@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-MedqueueApplication<medqueue>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.medqueue.medqueue.MedqueueApplication",
+            "projectName": "medqueue",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}

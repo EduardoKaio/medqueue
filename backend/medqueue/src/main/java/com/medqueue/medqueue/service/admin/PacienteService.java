@@ -1,6 +1,6 @@
 package com.medqueue.medqueue.service.admin;
 
-import com.medqueue.medqueue.dto.admin.PacienteDTO;
+import com.medqueue.medqueue.dto.PacienteDTO;
 import com.medqueue.medqueue.models.Paciente;
 import com.medqueue.medqueue.repository.PacienteRepository;
 import jakarta.persistence.EntityNotFoundException;

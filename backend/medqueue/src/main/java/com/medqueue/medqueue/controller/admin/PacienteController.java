@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.medqueue.medqueue.dto.admin.PacienteDTO;
+import com.medqueue.medqueue.dto.PacienteDTO;
 import com.medqueue.medqueue.service.admin.PacienteService;
 
 import io.swagger.v3.oas.annotations.Operation;

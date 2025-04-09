@@ -1,4 +1,4 @@
-package com.medqueue.medqueue.dto.admin;
+package com.medqueue.medqueue.dto;
 
 import lombok.*;
 

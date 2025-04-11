@@ -4,7 +4,7 @@
 
 👤 Contribuições por autor:
 - Kaio Eduardo: 25 commits
-- github-actions: 12 commits
+- github-actions: 13 commits
 
 🛠️ Commits por tipo:
 - feat: 4

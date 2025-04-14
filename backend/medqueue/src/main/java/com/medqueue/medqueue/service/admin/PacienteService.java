@@ -25,6 +25,13 @@ public class PacienteService {
                 .collect(Collectors.toList());
     }
 
+    public List<PacienteDTO> listarAtivos() {
+        return pacienteRepository.findByAtivoTrue()
+                .stream()
+                .map(paciente -> modelMapper.map(paciente, PacienteDTO.class))
+                .collect(Collectors.toList());
+    }
+
     public PacienteDTO buscarPorId(Long id) {
         Paciente paciente = pacienteRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Paciente não encontrado com ID: " + id));
@@ -46,7 +53,7 @@ public class PacienteService {
         Paciente existente = pacienteRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Paciente não encontrado com ID: " + id));
 
-        modelMapper.map(pacienteDTO, existente); // copia os dados do DTO para o existente
+        modelMapper.map(pacienteDTO, existente);
         Paciente atualizado = pacienteRepository.save(existente);
 
         return modelMapper.map(atualizado, PacienteDTO.class);

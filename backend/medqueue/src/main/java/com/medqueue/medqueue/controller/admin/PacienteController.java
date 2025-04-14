@@ -25,9 +25,9 @@ public class PacienteController {
     private final PacienteService pacienteService;
 
     @GetMapping
-    @Operation(summary = "Listar todos os pacientes")
-    public ResponseEntity<List<PacienteDTO>> listarTodos() {
-        List<PacienteDTO> pacientes = pacienteService.listarTodos();
+    @Operation(summary = "Listar pacientes ativos")
+    public ResponseEntity<List<PacienteDTO>> listarAtivos() {
+        List<PacienteDTO> pacientes = pacienteService.listarAtivos();
         return ResponseEntity.ok(pacientes);
     }
 

@@ -5,12 +5,17 @@ import lombok.*;
 
 import java.time.LocalDate;
 
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+
 @Entity
 @Table(name = "paciente")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@SQLDelete(sql = "UPDATE paciente SET ativo = false WHERE id = ?")
+@SQLRestriction("ativo = true")
 public class Paciente {
 
     @Id
@@ -33,6 +38,10 @@ public class Paciente {
     private String telefone;
 
     private String endereco;
+
+    @Builder.Default
+    @Column(nullable = false)
+    private Boolean ativo = true;
 
     public enum Sexo {
         M, F, Outro

@@ -11,6 +11,7 @@ import com.medqueue.medqueue.service.admin.PacienteService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.persistence.EntityNotFoundException;
 
 import java.util.List;
 import java.util.Map;
@@ -32,31 +33,51 @@ public class PacienteController {
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "Buscar paciente por ID")
-    public ResponseEntity<PacienteDTO> buscarPorId(@PathVariable Long id) {
-        PacienteDTO paciente = pacienteService.buscarPorId(id);
-        return ResponseEntity.ok(paciente);
+    public ResponseEntity<?> buscarPorId(@PathVariable Long id) {
+        try {
+            PacienteDTO paciente = pacienteService.buscarPorId(id);
+            return ResponseEntity.ok(paciente);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(404).body(Map.of("erro", e.getMessage()));
+        }
     }
+
 
     @PostMapping
     @Operation(summary = "Cadastrar novo paciente")
-    public ResponseEntity<PacienteDTO> criar(@RequestBody PacienteDTO pacienteDTO) {
-        PacienteDTO novoPaciente = pacienteService.criar(pacienteDTO);
-        return ResponseEntity.ok(novoPaciente);
+    public ResponseEntity<?> criar(@RequestBody PacienteDTO pacienteDTO) {
+        try {
+            PacienteDTO novoPaciente = pacienteService.criar(pacienteDTO);
+            return ResponseEntity.ok(novoPaciente);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("erro", e.getMessage()));
+        }
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "Atualizar paciente por ID")
-    public ResponseEntity<PacienteDTO> atualizar(@PathVariable Long id, @RequestBody PacienteDTO pacienteDTO) {
-        PacienteDTO atualizado = pacienteService.atualizar(id, pacienteDTO);
-        return ResponseEntity.ok(atualizado);
+    public ResponseEntity<?> atualizar(@PathVariable Long id, @RequestBody PacienteDTO pacienteDTO) {
+        try {
+            PacienteDTO atualizado = pacienteService.atualizar(id, pacienteDTO);
+            return ResponseEntity.ok(atualizado);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(404).body(Map.of("erro", e.getMessage()));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("erro", e.getMessage()));
+        }
     }
+    
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Excluir paciente por ID")
-    public ResponseEntity<Void> deletar(@PathVariable Long id) {
-        pacienteService.deletar(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<?> deletar(@PathVariable Long id) {
+        try {
+            pacienteService.deletar(id);
+            return ResponseEntity.noContent().build();
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(404).body(Map.of("erro", e.getMessage()));
+        }
+
     }
 
     @GetMapping("/count")

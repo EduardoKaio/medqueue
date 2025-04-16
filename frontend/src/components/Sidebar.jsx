@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+// Sidebar.jsx
+import React from "react";
 import {
   Drawer,
   List,
@@ -11,28 +12,19 @@ import {
 } from "@mui/material";
 import {
   Menu as MenuIcon,
-  Dashboard as DashboardIcon,
-  Person as PersonIcon,
-  Event as EventIcon,
-  LocalHospital as LocalHospitalIcon,
   ExitToApp as ExitToAppIcon,
 } from "@mui/icons-material";
-import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
-import { Link, useLocation, useNavigate } from "react-router-dom"; // Importa o useNavigate
+import { useLocation, useNavigate, Link } from "react-router-dom";
 
 const drawerWidth = 240;
 const drawerWidthClosed = 60;
 
-const Sidebar = ({ open, setOpen }) => {
-  const location = useLocation(); // Para verificar a página atual e destacar no menu
-  const navigate = useNavigate(); // Hook de navegação do react-router
+const Sidebar = ({ open, setOpen, menuItems }) => {
+  const location = useLocation();
+  const navigate = useNavigate();
 
-  // Função para realizar o logout
   const handleLogout = () => {
-    // Remove o token do localStorage (ou sessionStorage)
     localStorage.removeItem("access_token");
-
-    // Redireciona para a página de login
     navigate("/login");
   };
 
@@ -54,7 +46,6 @@ const Sidebar = ({ open, setOpen }) => {
         }}
       >
         <List>
-          {/* Botão do menu */}
           <ListItemButton onClick={() => setOpen(!open)}>
             <ListItemIcon>
               <MenuIcon />
@@ -64,43 +55,20 @@ const Sidebar = ({ open, setOpen }) => {
 
           <Divider />
 
-          {/* Links de navegação */}
-          <ListItemButton
-            component={Link}
-            to="/admin/dashboard"
-            selected={location.pathname === "/admin/dashboard"}
-          >
-            <ListItemIcon>
-              <DashboardIcon color="primary" />
-            </ListItemIcon>
-            {open && <ListItemText primary="Dashboard" />}
-          </ListItemButton>
-        
-          <ListItemButton
-            component={Link}
-            to="/admin/pacientes"
-            selected={location.pathname === "/admin/pacientes"}
-          >
-            <ListItemIcon>
-              <PersonIcon color="primary" />
-            </ListItemIcon>
-            {open && <ListItemText primary="Pacientes" />}
-          </ListItemButton>
-
-          <ListItemButton
-            component={Link}
-            to="/admin/filas"
-            selected={location.pathname === "/admin/filas"}
-          >
-            <ListItemIcon>
-              <PeopleAltIcon color="primary" />
-            </ListItemIcon>
-            {open && <ListItemText primary="Filas" />}
-          </ListItemButton>
+          {menuItems.map((item) => (
+            <ListItemButton
+              key={item.label}
+              component={Link}
+              to={item.path}
+              selected={location.pathname === item.path}
+            >
+              <ListItemIcon>{item.icon}</ListItemIcon>
+              {open && <ListItemText primary={item.label} />}
+            </ListItemButton>
+          ))}
 
           <Divider />
 
-          {/* Botão de Sair */}
           <ListItemButton sx={{ color: "error.main" }} onClick={handleLogout}>
             <ListItemIcon>
               <ExitToAppIcon color="error" />

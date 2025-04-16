@@ -13,6 +13,11 @@ import {
   MenuItem,
   FormHelperText,
 } from "@mui/material";
+import {
+  Dashboard as DashboardIcon,
+  Person as PersonIcon,
+  PeopleAlt as PeopleAltIcon,
+} from "@mui/icons-material";
 import { Sidebar } from "../../components/Sidebar";
 import Header from "../../components/Header";
 import { drawerWidth, drawerWidthClosed } from "../../components/Sidebar";
@@ -31,7 +36,11 @@ const PacienteCreate = () => {
   const [endereco, setEndereco] = useState("");
   const [sexo, setSexo] = useState("");
   const [error, setError] = useState("");
-
+  const adminMenu = [
+    { label: "Dashboard", path: "/admin/dashboard", icon: <DashboardIcon color="primary" /> },
+    { label: "Pacientes", path: "/admin/pacientes", icon: <PersonIcon color="primary" /> },
+    { label: "Filas", path: "/admin/filas", icon: <PeopleAltIcon color="primary" /> },
+  ];
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -62,7 +71,7 @@ const PacienteCreate = () => {
 
   return (
     <Box sx={{ display: "flex" }}>
-      <Sidebar open={open} setOpen={setOpen} />
+      <Sidebar open={open} setOpen={setOpen} menuItems={adminMenu} />
       <Box
         component="main"
         sx={{
@@ -76,6 +85,7 @@ const PacienteCreate = () => {
           open={open}
           drawerWidth={drawerWidth}
           drawerWidthClosed={drawerWidthClosed}
+          title="Administração da Clínica"
         />
 
         <Container>

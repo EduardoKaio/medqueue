@@ -1,7 +1,9 @@
-package com.medqueue.medqueue.service.admin;
+package com.medqueue.medqueue.service.paciente;
 
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.medqueue.medqueue.dto.PrioridadeResponseDTO;
 import com.medqueue.medqueue.dto.RecomendacaoResponseDTO;
@@ -10,14 +12,18 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;;
 
 @Service
-public class ChatService {
+public class LLMService {
     private final ChatClient chatClient;
 
-    public ChatService(ChatClient.Builder builder) {
+    public LLMService(ChatClient.Builder builder) {
         this.chatClient = builder.build();
     }
 
     public PrioridadeResponseDTO avaliarPrioridade(String sintomas) {
+         if (sintomas == null || sintomas.trim().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Sintomas não informados");
+        }
+
         String prompt = "Considere a seguinte escala de prioridade médica: 1 = alta, 2 = intermediária, 3 = baixa. " +
                         "Com base nessa escala, qual é a prioridade de atendimento para um paciente com " + sintomas +
                         "? Responda apenas com o número da prioridade e uma breve justificativa.";
@@ -41,6 +47,9 @@ public class ChatService {
     }
     
     public RecomendacaoResponseDTO recomendarEspecialista(String sintomas) {
+        if (sintomas == null || sintomas.trim().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Sintomas não informados");
+        }
         // Monta a pergunta com o sintoma informado
         String pergunta = """
             Considere os sintomas informados por um paciente. 

@@ -6,7 +6,14 @@ import {
   Grid,
   Card,
   CardContent,
+  
 } from "@mui/material";
+import {
+  Dashboard as DashboardIcon,
+  Person as PersonIcon,
+  PeopleAlt as PeopleAltIcon,
+} from "@mui/icons-material";
+
 import { Sidebar } from "../../components/Sidebar";
 import Header from "../../components/Header";
 import { drawerWidth, drawerWidthClosed } from "../../components/Sidebar";
@@ -26,6 +33,11 @@ import {
 } from "recharts";
 
 const COLORS = ["#1976d2", "#26a69a", "#f44336", "#ffb300"];
+const adminMenu = [
+  { label: "Dashboard", path: "/admin/dashboard", icon: <DashboardIcon color="primary" /> },
+  { label: "Pacientes", path: "/admin/pacientes", icon: <PersonIcon color="primary" /> },
+  { label: "Filas", path: "/admin/filas", icon: <PeopleAltIcon color="primary" /> },
+];
 
 const dataEspera = [
   { dia: "Seg", tempo: 12 },
@@ -63,7 +75,7 @@ function Dashboard() {
 
   return (
     <Box sx={{ display: "flex" }}>
-      <Sidebar open={open} setOpen={setOpen} />
+      <Sidebar open={open} setOpen={setOpen} menuItems={adminMenu} />
       <Box
         component="main"
         sx={{ flexGrow: 1, bgcolor: "background.default", p: 3, mt: 8 }}
@@ -72,6 +84,7 @@ function Dashboard() {
           open={open}
           drawerWidth={drawerWidth}
           drawerWidthClosed={drawerWidthClosed}
+          title="Administração da Clínica"
         />
         <Container maxWidth="xl">
         <Typography

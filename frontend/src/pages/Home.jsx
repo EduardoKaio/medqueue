@@ -1,6 +1,7 @@
 import React from "react";
 import Button from "@mui/material/Button";
 import LoginIcon from "@mui/icons-material/Login";
+import { Link } from "react-router-dom";
 
 export default function Home() {
   return (
@@ -44,19 +45,21 @@ export default function Home() {
           Organize com eficiência. <br />Atenda com agilidade.
           </h1>
           <div style={{ display: "flex", gap: "1rem" }}>
-            <Button
-              variant="contained"
-              sx={{
-                backgroundColor: "white",
-                color: "#2563eb",
-                fontWeight: "bold",
-                borderRadius: "20px",
-                padding: "0.5rem 1.5rem",
-                textTransform: "none"
-              }}
-            >
-              Entrar em Fila
-            </Button>
+            <Link to={`/filaForm`}>
+              <Button
+                variant="contained"
+                sx={{
+                  backgroundColor: "white",
+                  color: "#2563eb",
+                  fontWeight: "bold",
+                  borderRadius: "20px",
+                  padding: "0.5rem 1.5rem",
+                  textTransform: "none"
+                }}
+              >
+                Entrar em Fila
+              </Button>
+            </Link>
             <Button
               variant="outlined"
               sx={{

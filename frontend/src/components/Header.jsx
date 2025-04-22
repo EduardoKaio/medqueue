@@ -1,7 +1,8 @@
+// src/components/Header.js
 import React from 'react';
 import { AppBar, Toolbar, Typography, Box } from '@mui/material';
 
-const Header = ({ open, drawerWidth, drawerWidthClosed }) => {
+const Header = ({ open, drawerWidth, drawerWidthClosed, title }) => {
   return (
     <AppBar
       position="fixed"
@@ -15,7 +16,7 @@ const Header = ({ open, drawerWidth, drawerWidthClosed }) => {
       <Toolbar>
         <Box sx={{ flexGrow: 1, ml: 2 }}>
           <Typography variant="h6" noWrap component="div">
-            Administração da Clínica
+            {title}
           </Typography>
         </Box>
       </Toolbar>

@@ -10,5 +10,4 @@ public interface FilaPacienteRepository extends JpaRepository<FilaPaciente, Long
     List<FilaPaciente> findByFilaIdAndAtendidoFalseOrderByPosicao(Long filaId);
     FilaPaciente findFirstByFilaIdAndAtendidoFalseOrderByPosicao(Long filaId);
     Optional<FilaPaciente> findByPacienteIdAndFilaIdAndAtendidoFalse(Long pacienteId, Long filaId);
-    List<FilaPaciente> findByAtivoTrue();
 }

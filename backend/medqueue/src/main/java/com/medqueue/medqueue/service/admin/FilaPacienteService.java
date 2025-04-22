@@ -1,17 +1,18 @@
 package com.medqueue.medqueue.service.admin;
 
+import com.medqueue.medqueue.dto.FilaPacienteDTO;
 import com.medqueue.medqueue.models.Fila;
 import com.medqueue.medqueue.models.FilaPaciente;
 import com.medqueue.medqueue.models.Paciente;
 import com.medqueue.medqueue.repository.FilaPacienteRepository;
 import com.medqueue.medqueue.repository.FilaRepository;
 import com.medqueue.medqueue.repository.PacienteRepository;
-import com.medqueue.medqueue.dto.FilaPacienteDTO;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,31 +30,33 @@ public class FilaPacienteService {
         Fila fila = filaRepository.findById(filaId)
                 .orElseThrow(() -> new EntityNotFoundException("Fila não encontrada com ID: " + filaId));
 
+        // Verifica se o paciente já está na fila
+        Optional<FilaPaciente> existente = filaPacienteRepository
+                .findByPacienteIdAndFilaIdAndAtendidoFalse(pacienteId, filaId);
+
+        if (existente.isPresent()) {
+            throw new IllegalStateException("Paciente já está na fila com ID: " + filaId);
+        }
+
         int posicao = filaPacienteRepository.findByFilaIdAndAtendidoFalseOrderByPosicao(filaId).size() + 1;
 
         FilaPaciente filaPaciente = new FilaPaciente();
         filaPaciente.setPaciente(paciente);
         filaPaciente.setFila(fila);
         filaPaciente.setPosicao(posicao);
+        filaPaciente.setAtendido(false);
+
         filaPacienteRepository.save(filaPaciente);
     }
 
-    public FilaPaciente removePaciente(Long filaId) {
+    public FilaPaciente atenderProximoPaciente(Long filaId) {
         FilaPaciente filaPaciente = filaPacienteRepository.findFirstByFilaIdAndAtendidoFalseOrderByPosicao(filaId);
         if (filaPaciente == null) {
             throw new EntityNotFoundException("Nenhum paciente na fila com ID: " + filaId);
         }
         filaPaciente.setAtendido(true);
+        // TODO: Reorganizar posições, se necessário
         return filaPacienteRepository.save(filaPaciente);
-    }
-
-    public void removerPaciente(Long filaId) {
-        FilaPaciente filaPaciente = filaPacienteRepository.findFirstByFilaIdAndAtendidoFalseOrderByPosicao(filaId);
-        if (filaPaciente == null) {
-            throw new EntityNotFoundException("Nenhum paciente encontrado na fila com ID: " + filaId);
-        }
-        filaPaciente.setAtendido(true);
-        filaPacienteRepository.save(filaPaciente);
     }
 
     public List<FilaPaciente> listarPacientes(Long filaId) {
@@ -62,7 +65,8 @@ public class FilaPacienteService {
 
     public FilaPaciente buscarPacienteNaFila(Long pacienteId, Long filaId) {
         return filaPacienteRepository.findByPacienteIdAndFilaIdAndAtendidoFalse(pacienteId, filaId)
-                .orElseThrow(() -> new EntityNotFoundException("Paciente com ID " + pacienteId + " não está na fila com ID " + filaId));
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Paciente com ID " + pacienteId + " não está na fila com ID " + filaId));
     }
 
     public String buscarNomePacientePorId(Long pacienteId) {
@@ -79,18 +83,6 @@ public class FilaPacienteService {
         }
 
         return filaPacientes.stream()
-                .map(fp -> new FilaPacienteDTO(
-                        fp.getPaciente().getId(),
-                        fp.getPaciente().getNome(),
-                        fp.getPosicao(),
-                        fp.getAtendido()
-                ))
-                .collect(Collectors.toList());
-    }
-
-    public List<FilaPacienteDTO> listarAtivos() {
-        return filaPacienteRepository.findByAtivoTrue()
-                .stream()
                 .map(fp -> new FilaPacienteDTO(
                         fp.getPaciente().getId(),
                         fp.getPaciente().getNome(),

@@ -4,15 +4,17 @@
 
 👤 Contribuições por autor:
 - Kaio Eduardo: 31 commits
-- github-actions: 24 commits
+- github-actions: 25 commits
+- Felipeftlp: 9 commits
+- Felipe Freitas: 5 commits
 - AllysonGustavo1: 1 commits
 
 🛠️ Commits por tipo:
-- feat: 10
+- feat: 16
 - fix: 5
 - docs: 3
 - chore: 0
-- refactor: 0
+- refactor: 3
 - test: 1
 - style: 0
 <!-- COMMIT_STATS_END -->

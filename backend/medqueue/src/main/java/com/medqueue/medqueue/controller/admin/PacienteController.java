@@ -1,6 +1,5 @@
 package com.medqueue.medqueue.controller.admin;
 
-
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.ResponseEntity;
@@ -14,7 +13,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.List;
 import java.util.Map;
-
 
 @RestController
 @RequestMapping("/api/admin/paciente")

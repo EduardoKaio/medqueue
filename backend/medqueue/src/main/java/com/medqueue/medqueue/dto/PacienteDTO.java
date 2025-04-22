@@ -16,6 +16,8 @@ public class PacienteDTO {
 
     private String cpf;
 
+    private String senha;
+
     private LocalDate dataNascimento;
 
     private String sexo;

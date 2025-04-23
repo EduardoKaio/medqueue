@@ -4,7 +4,7 @@
 
 👤 Contribuições por autor:
 - Kaio Eduardo: 31 commits
-- github-actions: 25 commits
+- github-actions: 26 commits
 - Felipeftlp: 9 commits
 - Felipe Freitas: 5 commits
 - AllysonGustavo1: 1 commits

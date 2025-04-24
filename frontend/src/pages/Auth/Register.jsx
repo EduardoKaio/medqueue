@@ -79,7 +79,7 @@ const Register = () => {
               mb: 3,
             }}
           >
-            <Link to="/">
+            <Link to="/login">
               <IconButton
                 sx={{
                   backgroundColor: "#1976d2",

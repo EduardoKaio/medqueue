@@ -38,7 +38,7 @@ import {
   PeopleAlt as PeopleAltIcon,
 } from "@mui/icons-material";
 import { Link } from "react-router-dom";
-import { getPacientes, deletePaciente } from "../../services/PacienteService";
+import { getPacientes, deletePaciente } from "../../services/GerenciamentoPacienteService";
 import { Sidebar } from "../../components/Sidebar";
 import Header from "../../components/Header";
 import { drawerWidth, drawerWidthClosed } from "../../components/Sidebar";

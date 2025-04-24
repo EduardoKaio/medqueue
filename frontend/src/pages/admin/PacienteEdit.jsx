@@ -23,7 +23,7 @@ import { useNavigate, useParams, Link } from "react-router-dom";
 import { Sidebar } from "../../components/Sidebar";
 import Header from "../../components/Header";
 import { drawerWidth, drawerWidthClosed } from "../../components/Sidebar";
-import { getPacienteById, updatePaciente } from "../../services/PacienteService";
+import { getPacienteById, updatePaciente } from "../../services/GerenciamentoPacienteService";
 
 const PacienteEdit = () => {
   const { id } = useParams(); // ID da rota

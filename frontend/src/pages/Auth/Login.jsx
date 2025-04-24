@@ -128,9 +128,8 @@ const LoginPage = () => {
           </Button>
         </form>
 
-       {/* Link para "Esqueceu a senha?" */}
-       <Link href="" variant="body2" sx={{ marginTop: 2 }}>
-          Esqueceu a senha?
+       <Link href="/register" variant="body2" sx={{ marginTop: 2 }}>
+          Registre-se agora!
         </Link>
       </PaperWrapper>
     </Root>

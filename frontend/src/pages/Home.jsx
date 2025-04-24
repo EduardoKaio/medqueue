@@ -21,20 +21,22 @@ export default function Home() {
         </div>
 
         {/* Login */}
-        <Button
-          variant="contained"
-          startIcon={<LoginIcon />}
-          sx={{
-            backgroundColor: "white",
-            color: "#2563eb",
-            fontWeight: "bold",
-            borderRadius: "20px",
-            padding: "0.5rem 1.5rem",
-            textTransform: "none"
-          }}
-        >
-          Login
-        </Button>
+        <Link to={`/login`}>
+          <Button
+            variant="contained"
+            startIcon={<LoginIcon />}
+            sx={{
+              backgroundColor: "white",
+              color: "#2563eb",
+              fontWeight: "bold",
+              borderRadius: "20px",
+              padding: "0.5rem 1.5rem",
+              textTransform: "none"
+            }}
+          >
+            Login
+          </Button>
+        </Link>
       </header>
 
       {/* Conteúdo principal */}

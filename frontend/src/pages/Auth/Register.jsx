@@ -15,7 +15,7 @@ import {
 } from "@mui/material";
 import { ArrowBack as ArrowBackIcon, Add as AddIcon } from "@mui/icons-material";
 import { Link, useNavigate } from "react-router-dom";
-import { register } from "../services/AuthService";
+import { register } from "../../services/AuthService";
 
 const Register = () => {
 

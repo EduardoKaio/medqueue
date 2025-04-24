@@ -1,11 +1,20 @@
 package com.medqueue.medqueue.models;
 
-import jakarta.persistence.*;
-import lombok.*;
+import java.time.LocalDate;
+
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
-import java.time.LocalDateTime;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "fila")
@@ -41,5 +50,5 @@ public class Fila {
 
     @Builder.Default
     @Column(name = "data_criacao", nullable = false, updatable = false)
-    private LocalDateTime dataCriacao = LocalDateTime.now();
+    private LocalDate dataCriacao = LocalDate.now();
 }

@@ -1,6 +1,5 @@
 package com.medqueue.medqueue.controller.paciente;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,7 +18,6 @@ public class LLMController {
 
     private final LLMService llmService;
 
-    @Autowired
     public LLMController(LLMService llmService) {
         this.llmService = llmService;
     }

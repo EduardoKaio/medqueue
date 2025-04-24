@@ -1,7 +1,6 @@
 package com.medqueue.medqueue.controller.admin;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.security.oauth2.resource.OAuth2ResourceServerProperties.Jwt;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -23,6 +22,7 @@ import com.medqueue.medqueue.repository.PacienteRepository;
 import com.medqueue.medqueue.service.admin.PacienteService;
 import com.medqueue.medqueue.util.JwtUtil;
 
+import io.jsonwebtoken.Claims;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 
@@ -67,28 +67,26 @@ public class AuthController {
 
             final String jwt = jwtUtil.generateToken(userDetails, paciente.getId());
 
-            return ResponseEntity.ok(new AuthResponse(jwt));
+            return ResponseEntity.ok(new AuthResponse(jwt, paciente.getRole()));
 
         } catch (AuthenticationException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credenciais inválidas");
         }
     }
-
+    
     @GetMapping("/currentUser")
-    public String getCurrentUser() {
+    public ResponseEntity<?> getCurrentUser(@RequestHeader("Authorization") String authHeader) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         
         if (authentication != null && authentication.isAuthenticated()) {
-            String cpf = authentication.getName();  // Exemplo: Obtendo o CPF do JWT
-            
-            if (authentication.getPrincipal() instanceof Jwt) {
-                System.out.println(authentication.getPrincipal());               
-            }
+            String token = authHeader.replace("Bearer ", "");    
+            Claims claims = jwtUtil.extractClaims(token);
+            Long id = claims.get("id", Long.class);               
 
-            return "Usuário logado: " + cpf;
+            return ResponseEntity.ok(id);
         }
         
-        return "Não autenticado";
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token ausente ou inválido");
     }
 
     @PostMapping("/logout")

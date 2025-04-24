@@ -32,7 +32,6 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**").permitAll()  // login, register, logout
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                .requestMatchers("/api/paciente/**").hasRole("USER")
                 .anyRequest().authenticated()               // todo o resto exige token válido
             )
             // sem sessão no servidor

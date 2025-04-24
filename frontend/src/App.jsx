@@ -10,6 +10,8 @@ import FilaCreate from './pages/Admin/FilaCreate';
 import FilaPacientesList from './pages/Admin/FilaPacienteList';
 import Register from './pages/auth/Register';
 import LoginPage from './pages/auth/Login';
+import TriagemInteligente from './pages/paciente/TriagemInteligente';
+import HomePaciente from './pages/paciente/HomePaciente';
 
 function App() {
   return (
@@ -17,6 +19,10 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
 
+        <Route path="/paciente" element={<HomePaciente />} />
+        <Route path="/paciente/triagem" element={<TriagemInteligente />} />
+
+        {/* Admin Routes */}
         <Route path="/admin/dashboard" element={<Dashboard />} />
         <Route path="/admin/pacientes" element={<PacienteList />} />
         <Route path="/admin/pacientes/create" element={<PacienteCreate />} />

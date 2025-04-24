@@ -13,6 +13,11 @@ import {
   FormHelperText,
   IconButton,
 } from "@mui/material";
+import {
+  Dashboard as DashboardIcon,
+  Person as PersonIcon,
+  PeopleAlt as PeopleAltIcon,
+} from "@mui/icons-material";
 import { Edit as EditIcon, ArrowBack as ArrowBackIcon } from "@mui/icons-material";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { Sidebar } from "../../components/Sidebar";
@@ -25,7 +30,11 @@ const PacienteEdit = () => {
   const navigate = useNavigate();
 
   const [open, setOpen] = useState(true);
-
+  const adminMenu = [
+    { label: "Dashboard", path: "/admin/dashboard", icon: <DashboardIcon color="primary" /> },
+    { label: "Pacientes", path: "/admin/pacientes", icon: <PersonIcon color="primary" /> },
+    { label: "Filas", path: "/admin/filas", icon: <PeopleAltIcon color="primary" /> },
+  ];
   const [paciente, setPaciente] = useState({
     nome: "",
     cpf: "",
@@ -78,7 +87,7 @@ const PacienteEdit = () => {
 
   return (
     <Box sx={{ display: "flex" }}>
-      <Sidebar open={open} setOpen={setOpen} />
+      <Sidebar open={open} setOpen={setOpen} menuItems={adminMenu} />
       <Box
         component="main"
         sx={{
@@ -88,7 +97,7 @@ const PacienteEdit = () => {
           mt: 8,
         }}
       >
-        <Header open={open} drawerWidth={drawerWidth} drawerWidthClosed={drawerWidthClosed} />
+        <Header open={open} drawerWidth={drawerWidth} drawerWidthClosed={drawerWidthClosed} title="Administração da Clínica"/>
 
         <Container>
           <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>

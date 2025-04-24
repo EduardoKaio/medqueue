@@ -1,6 +1,6 @@
-import axios from "axios";
+import axiosInstance from "./axiosInstance";
 
 const API_URL = "/api/admin/fila-paciente";
 
 export const listarFilaOrdenada = (filaId) =>
-  axios.get(`${API_URL}/ordered-list`, { params: { filaId } });
+  axiosInstance.get(`${API_URL}/ordered-list`, { params: { filaId } });

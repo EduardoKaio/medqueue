@@ -1,6 +1,8 @@
-import axios from "axios";
+import axiosInstance from "./axiosInstance";
 
-const API_URL = "/api/auth";
+const API_URL = "/auth";
 
-export const login = () => axios.get(`${API_URL}/login`);
-export const register = (data) => axios.post(API_URL, data);
+export const login = (data) => axiosInstance.post(`${API_URL}/login`, data);
+export const register = (data) => axiosInstance.post(`${API_URL}/register`, data);
+export const profile = () => axiosInstance.get(`${API_URL}/currentUser`);
+export const logout = () => axiosInstance.get(`${API_URL}/logout`);

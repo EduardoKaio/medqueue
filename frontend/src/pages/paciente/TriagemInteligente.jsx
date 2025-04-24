@@ -25,6 +25,7 @@ import Header from "../../components/Header";
 import { drawerWidth, drawerWidthClosed } from "../../components/Sidebar";
 import { avaliarPrioridade, recomendarEspecialista } from "../../services/LLMService";
 import MuiAlert from "@mui/material/Alert";
+import { enterQueue } from "../../services/PacienteService";
 
 function TriagemInteligente() {
 
@@ -74,9 +75,8 @@ function TriagemInteligente() {
     }, TEMPO_SIMULADO_MS);
   };
   
-  
-
   const handleEntrarNaFila = () => {
+    enterQueue();
     console.log("Entrou na fila com prioridade", prioridade.nivel);
     setModalAberto(false);
     setSnackbarAberto(true);

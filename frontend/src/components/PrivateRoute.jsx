@@ -8,7 +8,7 @@ const isAuthenticated = () => {
 };
 
 // Componente PrivateRoute para proteger as rotas
-const PrivateRoute = ({ element, ...rest }) => {
+const PrivateRoute = ({ element }) => {
   return isAuthenticated() ? element : <Navigate to="/login" />;
 };
 

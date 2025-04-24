@@ -25,6 +25,7 @@ import Header from "../../components/Header";
 import { useNavigate } from "react-router-dom";
 import { drawerWidth, drawerWidthClosed } from "../../components/Sidebar";
 import MuiAlert from "@mui/material/Alert";
+import { enterQueue } from "../../services/PacienteService";
 
 function HomePaciente() {
   const [open, setOpen] = useState(true);
@@ -41,6 +42,7 @@ function HomePaciente() {
   };
 
   const handleConfirmarEntradaFila = () => {
+    enterQueue();
     setConfirmDialogOpen(false); // Fecha o modal
     setShowAlert(true); // Exibe o alerta de confirmação
     // Aqui você pode adicionar uma chamada à API para adicionar o paciente à fila com prioridade 3

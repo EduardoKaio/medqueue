@@ -1,10 +1,7 @@
-import axiosInstance from "./axiosInstance";
+import axios from "./axiosInstance";
 
-const API_URL = '/admin/paciente';
+const API_URL = "/api/paciente";
 
-export const getPacientes = () => axiosInstance.get(API_URL);
-export const getPacientesCount = () => axiosInstance.get(`${API_URL}/count`);
-export const getPacienteById = (id) => axiosInstance.get(`${API_URL}/${id}`);
-export const createPaciente = (data) => axiosInstance.post(API_URL, data);
-export const updatePaciente = (id, data) => axiosInstance.put(`${API_URL}/${id}`, data);
-export const deletePaciente = (id) => axiosInstance.delete(`${API_URL}/${id}`);
+export const getCurrentUser = () => axios.get(`${API_URL}/getProfile`);
+export const updateUser = (data) => axios.put(`${API_URL}/update`, data);
+export const enterQueue = () => axios.post(`${API_URL}/enterQueue`)

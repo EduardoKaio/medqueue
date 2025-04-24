@@ -1,10 +1,15 @@
 package com.medqueue.medqueue.repository;
 
-import com.medqueue.medqueue.models.Fila;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.List;
+import com.medqueue.medqueue.models.Fila;
+
 
 public interface FilaRepository extends JpaRepository<Fila, Long> {
     List<Fila> findByAtivoTrue();
+    Optional<Fila> findByDataCriacao(LocalDate data_criacao);
 }

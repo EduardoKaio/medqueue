@@ -7,7 +7,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +21,6 @@ import com.medqueue.medqueue.repository.PacienteRepository;
 import com.medqueue.medqueue.service.admin.PacienteService;
 import com.medqueue.medqueue.util.JwtUtil;
 
-import io.jsonwebtoken.Claims;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 
@@ -72,21 +70,6 @@ public class AuthController {
         } catch (AuthenticationException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credenciais inválidas");
         }
-    }
-    
-    @GetMapping("/currentUser")
-    public ResponseEntity<?> getCurrentUser(@RequestHeader("Authorization") String authHeader) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        
-        if (authentication != null && authentication.isAuthenticated()) {
-            String token = authHeader.replace("Bearer ", "");    
-            Claims claims = jwtUtil.extractClaims(token);
-            Long id = claims.get("id", Long.class);               
-
-            return ResponseEntity.ok(id);
-        }
-        
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token ausente ou inválido");
     }
 
     @PostMapping("/logout")

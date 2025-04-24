@@ -19,7 +19,7 @@ import java.util.Map;
 @RequestMapping("/api/admin/paciente")
 @RequiredArgsConstructor
 @Tag(name = "Admin - Pacientes", description = "Gerenciamento de pacientes (CRUD)")
-public class PacienteController {
+public class GerenciamentoPacienteController {
 
     private final PacienteService pacienteService;
 

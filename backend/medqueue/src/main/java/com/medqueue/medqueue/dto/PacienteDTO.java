@@ -1,8 +1,11 @@
 package com.medqueue.medqueue.dto;
 
-import lombok.*;
-
 import java.time.LocalDate;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
@@ -27,4 +30,6 @@ public class PacienteDTO {
     private String telefone;
 
     private String endereco;
+
+    private String role;
 }

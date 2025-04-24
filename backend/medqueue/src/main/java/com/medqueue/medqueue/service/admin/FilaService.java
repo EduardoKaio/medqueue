@@ -6,6 +6,9 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 @Service
@@ -50,5 +53,14 @@ public class FilaService {
         }
 
         return filaRepository.save(fila);
+    }
+
+    public Long getFilaDoDia() {
+        LocalDate hoje = LocalDate.now();
+
+        Fila fila = filaRepository.findByDataCriacao(hoje)
+            .orElseThrow(() -> new EntityNotFoundException("Não existe fila criada hoje"));
+
+        return fila.getId();
     }
 }

@@ -4,5 +4,4 @@ const API_URL = "/auth";
 
 export const login = (data) => axiosInstance.post(`${API_URL}/login`, data);
 export const register = (data) => axiosInstance.post(`${API_URL}/register`, data);
-export const profile = () => axiosInstance.get(`${API_URL}/currentUser`);
 export const logout = () => axiosInstance.get(`${API_URL}/logout`);

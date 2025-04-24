@@ -1,10 +1,10 @@
-import axios from 'axios';
+import axiosInstance from "./axiosInstance";
 
-const API_URL = '/api/paciente/triagem';
+const API_URL = '/paciente/triagem';
 
 export const avaliarPrioridade = async (sintomas) => {
   try {
-    const response = await axios.post(`${API_URL}/avaliar-prioridade`, {
+    const response = await axiosInstance.post(`${API_URL}/avaliar-prioridade`, {
       sintomas,
     });
     return response.data;
@@ -16,7 +16,7 @@ export const avaliarPrioridade = async (sintomas) => {
 
 export const recomendarEspecialista = async (sintomas) => {
   try {
-    const response = await axios.post(`${API_URL}/recomendar-especialista`, {
+    const response = await axiosInstance.post(`${API_URL}/recomendar-especialista`, {
       sintomas,
     });
     return response.data;

@@ -25,7 +25,7 @@ const Sidebar = ({ open, setOpen, menuItems }) => {
 
   const handleLogout = () => {
     localStorage.removeItem("access_token");
-    navigate("/login");
+    navigate("/");
   };
 
   return (

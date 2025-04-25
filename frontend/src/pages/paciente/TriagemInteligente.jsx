@@ -48,7 +48,7 @@ function TriagemInteligente() {
     setLoading(true);
   
     // Simulação do tempo de loading - 3 segundos
-    const TEMPO_SIMULADO_MS = 3000;
+    const TEMPO_SIMULADO_MS = 1000;
   
     setTimeout(async () => {
       try {
@@ -75,9 +75,17 @@ function TriagemInteligente() {
     }, TEMPO_SIMULADO_MS);
   };
   
-  const handleEntrarNaFila = () => {
-    enterQueue();
-    console.log("Entrou na fila com prioridade", prioridade.nivel);
+  const handleEntrarNaFila = async (e) => {
+
+    e.preventDefault();
+    
+    try {
+      await enterQueue();
+      console.log("Entrou na fila com prioridade", prioridade.nivel);
+    } catch (err) {
+      console.error("Erro ao entrar na fila", err);
+    }
+
     setModalAberto(false);
     setSnackbarAberto(true);
   };
@@ -85,7 +93,7 @@ function TriagemInteligente() {
   const handleRecomendarEspecialista = async () => {
     setLoading(true);
   
-    const TEMPO_SIMULADO_MS = 3000;
+    const TEMPO_SIMULADO_MS = 1000;
   
     setTimeout(async () => {
       try {

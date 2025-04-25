@@ -13,7 +13,13 @@ import {
 import { Sidebar } from "../../components/Sidebar";
 import Header from "../../components/Header";
 import { drawerWidth, drawerWidthClosed } from "../../components/Sidebar";
-import { ArrowBack as ArrowBackIcon, Add as AddIcon } from "@mui/icons-material";
+import { 
+  ArrowBack as ArrowBackIcon, 
+  Add as AddIcon,
+  Dashboard as DashboardIcon,
+  Person as PersonIcon,
+  PeopleAlt as PeopleAltIcon, 
+} from "@mui/icons-material";
 import { Link, useNavigate } from "react-router-dom";
 import { criarFila } from "../../services/FilaService";
 
@@ -26,6 +32,12 @@ const FilaCreate = () => {
   const [prioridade, setPrioridade] = useState(0);
   const [tempoMedio, setTempoMedio] = useState(0.0);
   const [error, setError] = useState("");
+
+  const adminMenu = [
+    { label: "Dashboard", path: "/admin/dashboard", icon: <DashboardIcon color="primary" /> },
+    { label: "Pacientes", path: "/admin/pacientes", icon: <PersonIcon color="primary" /> },
+    { label: "Filas", path: "/admin/filas", icon: <PeopleAltIcon color="primary" /> },
+  ];
 
   const navigate = useNavigate();
 
@@ -55,7 +67,7 @@ const FilaCreate = () => {
 
   return (
     <Box sx={{ display: "flex" }}>
-      <Sidebar open={open} setOpen={setOpen} />
+      <Sidebar open={open} setOpen={setOpen} menuItems={adminMenu} />
       <Box
         component="main"
         sx={{

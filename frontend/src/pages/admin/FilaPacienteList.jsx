@@ -11,7 +11,12 @@ import {
   IconButton,
 } from "@mui/material";
 import { useParams, Link } from "react-router-dom";
-import { ArrowBack as ArrowBackIcon } from "@mui/icons-material";
+import { 
+  ArrowBack as ArrowBackIcon,
+  Dashboard as DashboardIcon,
+  Person as PersonIcon,
+  PeopleAlt as PeopleAltIcon, 
+} from "@mui/icons-material";
 import { Sidebar } from "../../components/Sidebar";
 import Header from "../../components/Header";
 import { drawerWidth, drawerWidthClosed } from "../../components/Sidebar";
@@ -22,6 +27,12 @@ const FilaPacientesList = () => {
   const [open, setOpen] = useState(true);
   const [pacientes, setPacientes] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const adminMenu = [
+    { label: "Dashboard", path: "/admin/dashboard", icon: <DashboardIcon color="primary" /> },
+    { label: "Pacientes", path: "/admin/pacientes", icon: <PersonIcon color="primary" /> },
+    { label: "Filas", path: "/admin/filas", icon: <PeopleAltIcon color="primary" /> },
+  ];
 
   useEffect(() => {
     const fetchPacientes = async () => {
@@ -40,7 +51,7 @@ const FilaPacientesList = () => {
 
   return (
     <Box sx={{ display: "flex" }}>
-      <Sidebar open={open} setOpen={setOpen} />
+      <Sidebar open={open} setOpen={setOpen} menuItems={adminMenu} />
       <Box
         component="main"
         sx={{

@@ -41,11 +41,17 @@ function HomePaciente() {
     setConfirmDialogOpen(true); // Abre o modal de confirmação
   };
 
-  const handleConfirmarEntradaFila = () => {
-    enterQueue();
+  const handleConfirmarEntradaFila = async (e) => {
+    e.preventDefault();
+
+    try {
+      await enterQueue();
+    } catch (err) {
+      console.error("Erro ao criar paciente", err);
+    }
+    
     setConfirmDialogOpen(false); // Fecha o modal
     setShowAlert(true); // Exibe o alerta de confirmação
-    // Aqui você pode adicionar uma chamada à API para adicionar o paciente à fila com prioridade 3
   };
 
   const handleTriagem = () => {

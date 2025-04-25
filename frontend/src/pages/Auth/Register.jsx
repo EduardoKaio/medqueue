@@ -46,7 +46,7 @@ const Register = () => {
 
     try {
       await register(novoPaciente);
-      navigate("/", {
+      navigate("/login", {
         state: {
           message: "Paciente registrado com sucesso!",
           severity: "success",

@@ -66,7 +66,7 @@ const LoginPage = () => {
       if (roles.includes("ADMIN")) {
         navigate("/admin/dashboard");
       } else if (roles.includes("USER")) {
-        navigate("/");
+        navigate("/paciente");
       } else {
         setError("Acesso não autorizado.");
       }
@@ -97,7 +97,7 @@ const LoginPage = () => {
           />
           <TextField
             label="Senha"
-            type={showPassword ? "text" : "Senha"} // Alterna o tipo entre texto e senha
+            type={showPassword ? "text" : "password"} // Alterna o tipo entre texto e senha
             variant="outlined"
             fullWidth
             sx={{ marginBottom: 2 }}

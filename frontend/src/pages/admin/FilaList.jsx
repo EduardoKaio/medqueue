@@ -29,6 +29,9 @@ import {
   Add as AddIcon,
   Edit as EditIcon,
   Delete as DeleteIcon,
+  Dashboard as DashboardIcon,
+  Person as PersonIcon,
+  PeopleAlt as PeopleAltIcon,
   ViewModule,
   TableChart,
 } from "@mui/icons-material";
@@ -46,6 +49,12 @@ function FilaList() {
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
   const [viewMode, setViewMode] = useState("table");
   const [searchTerm, setSearchTerm] = useState("");
+
+  const adminMenu = [
+    { label: "Dashboard", path: "/admin/dashboard", icon: <DashboardIcon color="primary" /> },
+    { label: "Pacientes", path: "/admin/pacientes", icon: <PersonIcon color="primary" /> },
+    { label: "Filas", path: "/admin/filas", icon: <PeopleAltIcon color="primary" /> },
+  ];
 
   const fetchFilas = () => {
     listarTodas()
@@ -79,7 +88,7 @@ function FilaList() {
 
   return (
     <Box sx={{ display: "flex" }}>
-      <Sidebar open={open} setOpen={setOpen} />
+      <Sidebar open={open} setOpen={setOpen} menuItems={adminMenu} />
       <Box component="main" sx={{ flexGrow: 1, bgcolor: "background.default", p: 3 }}>
         <Header open={open} drawerWidth={drawerWidth} drawerWidthClosed={drawerWidthClosed} />
         <Toolbar />

@@ -35,4 +35,19 @@ public class FilaPaciente {
     @Builder.Default
     @Column(nullable = false)
     private Boolean atendido = false;
+
+    private LocalDateTime createdAt;
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+    }
 }

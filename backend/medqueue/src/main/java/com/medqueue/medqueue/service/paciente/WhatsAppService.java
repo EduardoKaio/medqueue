@@ -33,6 +33,8 @@ public class WhatsAppService {
         }
 
         String venomServerUrl = "http://localhost:3000/send-message"; // URL do serviço Venom
+        // String venomServerUrl = "http://venom-server:3000/send-message"; // Usando o nome do serviço do Docker
+
 
         JSONObject body = new JSONObject();
         body.put("to", toBody);

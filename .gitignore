@@ -1,6 +1,7 @@
 node_modules/
 dist/
 .env
+
 # Logs
 logs
 *.log
@@ -9,12 +10,14 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
+
 node_modules
 dist
 dist-ssr
 *.local
+
 # Editor directories and files
-.vscode/*
+.vscode/
 !.vscode/extensions.json
 .idea
 .DS_Store
@@ -23,6 +26,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
 # Backend-specific ignores
 backend/medqueue/target/
 backend/medqueue/*.log

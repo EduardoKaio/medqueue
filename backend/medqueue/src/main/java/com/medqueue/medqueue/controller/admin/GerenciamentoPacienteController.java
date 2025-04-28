@@ -1,6 +1,5 @@
 package com.medqueue.medqueue.controller.admin;
 
-
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.ResponseEntity;
@@ -16,19 +15,18 @@ import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Map;
 
-
 @RestController
 @RequestMapping("/api/admin/paciente")
 @RequiredArgsConstructor
 @Tag(name = "Admin - Pacientes", description = "Gerenciamento de pacientes (CRUD)")
-public class PacienteController {
+public class GerenciamentoPacienteController {
 
     private final PacienteService pacienteService;
 
     @GetMapping
-    @Operation(summary = "Listar todos os pacientes")
-    public ResponseEntity<List<PacienteDTO>> listarTodos() {
-        List<PacienteDTO> pacientes = pacienteService.listarTodos();
+    @Operation(summary = "Listar pacientes ativos")
+    public ResponseEntity<List<PacienteDTO>> listarAtivos() {
+        List<PacienteDTO> pacientes = pacienteService.listarAtivos();
         return ResponseEntity.ok(pacientes);
     }
 

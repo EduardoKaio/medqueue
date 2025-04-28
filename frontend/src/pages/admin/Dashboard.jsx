@@ -17,7 +17,7 @@ import {
 import { Sidebar } from "../../components/Sidebar";
 import Header from "../../components/Header";
 import { drawerWidth, drawerWidthClosed } from "../../components/Sidebar";
-import { getPacientesCount } from "../../services/PacienteService";
+import { getPacientesCount } from "../../services/GerenciamentoPacienteService";
 import {
   LineChart,
   Line,

@@ -6,6 +6,7 @@ import com.medqueue.medqueue.repository.PacienteRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,9 +18,17 @@ public class PacienteService {
 
     private final PacienteRepository pacienteRepository;
     private final ModelMapper modelMapper;
+    private final PasswordEncoder passwordEncoder;
 
     public List<PacienteDTO> listarTodos() {
         return pacienteRepository.findAll()
+                .stream()
+                .map(paciente -> modelMapper.map(paciente, PacienteDTO.class))
+                .collect(Collectors.toList());
+    }
+
+    public List<PacienteDTO> listarAtivos() {
+        return pacienteRepository.findByAtivoTrue()
                 .stream()
                 .map(paciente -> modelMapper.map(paciente, PacienteDTO.class))
                 .collect(Collectors.toList());
@@ -35,10 +44,12 @@ public class PacienteService {
         if (pacienteRepository.existsByCpf(pacienteDTO.getCpf())) {
             throw new IllegalArgumentException("Já existe um paciente com esse CPF.");
         }
-
+    
         Paciente paciente = modelMapper.map(pacienteDTO, Paciente.class);
+    
+        paciente.setSenha(passwordEncoder.encode(paciente.getSenha()));
+    
         Paciente salvo = pacienteRepository.save(paciente);
-
         return modelMapper.map(salvo, PacienteDTO.class);
     }
 

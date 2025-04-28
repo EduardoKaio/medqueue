@@ -23,7 +23,7 @@ import Header from "../../components/Header";
 import { drawerWidth, drawerWidthClosed } from "../../components/Sidebar";
 import { ArrowBack as ArrowBackIcon, Add as AddIcon } from "@mui/icons-material";
 import { Link, useNavigate } from "react-router-dom";
-import { createPaciente } from "../../services/PacienteService";
+import { createPaciente } from "../../services/GerenciamentoPacienteService";
 
 const PacienteCreate = () => {
   const [open, setOpen] = useState(true);

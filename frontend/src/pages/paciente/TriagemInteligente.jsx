@@ -25,6 +25,7 @@ import Header from "../../components/Header";
 import { drawerWidth, drawerWidthClosed } from "../../components/Sidebar";
 import { avaliarPrioridade, recomendarEspecialista } from "../../services/LLMService";
 import MuiAlert from "@mui/material/Alert";
+import { enterQueue } from "../../services/PacienteService";
 
 function TriagemInteligente() {
 
@@ -47,7 +48,7 @@ function TriagemInteligente() {
     setLoading(true);
   
     // Simulação do tempo de loading - 3 segundos
-    const TEMPO_SIMULADO_MS = 3000;
+    const TEMPO_SIMULADO_MS = 1000;
   
     setTimeout(async () => {
       try {
@@ -74,10 +75,17 @@ function TriagemInteligente() {
     }, TEMPO_SIMULADO_MS);
   };
   
-  
+  const handleEntrarNaFila = async (e) => {
 
-  const handleEntrarNaFila = () => {
-    console.log("Entrou na fila com prioridade", prioridade.nivel);
+    e.preventDefault();
+    
+    try {
+      await enterQueue();
+      console.log("Entrou na fila com prioridade", prioridade.nivel);
+    } catch (err) {
+      console.error("Erro ao entrar na fila", err);
+    }
+
     setModalAberto(false);
     setSnackbarAberto(true);
   };
@@ -85,7 +93,7 @@ function TriagemInteligente() {
   const handleRecomendarEspecialista = async () => {
     setLoading(true);
   
-    const TEMPO_SIMULADO_MS = 3000;
+    const TEMPO_SIMULADO_MS = 1000;
   
     setTimeout(async () => {
       try {

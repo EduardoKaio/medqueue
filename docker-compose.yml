@@ -1,4 +1,5 @@
 version: '3.8'
+
 services:
   venom-server:
     build: ./venom-server
@@ -7,3 +8,31 @@ services:
     container_name: venom-server
     environment:
       - PUPPETEER_SKIP_DOWNLOAD=true
+    networks:
+      - app-network
+
+  backend:
+    build:
+      context: ./backend/medqueue  # Diretório do backend Spring
+    ports:
+      - "8081:8081"  # Porta do backend
+    container_name: backend
+    env_file:
+      - ./backend/medqueue/.env  # Referenciando o arquivo .env do backend
+    networks:
+      - app-network
+
+  frontend:
+    build:
+      context: ./frontend  # Diretório do frontend React
+    ports:
+      - "3001:80"  # Expondo a porta 80 do container para a porta 3001
+    container_name: frontend
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

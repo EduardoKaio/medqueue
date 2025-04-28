@@ -32,3 +32,12 @@ backend/medqueue/target/
 backend/medqueue/*.log
 backend/medqueue/.classpath
 backend/medqueue/.project
+
+# managed by open-wa
+**.data.json
+**.node-persist**
+**_IGNORE_**
+# end managed by open-wa
+
+venom-server/node_modules
+frontend/node_modules

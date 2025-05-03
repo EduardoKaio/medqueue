@@ -12,10 +12,37 @@ import {
   Select,
   MenuItem,
   FormHelperText,
+  Paper,
 } from "@mui/material";
+import { styled } from "@mui/system";
 import { ArrowBack as ArrowBackIcon, Add as AddIcon } from "@mui/icons-material";
 import { Link, useNavigate } from "react-router-dom";
 import { register } from "../../services/AuthService";
+
+// Estilos com `styled`
+const Root = styled(Box)({
+  height: "100vh",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  backgroundColor: "#0079CD",
+});
+
+const PaperWrapper = styled(Paper)({
+  padding: "24px 32px",
+  flexDirection: "column",
+  alignItems: "center",
+  width: "100%",
+  height: "100%",
+  maxWidth: "600px",
+  maxHeight: "600px",
+  boxShadow: "2px 4px 6px rgba(0, 0, 0, 0.29)",
+  borderRadius: "16px",
+});
+
+const Title = styled(Typography)({
+  marginBottom: 26,
+});
 
 const Register = () => {
 
@@ -28,6 +55,7 @@ const Register = () => {
   const [sexo, setSexo] = useState("");
   const [error, setError] = useState("");
   const [senha, setSenha] = useState("");
+  const role = "ROLE_USER";
 
   const navigate = useNavigate();
 
@@ -42,6 +70,7 @@ const Register = () => {
       endereco,
       sexo,
       senha,
+      role,
     };
 
     try {
@@ -59,65 +88,23 @@ const Register = () => {
   };
 
   return (
-    <Box sx={{ display: "flex" }}>
-      <Box
-        component="main"
-        sx={{
-          flexGrow: 1,
-          bgcolor: "background.default",
-          p: 3,
-          mt: 8,
-        }}
-      >
+    <Root>
+      <PaperWrapper>
+        <Box
+          sx={{
+            display: "grid",
+            gridTemplateColumns: "1fr 9fr",
+          }}
+        >
+          <Link to="/login">
+            <ArrowBackIcon sx={{ mt: "4px" }} />
+          </Link>
 
-        <Container>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              mb: 3,
-            }}
-          >
-            <Link to="/login">
-              <IconButton
-                sx={{
-                  backgroundColor: "#1976d2",
-                  color: "white",
-                  borderRadius: "50%",
-                  boxShadow: 2,
-                  "&:hover": {
-                    backgroundColor: "#1565c0",
-                  },
-                }}
-              >
-                <ArrowBackIcon />
-              </IconButton>
-            </Link>
-
-            <Typography
-              variant="h4"
-              sx={{
-                fontWeight: "bold",
-                color: "#1976d2",
-                textAlign: "center",
-              }}
-            >
-              Cadastro
-            </Typography>
-
-            <Box width="40px" /> {/* espaçamento para balancear visualmente */}
-          </Box>
-
-          {error && (
-            <Box sx={{ mb: 2, color: "error.main" }}>
-              <Typography>{error}</Typography>
-            </Box>
-          )}
-
-          <form onSubmit={handleSubmit}>
+          <Title variant="h5" sx={{ display: "flex", justifySelf: "center", paddingRight: "60px" }}>Cadastro</Title>
+        </Box>
+        <form onSubmit={handleSubmit}>
             <Grid container spacing={3}>
-              <Grid item xs={12} sm={6}>
+              <Grid item size={{ xs: 12, sm: 12 }} sx={{ mt: "5px" }} >
                 <TextField
                   label="Nome Completo"
                   variant="outlined"
@@ -127,28 +114,7 @@ const Register = () => {
                   required
                 />
               </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  label="CPF"
-                  variant="outlined"
-                  fullWidth
-                  value={cpf}
-                  onChange={(e) => setCpf(e.target.value)}
-                  required
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  label="senha"
-                  variant="outlined"
-                  fullWidth
-                  value={senha}
-                  onChange={(e) => setSenha(e.target.value)}
-                  required
-                  type="password"
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid item size={{ xs: 12, sm: 12 }}>
                 <TextField
                   label="E-mail"
                   variant="outlined"
@@ -158,7 +124,17 @@ const Register = () => {
                   required
                 />
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid item size={{ xs: 6, sm: 6 }}>
+                <TextField
+                  label="CPF"
+                  variant="outlined"
+                  fullWidth
+                  value={cpf}
+                  onChange={(e) => setCpf(e.target.value)}
+                  required
+                />
+              </Grid>
+              <Grid item size={{ xs: 6, sm: 6 }}>
                 <TextField
                   label="Telefone"
                   variant="outlined"
@@ -168,7 +144,17 @@ const Register = () => {
                   required
                 />
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid item size={{ xs: 12, sm: 12 }}>
+                <TextField
+                  label="Endereço"
+                  variant="outlined"
+                  fullWidth
+                  value={endereco}
+                  onChange={(e) => setEndereco(e.target.value)}
+                  required
+                />
+              </Grid>
+              <Grid item size={{ xs: 6, sm: 6 }}>
                 <TextField
                   label="Data de Nascimento"
                   type="date"
@@ -182,17 +168,7 @@ const Register = () => {
                   }}
                 />
               </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  label="Endereço"
-                  variant="outlined"
-                  fullWidth
-                  value={endereco}
-                  onChange={(e) => setEndereco(e.target.value)}
-                  required
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid item size={{ xs: 6, sm: 6 }}>
                 <FormControl fullWidth required>
                   <InputLabel>Gênero</InputLabel>
                   <Select
@@ -204,32 +180,39 @@ const Register = () => {
                     <MenuItem value="F">Feminino</MenuItem>
                     <MenuItem value="Outro">Outro</MenuItem>
                   </Select>
-                  <FormHelperText>
-                    Selecione seu gênero
-                  </FormHelperText>
                 </FormControl>
               </Grid>
+              <Grid item size={{ xs: 12, sm: 12 }}>
+                <TextField
+                  label="senha"
+                  variant="outlined"
+                  fullWidth
+                  value={senha}
+                  onChange={(e) => setSenha(e.target.value)}
+                  required
+                  type="password"
+                />
+              </Grid>
             </Grid>
-
-            <Box sx={{ mt: 4 }}>
+            <Box sx={{ mt: 2 }}>
+              {error && <Typography color="error" >{error}</Typography>}
               <Button
                 type="submit"
                 variant="contained"
                 color="primary"
-                startIcon={<AddIcon />}
                 fullWidth
                 sx={{
                   bgcolor: "#1976d2",
                   "&:hover": { bgcolor: "#1565c0" },
+                  mt: 1,
                 }}
               >
                 Cadastre-se
               </Button>
             </Box>
           </form>
-        </Container>
-      </Box>
-    </Box>
+      </PaperWrapper>
+    </Root>
   );
 };
 

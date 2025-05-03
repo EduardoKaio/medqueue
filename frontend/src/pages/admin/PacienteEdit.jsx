@@ -10,31 +10,40 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  FormHelperText,
-  IconButton,
+  Paper,
+  FormControlLabel,
+  Switch,
 } from "@mui/material";
+import { styled } from "@mui/system";
 import {
-  Dashboard as DashboardIcon,
-  Person as PersonIcon,
-  PeopleAlt as PeopleAltIcon,
+  Edit as EditIcon,
+  ArrowBack as ArrowBackIcon,
 } from "@mui/icons-material";
-import { Edit as EditIcon, ArrowBack as ArrowBackIcon } from "@mui/icons-material";
 import { useNavigate, useParams, Link } from "react-router-dom";
-import { Sidebar } from "../../components/Sidebar";
-import Header from "../../components/Header";
-import { drawerWidth, drawerWidthClosed } from "../../components/Sidebar";
-import { getPacienteById, updatePaciente } from "../../services/GerenciamentoPacienteService";
+import {
+  getPacienteById,
+  updatePaciente,
+} from "../../services/GerenciamentoPacienteService";
+
+const PaperWrapper = styled(Paper)({
+  flexDirection: "column",
+  alignItems: "center",
+  width: "100%",
+  height: "100%",
+  boxShadow: "none",
+  borderRadius: "16px",
+});
+
+const Title = styled(Typography)({
+  marginBottom: 18,
+});
 
 const PacienteEdit = () => {
   const { id } = useParams(); // ID da rota
   const navigate = useNavigate();
 
-  const [open, setOpen] = useState(true);
-  const adminMenu = [
-    { label: "Dashboard", path: "/admin/dashboard", icon: <DashboardIcon color="primary" /> },
-    { label: "Pacientes", path: "/admin/pacientes", icon: <PersonIcon color="primary" /> },
-    { label: "Filas", path: "/admin/filas", icon: <PeopleAltIcon color="primary" /> },
-  ];
+  const [role, setRole] = useState("");
+
   const [paciente, setPaciente] = useState({
     nome: "",
     cpf: "",
@@ -43,15 +52,19 @@ const PacienteEdit = () => {
     dataNascimento: "",
     endereco: "",
     sexo: "",
+    senha: "",
+    role: "",
   });
 
   const [error, setError] = useState("");
+  const [ativo, setAtivo] = useState(false);
 
   useEffect(() => {
     const fetchPaciente = async () => {
       try {
         const response = await getPacienteById(id);
         setPaciente(response.data);
+        setAtivo(paciente.role.includes("ADMIN"));
       } catch (err) {
         console.error("Erro ao buscar paciente", err);
         setError("Erro ao carregar paciente.");
@@ -71,6 +84,8 @@ const PacienteEdit = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setRole(ativo ? "ROLE_ADMIN" : "ROLE_USER");
+    paciente.role = role;
     try {
       await updatePaciente(id, paciente);
       navigate("/admin/pacientes", {
@@ -87,7 +102,6 @@ const PacienteEdit = () => {
 
   return (
     <Box sx={{ display: "flex" }}>
-      <Sidebar open={open} setOpen={setOpen} menuItems={adminMenu} />
       <Box
         component="main"
         sx={{
@@ -97,10 +111,159 @@ const PacienteEdit = () => {
           mt: 8,
         }}
       >
-        <Header open={open} drawerWidth={drawerWidth} drawerWidthClosed={drawerWidthClosed} title="Administração da Clínica"/>
-
         <Container>
-          <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
+          <PaperWrapper>
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: "1fr 9fr",
+              }}
+            >
+              <Link to="/admin/pacientes">
+                <ArrowBackIcon sx={{ mt: "4px" }} />
+              </Link>
+
+              <Title
+                variant="h5"
+                sx={{
+                  display: "flex",
+                  justifySelf: "center",
+                  paddingRight: "60px",
+                }}
+              >
+                Editar Paciente
+              </Title>
+            </Box>
+            <form onSubmit={handleSubmit}>
+              <Grid container spacing={3} sx={{ mt: "5px" }}>
+                <Grid item size={{ xs: 12, sm: 8 }}>
+                  <TextField
+                    label="Nome Completo"
+                    variant="outlined"
+                    fullWidth
+                    value={paciente.nome}
+                    onChange={handleChange}
+                    required
+                  />
+                </Grid>
+                <Grid item size={{ xs: 6, sm: 4 }}>
+                  <TextField
+                    label="CPF"
+                    variant="outlined"
+                    fullWidth
+                    value={paciente.cpf}
+                    onChange={handleChange}
+                    required
+                  />
+                </Grid>
+                <Grid item size={{ xs: 6, sm: 4 }}>
+                  <TextField
+                    label="Telefone"
+                    variant="outlined"
+                    fullWidth
+                    value={paciente.telefone}
+                    onChange={handleChange}
+                    required
+                  />
+                </Grid>
+                <Grid item size={{ xs: 12, sm: 8 }}>
+                  <TextField
+                    label="E-mail"
+                    variant="outlined"
+                    fullWidth
+                    value={paciente.email}
+                    onChange={handleChange}
+                    required
+                  />
+                </Grid>
+                <Grid item size={{ xs: 12, sm: 8 }}>
+                  <TextField
+                    label="Endereço"
+                    variant="outlined"
+                    fullWidth
+                    value={paciente.endereco}
+                    onChange={handleChange}
+                    required
+                  />
+                </Grid>
+                <Grid item size={{ xs: 6, sm: 4 }}>
+                  <TextField
+                    label="Data de Nascimento"
+                    type="date"
+                    variant="outlined"
+                    fullWidth
+                    value={paciente.dataNascimento}
+                    onChange={handleChange}
+                    required
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
+                  />
+                </Grid>
+                <Grid item size={{ xs: 6, sm: 5 }}>
+                  <FormControl fullWidth required>
+                    <InputLabel>Gênero</InputLabel>
+                    <Select
+                      value={paciente.sexo}
+                      onChange={handleChange}
+                      label="Gênero"
+                    >
+                      <MenuItem value="M">Masculino</MenuItem>
+                      <MenuItem value="F">Feminino</MenuItem>
+                      <MenuItem value="Outro">Outro</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid item size={{ xs: 12, sm: 5 }}>
+                  <TextField
+                    label="senha"
+                    variant="outlined"
+                    fullWidth
+                    value={paciente.senha}
+                    onChange={handleChange}
+                    disabled
+                    type="password"
+                  />
+                </Grid>
+                <Grid
+                  item
+                  size={{ xs: 12, sm: 2 }}
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                >
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={ativo}
+                        onChange={(e) => setAtivo(e.target.checked)}
+                        color="primary"
+                      />
+                    }
+                    label="Admin"
+                  />
+                </Grid>
+              </Grid>
+              <Box sx={{ mt: 2 }}>
+                {error && <Typography color="error">{error}</Typography>}
+                <Button
+                  type="submit"
+                  variant="contained"
+                  color="primary"
+                  startIcon={<EditIcon />}
+                  sx={{
+                    bgcolor: "#1976d2",
+                    "&:hover": { bgcolor: "#1565c0" },
+                    mt: 1,
+                  }}
+                >
+                  Atualizar Paciente
+                </Button>
+              </Box>
+            </form>
+          </PaperWrapper>
+
+          {/* <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
             <Link to="/admin/pacientes">
               <IconButton
                 sx={{
@@ -158,7 +321,6 @@ const PacienteEdit = () => {
                 </Grid>
               ))}
 
-              {/* Campo de Gênero ocupando duas colunas */}
               <Grid item xs={12} sm={6}>
                 <FormControl fullWidth required>
                   <InputLabel>Gênero</InputLabel>
@@ -193,8 +355,7 @@ const PacienteEdit = () => {
                 Atualizar Paciente
               </Button>
             </Box>
-          </form>
-
+          </form> */}
         </Container>
       </Box>
     </Box>

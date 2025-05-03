@@ -32,36 +32,34 @@ import {
   ViewModule,
   TableChart,
 } from "@mui/icons-material";
-import {
-  Dashboard as DashboardIcon,
-  Person as PersonIcon,
-  PeopleAlt as PeopleAltIcon,
-} from "@mui/icons-material";
 import { Link } from "react-router-dom";
-import { getPacientes, deletePaciente } from "../../services/GerenciamentoPacienteService";
-import { Sidebar } from "../../components/Sidebar";
-import Header from "../../components/Header";
-import { drawerWidth, drawerWidthClosed } from "../../components/Sidebar";
+import {
+  getPacientes,
+  deletePaciente,
+} from "../../services/GerenciamentoPacienteService";
 
 function PacienteList() {
-  const [open, setOpen] = useState(true);
   const [pacientes, setPacientes] = useState([]);
   const [openDialog, setOpenDialog] = useState(false);
   const [pacienteSelecionado, setPacienteSelecionado] = useState(null);
-  const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
   const [viewMode, setViewMode] = useState("table");
   const [searchTerm, setSearchTerm] = useState("");
-  const adminMenu = [
-    { label: "Dashboard", path: "/admin/dashboard", icon: <DashboardIcon color="primary" /> },
-    { label: "Pacientes", path: "/admin/pacientes", icon: <PersonIcon color="primary" /> },
-    { label: "Filas", path: "/admin/filas", icon: <PeopleAltIcon color="primary" /> },
-  ];
+
   const fetchPacientes = () => {
     getPacientes()
       .then((res) => setPacientes(res.data))
       .catch((err) => {
         console.error("Erro ao buscar pacientes:", err);
-        setSnackbar({ open: true, message: "Erro ao buscar pacientes.", severity: "error" });
+        setSnackbar({
+          open: true,
+          message: "Erro ao buscar pacientes.",
+          severity: "error",
+        });
       });
   };
 
@@ -72,13 +70,21 @@ function PacienteList() {
   const handleDelete = (id) => {
     deletePaciente(id)
       .then(() => {
-        setSnackbar({ open: true, message: "Paciente excluído com sucesso!", severity: "success" });
+        setSnackbar({
+          open: true,
+          message: "Paciente excluído com sucesso!",
+          severity: "success",
+        });
         fetchPacientes();
         setOpenDialog(false);
       })
       .catch((err) => {
         console.error("Erro ao excluir paciente:", err);
-        setSnackbar({ open: true, message: "Erro ao excluir paciente.", severity: "error" });
+        setSnackbar({
+          open: true,
+          message: "Erro ao excluir paciente.",
+          severity: "error",
+        });
       });
   };
 
@@ -88,9 +94,10 @@ function PacienteList() {
 
   return (
     <Box sx={{ display: "flex" }}>
-      <Sidebar open={open} setOpen={setOpen} menuItems={adminMenu} />
-      <Box component="main" sx={{ flexGrow: 1, bgcolor: "background.default", p: 3 }}>
-        <Header open={open} drawerWidth={drawerWidth} drawerWidthClosed={drawerWidthClosed} title="Administração da Clínica"/>
+      <Box
+        component="main"
+        sx={{ flexGrow: 1, bgcolor: "background.default", p: 3 }}
+      >
         <Toolbar />
 
         <Container maxWidth="lg">
@@ -104,11 +111,20 @@ function PacienteList() {
               flexWrap: "wrap",
             }}
           >
-            <Typography variant="h4" sx={{ fontWeight: "bold", color: "#1976d2" }}>
+            <Typography
+              variant="h4"
+              sx={{ fontWeight: "bold", color: "#1976d2" }}
+            >
               Pacientes
             </Typography>
 
-            <Box sx={{ display: "flex", alignItems: "center", mt: { xs: 2, md: 0 } }}>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                mt: { xs: 2, md: 0 },
+              }}
+            >
               <IconButton color="primary" onClick={() => setViewMode("cards")}>
                 <ViewModule />
               </IconButton>
@@ -116,7 +132,11 @@ function PacienteList() {
                 <TableChart />
               </IconButton>
               <Link to="/admin/pacientes/create">
-                <Button variant="contained" startIcon={<AddIcon />} sx={{ bgcolor: "#1976d2", ml: 2 }}>
+                <Button
+                  variant="contained"
+                  startIcon={<AddIcon />}
+                  sx={{ bgcolor: "#1976d2", ml: 2 }}
+                >
                   Adicionar Paciente
                 </Button>
               </Link>
@@ -135,16 +155,37 @@ function PacienteList() {
 
           {/* Tabela ou Cards */}
           {viewMode === "table" ? (
-            <TableContainer component={Paper} sx={{ borderRadius: 2, boxShadow: 3 }}>
+            <TableContainer
+              component={Paper}
+              sx={{ borderRadius: 2, boxShadow: 3 }}
+            >
               <Table>
                 <TableHead>
                   <TableRow sx={{ backgroundColor: "#1976d2" }}>
-                    <TableCell sx={{ color: "white", fontWeight: "bold" }}>ID</TableCell>
-                    <TableCell sx={{ color: "white", fontWeight: "bold" }}>Nome</TableCell>
-                    <TableCell sx={{ color: "white", fontWeight: "bold" }}>CPF</TableCell>
-                    <TableCell sx={{ color: "white", fontWeight: "bold" }}>Email</TableCell>
-                    <TableCell sx={{ color: "white", fontWeight: "bold" }}>Telefone</TableCell>
-                    <TableCell sx={{ color: "white", fontWeight: "bold", textAlign: "center" }}>Ações</TableCell>
+                    <TableCell sx={{ color: "white", fontWeight: "bold" }}>
+                      ID
+                    </TableCell>
+                    <TableCell sx={{ color: "white", fontWeight: "bold" }}>
+                      Nome
+                    </TableCell>
+                    <TableCell sx={{ color: "white", fontWeight: "bold" }}>
+                      CPF
+                    </TableCell>
+                    <TableCell sx={{ color: "white", fontWeight: "bold" }}>
+                      Email
+                    </TableCell>
+                    <TableCell sx={{ color: "white", fontWeight: "bold" }}>
+                      Telefone
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        color: "white",
+                        fontWeight: "bold",
+                        textAlign: "center",
+                      }}
+                    >
+                      Ações
+                    </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -193,7 +234,9 @@ function PacienteList() {
                       </Typography>
                       <Typography variant="body2">CPF: {p.cpf}</Typography>
                       <Typography variant="body2">Email: {p.email}</Typography>
-                      <Typography variant="body2">Telefone: {p.telefone}</Typography>
+                      <Typography variant="body2">
+                        Telefone: {p.telefone}
+                      </Typography>
                     </CardContent>
                     <CardActions sx={{ justifyContent: "flex-end" }}>
                       <Link to={`/admin/pacientes/edit/${p.id}`}>
@@ -223,13 +266,18 @@ function PacienteList() {
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
         <DialogTitle>Confirmar exclusão</DialogTitle>
         <DialogContent>
-          Deseja realmente excluir o paciente <strong>{pacienteSelecionado?.nome}</strong>?
+          Deseja realmente excluir o paciente{" "}
+          <strong>{pacienteSelecionado?.nome}</strong>?
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenDialog(false)} color="primary">
             Cancelar
           </Button>
-          <Button onClick={() => handleDelete(pacienteSelecionado.id)} color="error" variant="contained">
+          <Button
+            onClick={() => handleDelete(pacienteSelecionado.id)}
+            color="error"
+            variant="contained"
+          >
             Excluir
           </Button>
         </DialogActions>
@@ -241,7 +289,10 @@ function PacienteList() {
         autoHideDuration={4000}
         onClose={() => setSnackbar({ ...snackbar, open: false })}
       >
-        <Alert severity={snackbar.severity} onClose={() => setSnackbar({ ...snackbar, open: false })}>
+        <Alert
+          severity={snackbar.severity}
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+        >
           {snackbar.message}
         </Alert>
       </Snackbar>

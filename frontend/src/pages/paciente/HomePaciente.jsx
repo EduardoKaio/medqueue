@@ -7,36 +7,21 @@ import {
   Card,
   CardContent,
   Snackbar,
-  Alert,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogContentText,
   DialogActions,
 } from "@mui/material";
-import {
-    Home as HomeIcon,
-    Assignment as AssignmentIcon,
-    FormatListNumbered as QueueIcon,
-  } from "@mui/icons-material";
-
-import { Sidebar } from "../../components/Sidebar";
-import Header from "../../components/Header";
 import { useNavigate } from "react-router-dom";
-import { drawerWidth, drawerWidthClosed } from "../../components/Sidebar";
 import MuiAlert from "@mui/material/Alert";
 import { enterQueue } from "../../services/PacienteService";
 
 function HomePaciente() {
-  const [open, setOpen] = useState(true);
   const [showAlert, setShowAlert] = useState(false);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const navigate = useNavigate();
-  const pacienteMenu = [
-    { label: "Início", path: "/paciente", icon: <HomeIcon color="primary" /> },
-    { label: "Triagem Inteligente", path: "/paciente/triagem", icon: <AssignmentIcon color="primary" /> },
-    { label: "Fila Atual", path: "/paciente/fila", icon: <QueueIcon color="primary" /> },
-  ];
+
   const handleEntrarNaFila = () => {
     setConfirmDialogOpen(true); // Abre o modal de confirmação
   };
@@ -49,7 +34,7 @@ function HomePaciente() {
     } catch (err) {
       console.error("Erro ao criar paciente", err);
     }
-    
+
     setConfirmDialogOpen(false); // Fecha o modal
     setShowAlert(true); // Exibe o alerta de confirmação
   };
@@ -60,7 +45,6 @@ function HomePaciente() {
 
   return (
     <Box sx={{ display: "flex" }}>
-      <Sidebar open={open} setOpen={setOpen} menuItems={pacienteMenu} />
       <Box
         component="main"
         sx={{
@@ -70,12 +54,6 @@ function HomePaciente() {
           minHeight: "100vh",
         }}
       >
-        <Header
-          open={open}
-          drawerWidth={drawerWidth}
-          drawerWidthClosed={drawerWidthClosed}
-          title="Área do Paciente"
-        />
         <Container maxWidth="sm" sx={{ mt: 10 }}>
           <Card sx={{ p: 4 }}>
             <CardContent>
@@ -83,7 +61,8 @@ function HomePaciente() {
                 Bem-vindo à sua área de atendimento
               </Typography>
               <Typography variant="body1" sx={{ mb: 4 }}>
-                Aqui você pode entrar diretamente na fila ou realizar uma triagem inteligente para obter um atendimento mais preciso.
+                Aqui você pode entrar diretamente na fila ou realizar uma
+                triagem inteligente para obter um atendimento mais preciso.
               </Typography>
 
               <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
@@ -111,49 +90,48 @@ function HomePaciente() {
 
         {/* Modal de confirmação */}
         <Dialog
-  open={confirmDialogOpen}
-  onClose={() => setConfirmDialogOpen(false)}
->
-  <DialogTitle sx={{ fontWeight: "bold" }}>Entrar na Fila</DialogTitle>
-  <DialogContent>
-        <DialogContentText sx={{ mt: 1 }}>
-        Você está prestes a entrar na fila <strong>sem realizar a triagem</strong>.
-        Isso significa que sua prioridade será definida automaticamente como <strong>3 (baixa)</strong>.
-        Deseja continuar assim mesmo?
-        </DialogContentText>
-    </DialogContent>
-    <DialogActions sx={{ px: 3, pb: 2 }}>
-        <Button
-        onClick={() => setConfirmDialogOpen(false)}
-        sx={{
-            color: 'error.main',
-            fontWeight: 'bold',
-            borderRadius: 1,
-            '&:hover': {
-            backgroundColor: 'rgba(211, 47, 47, 0.1)', // vermelho claro com transparência
-            },
-        }}
+          open={confirmDialogOpen}
+          onClose={() => setConfirmDialogOpen(false)}
         >
-        Cancelar
-        </Button>
-        <Button
-        onClick={handleConfirmarEntradaFila}
-        sx={{
-            color: 'success.main',
-            fontWeight: 'bold',
-            borderRadius: 1,
-            '&:hover': {
-            backgroundColor: 'rgba(46, 125, 50, 0.1)', // verde claro com transparência
-            },
-        }}
-        autoFocus
-        >
-        Confirmar
-        </Button>
-    </DialogActions>
-    </Dialog>
-
-
+          <DialogTitle sx={{ fontWeight: "bold" }}>Entrar na Fila</DialogTitle>
+          <DialogContent>
+            <DialogContentText sx={{ mt: 1 }}>
+              Você está prestes a entrar na fila{" "}
+              <strong>sem realizar a triagem</strong>. Isso significa que sua
+              prioridade será definida automaticamente como{" "}
+              <strong>3 (baixa)</strong>. Deseja continuar assim mesmo?
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions sx={{ px: 3, pb: 2 }}>
+            <Button
+              onClick={() => setConfirmDialogOpen(false)}
+              sx={{
+                color: "error.main",
+                fontWeight: "bold",
+                borderRadius: 1,
+                "&:hover": {
+                  backgroundColor: "rgba(211, 47, 47, 0.1)", // vermelho claro com transparência
+                },
+              }}
+            >
+              Cancelar
+            </Button>
+            <Button
+              onClick={handleConfirmarEntradaFila}
+              sx={{
+                color: "success.main",
+                fontWeight: "bold",
+                borderRadius: 1,
+                "&:hover": {
+                  backgroundColor: "rgba(46, 125, 50, 0.1)", // verde claro com transparência
+                },
+              }}
+              autoFocus
+            >
+              Confirmar
+            </Button>
+          </DialogActions>
+        </Dialog>
 
         {/* Alerta de confirmação */}
         <Snackbar
@@ -162,7 +140,12 @@ function HomePaciente() {
           onClose={() => setShowAlert(false)}
           anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
         >
-          <MuiAlert severity="success" onClose={() => setShowAlert(false)} elevation={6} variant="filled">
+          <MuiAlert
+            severity="success"
+            onClose={() => setShowAlert(false)}
+            elevation={6}
+            variant="filled"
+          >
             Você foi inserido na fila com prioridade <strong>3 (baixa)</strong>
           </MuiAlert>
         </Snackbar>

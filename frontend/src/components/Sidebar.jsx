@@ -6,27 +6,13 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  IconButton,
-  Divider,
   CssBaseline,
 } from "@mui/material";
-import {
-  Menu as MenuIcon,
-  ExitToApp as ExitToAppIcon,
-} from "@mui/icons-material";
-import { useLocation, useNavigate, Link } from "react-router-dom";
-
-const drawerWidth = 240;
-const drawerWidthClosed = 60;
+import { useLocation, Link } from "react-router-dom";
+import { drawerWidth, drawerWidthClosed } from "./HeaderLayout";
 
 const Sidebar = ({ open, setOpen, menuItems }) => {
   const location = useLocation();
-  const navigate = useNavigate();
-
-  const handleLogout = () => {
-    localStorage.removeItem("access_token");
-    navigate("/");
-  };
 
   return (
     <>
@@ -41,19 +27,12 @@ const Sidebar = ({ open, setOpen, menuItems }) => {
           "& .MuiDrawer-paper": {
             width: open ? drawerWidth : drawerWidthClosed,
             transition: "width 0.3s ease",
-            zIndex: (theme) => theme.zIndex.drawer + 2,
+            zIndex: (theme) => theme.zIndex.drawer + 1,
+            mt: "64px",
           },
         }}
       >
-        <List>
-          <ListItemButton onClick={() => setOpen(!open)}>
-            <ListItemIcon>
-              <MenuIcon />
-            </ListItemIcon>
-            {open && <ListItemText primary="Menu" />}
-          </ListItemButton>
-
-          <Divider />
+        <List sx={{ padding: "0" }}>
 
           {menuItems.map((item) => (
             <ListItemButton
@@ -66,19 +45,10 @@ const Sidebar = ({ open, setOpen, menuItems }) => {
               {open && <ListItemText primary={item.label} />}
             </ListItemButton>
           ))}
-
-          <Divider />
-
-          <ListItemButton sx={{ color: "error.main" }} onClick={handleLogout}>
-            <ListItemIcon>
-              <ExitToAppIcon color="error" />
-            </ListItemIcon>
-            {open && <ListItemText primary="Sair" />}
-          </ListItemButton>
         </List>
       </Drawer>
     </>
   );
 };
 
-export { Sidebar, drawerWidth, drawerWidthClosed };
+export default Sidebar;

@@ -20,22 +20,22 @@ const Root = styled(Box)({
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
-  backgroundColor: "#f4f6f8",
+  backgroundColor: "#0079CD",
 });
 
 const PaperWrapper = styled(Paper)({
-  padding: 32,
+  padding: "24px 32px",
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
   width: "100%",
-  maxWidth: "400px",
-  boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-  borderRadius: "8px",
+  maxWidth: "300px",
+  boxShadow: "2px 4px 6px rgba(0, 0, 0, 0.29)",
+  borderRadius: "16px",
 });
 
 const Title = styled(Typography)({
-  marginBottom: 24,
+  marginBottom: 15,
 });
 
 const LoginPage = () => {
@@ -84,7 +84,6 @@ const LoginPage = () => {
     <Root>
       <PaperWrapper>
         <Title variant="h5">Login</Title>
-        {error && <Typography color="error">{error}</Typography>}
         <form onSubmit={handleLogin}>
           <TextField
             label="CPF"
@@ -117,6 +116,7 @@ const LoginPage = () => {
               ),
             }}
           />
+          {error && <Typography color="error" >{error}</Typography>}
           <Button
             type="submit"
             variant="contained"
@@ -127,10 +127,12 @@ const LoginPage = () => {
             Entrar
           </Button>
         </form>
-
-       <Link href="/register" variant="body2" sx={{ marginTop: 2 }}>
-          Registre-se agora!
-        </Link>
+        <Typography sx={{ marginTop: 2}}>
+          Ainda não tem uma conta?
+          <Link href="/register" variant="body2" sx={{ marginLeft: 0.5}}>
+            Registre-se!
+          </Link>
+        </Typography>
       </PaperWrapper>
     </Root>
   );

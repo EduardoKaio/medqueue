@@ -5,29 +5,34 @@ import {
   Typography,
   TextField,
   Button,
-  IconButton,
   Grid,
   FormControl,
   InputLabel,
   Select,
   MenuItem,
-  FormHelperText,
+  FormControlLabel,
+  Switch,
+  Paper,
 } from "@mui/material";
-import {
-  Dashboard as DashboardIcon,
-  Person as PersonIcon,
-  PeopleAlt as PeopleAltIcon,
-} from "@mui/icons-material";
-import { Sidebar } from "../../components/Sidebar";
-import Header from "../../components/Header";
-import { drawerWidth, drawerWidthClosed } from "../../components/Sidebar";
-import { ArrowBack as ArrowBackIcon, Add as AddIcon } from "@mui/icons-material";
+import { styled } from "@mui/system";
+import { ArrowBack as ArrowBackIcon } from "@mui/icons-material";
 import { Link, useNavigate } from "react-router-dom";
 import { createPaciente } from "../../services/GerenciamentoPacienteService";
 
-const PacienteCreate = () => {
-  const [open, setOpen] = useState(true);
+const PaperWrapper = styled(Paper)({
+  flexDirection: "column",
+  alignItems: "center",
+  width: "100%",
+  height: "100%",
+  boxShadow: "none",
+  borderRadius: "16px",
+});
 
+const Title = styled(Typography)({
+  marginBottom: 18,
+});
+
+const PacienteCreate = () => {
   const [nome, setNome] = useState("");
   const [cpf, setCpf] = useState("");
   const [email, setEmail] = useState("");
@@ -36,15 +41,17 @@ const PacienteCreate = () => {
   const [endereco, setEndereco] = useState("");
   const [sexo, setSexo] = useState("");
   const [error, setError] = useState("");
-  const adminMenu = [
-    { label: "Dashboard", path: "/admin/dashboard", icon: <DashboardIcon color="primary" /> },
-    { label: "Pacientes", path: "/admin/pacientes", icon: <PersonIcon color="primary" /> },
-    { label: "Filas", path: "/admin/filas", icon: <PeopleAltIcon color="primary" /> },
-  ];
+  const [ativo, setAtivo] = useState(false);
+  const [role, setRole] = useState("");
+  const senha = "123456";
+
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    setRole(ativo ? "ROLE_ADMIN" : "ROLE_USER");
+
     const novoPaciente = {
       nome,
       cpf,
@@ -53,6 +60,8 @@ const PacienteCreate = () => {
       dataNascimento,
       endereco,
       sexo,
+      senha,
+      role,
     };
 
     try {
@@ -69,9 +78,9 @@ const PacienteCreate = () => {
     }
   };
 
+
   return (
     <Box sx={{ display: "flex" }}>
-      <Sidebar open={open} setOpen={setOpen} menuItems={adminMenu} />
       <Box
         component="main"
         sx={{
@@ -81,159 +90,156 @@ const PacienteCreate = () => {
           mt: 8,
         }}
       >
-        <Header
-          open={open}
-          drawerWidth={drawerWidth}
-          drawerWidthClosed={drawerWidthClosed}
-          title="Administração da Clínica"
-        />
-
-        <Container>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              mb: 3,
-            }}
-          >
-            <Link to="/admin/pacientes">
-              <IconButton
-                sx={{
-                  backgroundColor: "#1976d2",
-                  color: "white",
-                  borderRadius: "50%",
-                  boxShadow: 2,
-                  "&:hover": {
-                    backgroundColor: "#1565c0",
-                  },
-                }}
-              >
-                <ArrowBackIcon />
-              </IconButton>
-            </Link>
-
-            <Typography
-              variant="h4"
+        <Container sx={{ display: "flex", justifyContent: "center" }}>
+          <PaperWrapper>
+            <Box
               sx={{
-                fontWeight: "bold",
-                color: "#1976d2",
-                textAlign: "center",
+                display: "grid",
+                gridTemplateColumns: "1fr 9fr",
               }}
             >
-              Adicionar Novo Paciente
-            </Typography>
+              <Link to="/admin/pacientes">
+                <ArrowBackIcon sx={{ mt: "4px" }} />
+              </Link>
 
-            <Box width="40px" /> {/* espaçamento para balancear visualmente */}
-          </Box>
-
-          {error && (
-            <Box sx={{ mb: 2, color: "error.main" }}>
-              <Typography>{error}</Typography>
-            </Box>
-          )}
-
-          <form onSubmit={handleSubmit}>
-            <Grid container spacing={3}>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  label="Nome Completo"
-                  variant="outlined"
-                  fullWidth
-                  value={nome}
-                  onChange={(e) => setNome(e.target.value)}
-                  required
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  label="CPF"
-                  variant="outlined"
-                  fullWidth
-                  value={cpf}
-                  onChange={(e) => setCpf(e.target.value)}
-                  required
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  label="E-mail"
-                  variant="outlined"
-                  fullWidth
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  label="Telefone"
-                  variant="outlined"
-                  fullWidth
-                  value={telefone}
-                  onChange={(e) => setTelefone(e.target.value)}
-                  required
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  label="Data de Nascimento"
-                  type="date"
-                  variant="outlined"
-                  fullWidth
-                  value={dataNascimento}
-                  onChange={(e) => setDataNascimento(e.target.value)}
-                  required
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  label="Endereço"
-                  variant="outlined"
-                  fullWidth
-                  value={endereco}
-                  onChange={(e) => setEndereco(e.target.value)}
-                  required
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <FormControl fullWidth required>
-                  <InputLabel>Gênero</InputLabel>
-                  <Select
-                    value={sexo}
-                    onChange={(e) => setSexo(e.target.value)}
-                    label="Gênero"
-                  >
-                    <MenuItem value="M">Masculino</MenuItem>
-                    <MenuItem value="F">Feminino</MenuItem>
-                    <MenuItem value="Outro">Outro</MenuItem>
-                  </Select>
-                  <FormHelperText>
-                    Selecione o gênero do paciente
-                  </FormHelperText>
-                </FormControl>
-              </Grid>
-            </Grid>
-
-            <Box sx={{ mt: 4 }}>
-              <Button
-                type="submit"
-                variant="contained"
-                color="primary"
-                startIcon={<AddIcon />}
-                fullWidth
+              <Title
+                variant="h5"
                 sx={{
-                  bgcolor: "#1976d2",
-                  "&:hover": { bgcolor: "#1565c0" },
+                  display: "flex",
+                  justifySelf: "center",
+                  paddingRight: "90px",
                 }}
               >
-                Adicionar Paciente
-              </Button>
+                Adicionar Novo Paciente
+              </Title>
             </Box>
-          </form>
+            <form onSubmit={handleSubmit}>
+              <Grid container spacing={3} sx={{ mt: "5px" }}>
+                <Grid item size={{ xs: 12, sm: 8 }}>
+                  <TextField
+                    label="Nome Completo"
+                    variant="outlined"
+                    fullWidth
+                    value={nome}
+                    onChange={(e) => setNome(e.target.value)}
+                    required
+                  />
+                </Grid>
+                <Grid item size={{ xs: 6, sm: 4 }}>
+                  <TextField
+                    label="CPF"
+                    variant="outlined"
+                    fullWidth
+                    value={cpf}
+                    onChange={(e) => setCpf(e.target.value)}
+                    required
+                  />
+                </Grid>
+                <Grid item size={{ xs: 6, sm: 4 }}>
+                  <TextField
+                    label="Telefone"
+                    variant="outlined"
+                    fullWidth
+                    value={telefone}
+                    onChange={(e) => setTelefone(e.target.value)}
+                    required
+                  />
+                </Grid>
+                <Grid item size={{ xs: 12, sm: 8 }}>
+                  <TextField
+                    label="E-mail"
+                    variant="outlined"
+                    fullWidth
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                </Grid>
+                <Grid item size={{ xs: 12, sm: 8 }}>
+                  <TextField
+                    label="Endereço"
+                    variant="outlined"
+                    fullWidth
+                    value={endereco}
+                    onChange={(e) => setEndereco(e.target.value)}
+                    required
+                  />
+                </Grid>
+                <Grid item size={{ xs: 6, sm: 4 }}>
+                  <TextField
+                    label="Data de Nascimento"
+                    type="date"
+                    variant="outlined"
+                    fullWidth
+                    value={dataNascimento}
+                    onChange={(e) => setDataNascimento(e.target.value)}
+                    required
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
+                  />
+                </Grid>
+                <Grid item size={{ xs: 6, sm: 5 }}>
+                  <FormControl fullWidth required>
+                    <InputLabel>Gênero</InputLabel>
+                    <Select
+                      value={sexo}
+                      onChange={(e) => setSexo(e.target.value)}
+                      label="Gênero"
+                    >
+                      <MenuItem value="M">Masculino</MenuItem>
+                      <MenuItem value="F">Feminino</MenuItem>
+                      <MenuItem value="Outro">Outro</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid item size={{ xs: 12, sm: 5 }}>
+                  <TextField
+                    label="senha"
+                    variant="outlined"
+                    fullWidth
+                    value={senha}
+                    onChange={(e) => setSenha(e.target.value)}
+                    disabled
+                    type="password"
+                  />
+                </Grid>
+                <Grid
+                  item
+                  size={{ xs: 12, sm: 2 }}
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                >
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={ativo}
+                        onChange={(e) => setAtivo(e.target.checked)}
+                        color="primary"
+                      />
+                    }
+                    label="Admin"
+                  />
+                </Grid>
+              </Grid>
+              <Box sx={{ mt: 2 }}>
+                {error && <Typography color="error">{error}</Typography>}
+                <Button
+                  type="submit"
+                  variant="contained"
+                  color="primary"
+                  sx={{
+                    bgcolor: "#1976d2",
+                    "&:hover": { bgcolor: "#1565c0" },
+                    mt: 1,
+                  }}
+                >
+                  Cadastre-se
+                </Button>
+              </Box>
+            </form>
+          </PaperWrapper>
         </Container>
       </Box>
     </Box>

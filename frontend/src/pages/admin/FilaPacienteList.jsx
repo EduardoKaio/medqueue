@@ -11,28 +11,13 @@ import {
   IconButton,
 } from "@mui/material";
 import { useParams, Link } from "react-router-dom";
-import { 
-  ArrowBack as ArrowBackIcon,
-  Dashboard as DashboardIcon,
-  Person as PersonIcon,
-  PeopleAlt as PeopleAltIcon, 
-} from "@mui/icons-material";
-import { Sidebar } from "../../components/Sidebar";
-import Header from "../../components/Header";
-import { drawerWidth, drawerWidthClosed } from "../../components/Sidebar";
+import { ArrowBack as ArrowBackIcon } from "@mui/icons-material";
 import { listarFilaOrdenada } from "../../services/FilaPacienteService";
 
 const FilaPacientesList = () => {
   const { id } = useParams();
-  const [open, setOpen] = useState(true);
   const [pacientes, setPacientes] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  const adminMenu = [
-    { label: "Dashboard", path: "/admin/dashboard", icon: <DashboardIcon color="primary" /> },
-    { label: "Pacientes", path: "/admin/pacientes", icon: <PersonIcon color="primary" /> },
-    { label: "Filas", path: "/admin/filas", icon: <PeopleAltIcon color="primary" /> },
-  ];
 
   useEffect(() => {
     const fetchPacientes = async () => {
@@ -51,7 +36,6 @@ const FilaPacientesList = () => {
 
   return (
     <Box sx={{ display: "flex" }}>
-      <Sidebar open={open} setOpen={setOpen} menuItems={adminMenu} />
       <Box
         component="main"
         sx={{
@@ -61,12 +45,6 @@ const FilaPacientesList = () => {
           mt: 8,
         }}
       >
-        <Header
-          open={open}
-          drawerWidth={drawerWidth}
-          drawerWidthClosed={drawerWidthClosed}
-        />
-
         <Container>
           <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
             <Link to="/admin/filas">
@@ -83,7 +61,10 @@ const FilaPacientesList = () => {
                 <ArrowBackIcon />
               </IconButton>
             </Link>
-            <Typography variant="h4" sx={{ color: "#1976d2", fontWeight: "bold" }}>
+            <Typography
+              variant="h4"
+              sx={{ color: "#1976d2", fontWeight: "bold" }}
+            >
               Pacientes da Fila
             </Typography>
           </Box>
@@ -99,7 +80,11 @@ const FilaPacientesList = () => {
                   <ListItem key={paciente.pacienteId}>
                     <ListItemText
                       primary={`#${paciente.posicao} - ${paciente.nomePaciente}`}
-                      secondary={paciente.atendido ? "Atendido" : "Aguardando atendimento"}
+                      secondary={
+                        paciente.atendido
+                          ? "Atendido"
+                          : "Aguardando atendimento"
+                      }
                     />
                   </ListItem>
                 ))}

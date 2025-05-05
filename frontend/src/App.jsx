@@ -1,13 +1,14 @@
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import PacienteList from "./pages/Admin/PacienteList";
-import PacienteCreate from "./pages/Admin/PacienteCreate";
-import PacienteEdit from "./pages/Admin/PacienteEdit";
+import PacienteList from "./pages/admin/PacienteList";
+import PacienteCreate from "./pages/admin/PacienteCreate";
+import PacienteEdit from "./pages/admin/PacienteEdit";
 import Home from "./pages/Home";
-import Dashboard from "./pages/Admin/Dashboard";
-import FilaList from "./pages/Admin/Filalist";
-import FilaCreate from "./pages/Admin/FilaCreate";
-import FilaPacientesList from "./pages/Admin/FilaPacienteList";
+import Dashboard from "./pages/admin/Dashboard";
+import FilaList from "./pages/admin/Filalist";
+import FilaCreate from "./pages/admin/FilaCreate";
+import FilaEdit from "./pages/admin/FilaEdit";
+import FilaPacientesList from "./pages/admin/FilaPacienteList";
 import Register from "./pages/auth/Register";
 import LoginPage from "./pages/auth/Login";
 import TriagemInteligente from "./pages/Paciente/TriagemInteligente";
@@ -35,6 +36,7 @@ function App() {
             <Route path="pacientes/edit/:id" element={<PacienteEdit />} />
             <Route path="filas" element={<FilaList />} />
             <Route path="filas/create" element={<FilaCreate />} />
+            <Route path="filas/edit/:id" element={<FilaEdit />} />{" "}
             <Route path="filas/:id" element={<FilaPacientesList />} />
           </Route>
 

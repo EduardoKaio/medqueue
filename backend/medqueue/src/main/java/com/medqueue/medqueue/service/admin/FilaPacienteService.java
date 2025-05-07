@@ -185,7 +185,9 @@ public class FilaPacienteService {
                             fp.getPaciente().getId(),
                             fp.getPaciente().getNome(),
                             fp.getPosicao(),
-                            fp.getAtendido()))
+                            fp.getAtendido(),
+                            fp.getDataEntrada(),
+                            fp.getCheckIn()))
                     .collect(Collectors.toList());
         } catch (EntityNotFoundException e) {
             throw e;
@@ -294,7 +296,9 @@ public class FilaPacienteService {
                     proximoPaciente.getPaciente().getId(),
                     proximoPaciente.getPaciente().getNome(),
                     proximoPaciente.getPosicao(),
-                    proximoPaciente.getAtendido());
+                    proximoPaciente.getAtendido(),
+                    proximoPaciente.getDataEntrada(),
+                    proximoPaciente.getCheckIn());
 
         } catch (Exception e) {
             throw new RuntimeException("Erro ao buscar próximo paciente para atendimento: " + e.getMessage(), e);
@@ -419,6 +423,46 @@ public class FilaPacienteService {
             }
         } catch (Exception e) {
             throw new RuntimeException("Erro ao rebalancear prioridades: " + e.getMessage(), e);
+        }
+    }
+
+    @Transactional
+    public FilaPacienteDTO realizarCheckIn(Long filaId, Long pacienteId) {
+        if (filaId == null) {
+            throw new IllegalArgumentException("ID da fila não pode ser nulo");
+        }
+        if (pacienteId == null) {
+            throw new IllegalArgumentException("ID do paciente não pode ser nulo");
+        }
+
+        try {
+            if (!filaRepository.existsById(filaId)) {
+                throw new EntityNotFoundException("Fila não encontrada com ID: " + filaId);
+            }
+
+            FilaPaciente filaPaciente = filaPacienteRepository
+                    .findByPacienteIdAndFilaIdAndAtendidoFalse(pacienteId, filaId)
+                    .orElseThrow(() -> new EntityNotFoundException(
+                            "Paciente com ID " + pacienteId + " não está na fila com ID " + filaId));
+
+            if (filaPaciente.getCheckIn()) {
+                throw new IllegalStateException("Paciente já realizou check-in");
+            }
+
+            filaPaciente.setCheckIn(true);
+            FilaPaciente saved = filaPacienteRepository.save(filaPaciente);
+
+            return new FilaPacienteDTO(
+                    saved.getPaciente().getId(),
+                    saved.getPaciente().getNome(),
+                    saved.getPosicao(),
+                    saved.getAtendido(),
+                    saved.getDataEntrada(),
+                    saved.getCheckIn());
+        } catch (EntityNotFoundException | IllegalStateException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao realizar check-in do paciente: " + e.getMessage(), e);
         }
     }
 }

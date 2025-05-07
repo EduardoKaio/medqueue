@@ -9,30 +9,65 @@ import {
   ListItem,
   ListItemText,
   IconButton,
+  Button,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import { useParams, Link } from "react-router-dom";
 import { ArrowBack as ArrowBackIcon } from "@mui/icons-material";
-import { listarFilaOrdenada } from "../../services/FilaPacienteService";
+import {
+  listarFilaOrdenada,
+  realizarCheckIn,
+} from "../../services/FilaPacienteService";
 
 const FilaPacientesList = () => {
   const { id } = useParams();
   const [pacientes, setPacientes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [notification, setNotification] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
 
   useEffect(() => {
-    const fetchPacientes = async () => {
-      try {
-        const response = await listarFilaOrdenada(id);
-        setPacientes(response.data);
-      } catch (error) {
-        console.error("Erro ao buscar pacientes da fila:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchPacientes();
   }, [id]);
+
+  const fetchPacientes = async () => {
+    try {
+      const response = await listarFilaOrdenada(id);
+      setPacientes(response.data);
+    } catch (error) {
+      console.error("Erro ao buscar pacientes da fila:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCheckIn = async (pacienteId) => {
+    try {
+      await realizarCheckIn(id, pacienteId);
+      setNotification({
+        open: true,
+        message: "Check-in realizado com sucesso!",
+        severity: "success",
+      });
+      // Atualiza a lista após o check-in
+      fetchPacientes();
+    } catch (error) {
+      console.error("Erro ao realizar check-in:", error);
+      setNotification({
+        open: true,
+        message: "Erro ao realizar check-in.",
+        severity: "error",
+      });
+    }
+  };
+
+  const handleCloseNotification = () => {
+    setNotification({ ...notification, open: false });
+  };
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -77,13 +112,29 @@ const FilaPacientesList = () => {
             <Paper elevation={3}>
               <List>
                 {pacientes.map((paciente) => (
-                  <ListItem key={paciente.pacienteId}>
+                  <ListItem
+                    key={paciente.pacienteId}
+                    secondaryAction={
+                      !paciente.atendido &&
+                      !paciente.checkIn && (
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          onClick={() => handleCheckIn(paciente.pacienteId)}
+                        >
+                          Fazer check-in
+                        </Button>
+                      )
+                    }
+                  >
                     <ListItemText
                       primary={`#${paciente.posicao} - ${paciente.nomePaciente}`}
                       secondary={
                         paciente.atendido
                           ? "Atendido"
-                          : "Aguardando atendimento"
+                          : paciente.checkIn
+                          ? "Aguardando atendimento"
+                          : "Na fila"
                       }
                     />
                   </ListItem>
@@ -91,6 +142,20 @@ const FilaPacientesList = () => {
               </List>
             </Paper>
           )}
+
+          <Snackbar
+            open={notification.open}
+            autoHideDuration={6000}
+            onClose={handleCloseNotification}
+          >
+            <Alert
+              onClose={handleCloseNotification}
+              severity={notification.severity}
+              sx={{ width: "100%" }}
+            >
+              {notification.message}
+            </Alert>
+          </Snackbar>
         </Container>
       </Box>
     </Box>

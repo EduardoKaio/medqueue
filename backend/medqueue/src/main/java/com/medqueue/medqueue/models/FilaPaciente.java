@@ -35,6 +35,10 @@ public class FilaPaciente {
     @Builder.Default
     @Column(nullable = false)
     private Boolean atendido = false;
+    
+    @Builder.Default
+    @Column(name = "check_in", nullable = false)
+    private Boolean checkIn = false;
 
     private LocalDateTime createdAt;
 

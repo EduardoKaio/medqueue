@@ -7,7 +7,6 @@ import com.medqueue.medqueue.dto.ErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,7 +32,7 @@ public class FilaController {
 
     @PostMapping
     @Operation(summary = "Criar uma nova fila")
-    public ResponseEntity<?> criarFila(@RequestBody @Valid Fila novaFila) {
+    public ResponseEntity<?> criarFila(@RequestBody Fila novaFila) {
         try {
             Fila filaCriada = filaService.criarFila(novaFila);
             return ResponseEntity.ok(filaCriada);
@@ -58,7 +57,7 @@ public class FilaController {
     @Operation(summary = "Atualizar parcialmente uma fila")
     public ResponseEntity<Fila> editarFila(
             @PathVariable Long id,
-            @RequestBody @Valid FilaDTO dto) {
+            @RequestBody FilaDTO dto) {
         Fila filaAtualizada = filaService.editarFila(id, dto);
         return ResponseEntity.ok(filaAtualizada);
     }

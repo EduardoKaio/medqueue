@@ -290,13 +290,13 @@ public void addPaciente(Long pacienteId, Long filaId) {
     //             return null;
     //         }
 
-// return new FilaPacienteDTO(
-//         proximoPaciente.getPaciente().getId(),
-//         proximoPaciente.getPaciente().getNome(),
-//         proximoPaciente.getPosicao(),
-//         proximoPaciente.getAtendido(),
-//         proximoPaciente.getDataEntrada(),
-//         proximoPaciente.getCheckIn());
+    //         return new FilaPacienteDTO(
+    //                 proximoPaciente.getPaciente().getId(),
+    //                 proximoPaciente.getPaciente().getNome(),
+    //                 proximoPaciente.getPosicao(),
+    //                 proximoPaciente.getAtendido(),
+    //                 proximoPaciente.getDataEntrada(),
+    //                 proximoPaciente.getCheckIn());
 
     //     } catch (Exception e) {
     //         throw new RuntimeException("Erro ao buscar próximo paciente para atendimento: " + e.getMessage(), e);
@@ -469,7 +469,7 @@ public void addPaciente(Long pacienteId, Long filaId) {
                             primeiroNome
                         );
 
-whatsAppService.sendWhatsAppMessage(telefone, mensagem);
+                        whatsAppService.sendWhatsAppMessage(telefone, mensagem);
                         fp.setNotificado(true);
                     } catch (Exception e) {
                         System.err.println("Erro ao enviar WhatsApp para o paciente na posição 2: " + e.getMessage());
@@ -493,4 +493,5 @@ whatsAppService.sendWhatsAppMessage(telefone, mensagem);
             throw new RuntimeException("Erro ao realizar check-in do paciente: " + e.getMessage(), e);
         }
     }
+    
 }

@@ -249,10 +249,10 @@ export default function Home() {
           gap: "0.5rem",
         }}>
           <MedicalServicesIcon sx={{ fontSize: 40, color: "#0079CD" }} />
-          <div style={{ fontSize: "1.75rem", fontWeight: 700, color: "#111827" }}>
+          <div style={{ fontSize: "1.75rem", fontWeight: 700, color: "#4D4D4D" }}>
             2.150
           </div>
-          <div style={{ color: "#475569", fontSize: "0.875rem" }}>
+          <div style={{ color: "#333333", fontSize: "0.875rem" }}>
             Clínicas Integradas
           </div>
         </div>
@@ -265,10 +265,10 @@ export default function Home() {
           gap: "0.5rem",
         }}>
           <PeopleIcon sx={{ fontSize: 40, color: "#0079CD" }} />
-          <div style={{ fontSize: "1.75rem", fontWeight: 700, color: "#111827" }}>
+          <div style={{ fontSize: "1.75rem", fontWeight: 700, color: "#4D4D4D" }}>
             48.762
           </div>
-          <div style={{ color: "#475569", fontSize: "0.875rem" }}>
+          <div style={{ color: "#333333", fontSize: "0.875rem" }}>
             Atendimentos Processados
           </div>
         </div>
@@ -281,7 +281,7 @@ export default function Home() {
           gap: "0.5rem",
         }}>
           <ThumbUpIcon sx={{ fontSize: 40, color: "#0079CD" }} />
-          <div style={{ fontSize: "1.75rem", fontWeight: 700, color: "#111827" }}>
+          <div style={{ fontSize: "1.75rem", fontWeight: 700, color: "#4D4D4D" }}>
             93,8%
           </div>
           <div style={{ color: "#475569", fontSize: "0.875rem" }}>
@@ -297,7 +297,7 @@ export default function Home() {
           gap: "0.5rem",
         }}>
           <TimerIcon sx={{ fontSize: 40, color: "#0079CD" }} />
-          <div style={{ fontSize: "1.75rem", fontWeight: 700, color: "#111827" }}>
+          <div style={{ fontSize: "1.75rem", fontWeight: 700, color: "#4D4D4D" }}>
             35 min
           </div>
           <div style={{ color: "#475569", fontSize: "0.875rem" }}>

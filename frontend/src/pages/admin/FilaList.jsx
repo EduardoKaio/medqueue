@@ -136,12 +136,37 @@ function FilaList() {
               <Table>
                 <TableHead>
                   <TableRow sx={{ backgroundColor: "#1976d2" }}>
+<<<<<<< Updated upstream
                     <TableCell sx={{ color: "white", fontWeight: "bold" }}>ID</TableCell>
                     <TableCell sx={{ color: "white", fontWeight: "bold" }}>Nome</TableCell>
                     <TableCell sx={{ color: "white", fontWeight: "bold" }}>Descrição</TableCell>
                     <TableCell sx={{ color: "white", fontWeight: "bold" }}>Prioridade</TableCell>
                     <TableCell sx={{ color: "white", fontWeight: "bold" }}>Tempo Médio</TableCell>
                     <TableCell sx={{ color: "white", fontWeight: "bold", textAlign: "center" }}>Ações</TableCell>
+=======
+                    <TableCell sx={{ color: "white", fontWeight: "bold" }}>
+                      ID
+                    </TableCell>
+                    <TableCell sx={{ color: "white", fontWeight: "bold" }}>
+                      Nome
+                    </TableCell>
+                    <TableCell sx={{ color: "white", fontWeight: "bold" }}>
+                      Descrição
+                    </TableCell>
+                   
+                    <TableCell sx={{ color: "white", fontWeight: "bold" }}>
+                      Tempo Médio
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        color: "white",
+                        fontWeight: "bold",
+                        textAlign: "center",
+                      }}
+                    >
+                      Ações
+                    </TableCell>
+>>>>>>> Stashed changes
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -156,7 +181,7 @@ function FilaList() {
                       <TableCell>{f.id}</TableCell>
                       <TableCell>{f.nome}</TableCell>
                       <TableCell>{f.descricao}</TableCell>
-                      <TableCell>{f.prioridade}</TableCell>
+                      
                       <TableCell>{f.tempoMedio} min</TableCell>
                       <TableCell align="center">
                         <Link to={`/admin/filas/edit/${f.id}`}>
@@ -191,9 +216,19 @@ function FilaList() {
                       <Typography variant="h6" gutterBottom>
                         {f.nome}
                       </Typography>
+<<<<<<< Updated upstream
                       <Typography variant="body2">Descrição: {f.descricao}</Typography>
                       <Typography variant="body2">Prioridade: {f.prioridade}</Typography>
                       <Typography variant="body2">Tempo Médio: {f.tempoMedio} min</Typography>
+=======
+                      <Typography variant="body2">
+                        Descrição: {f.descricao}
+                      </Typography>
+                      
+                      <Typography variant="body2">
+                        Tempo Médio: {f.tempoMedio} min
+                      </Typography>
+>>>>>>> Stashed changes
                     </CardContent>
                     <CardActions sx={{ justifyContent: "flex-end" }}>
                       <Link to={`/admin/filas/edit/${f.id}`}>

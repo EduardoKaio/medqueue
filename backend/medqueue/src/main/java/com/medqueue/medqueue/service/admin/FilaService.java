@@ -114,6 +114,36 @@ public class FilaService {
         } catch (Exception e) {
             throw new RuntimeException("Erro ao atualizar fila: " + e.getMessage(), e);
         }
+<<<<<<< Updated upstream
+=======
+
+        if (dto.getTempoMedio() != null) {
+            if (dto.getTempoMedio() < 0) {
+                throw new IllegalArgumentException("Tempo médio não pode ser negativo");
+            }
+            fila.setTempoMedio(dto.getTempoMedio());
+        }
+
+        if (dto.getAtivo() != null) {
+            fila.setAtivo(dto.getAtivo());
+        }
+
+        return filaRepository.save(fila);
+    }
+
+    @Transactional
+    public Fila criarFila(Fila novaFila) {
+        if (novaFila.getNome() == null || novaFila.getNome().trim().isEmpty()) {
+            throw new IllegalArgumentException("O nome da fila é obrigatório.");
+        }
+        if (novaFila.getTempoMedio() == null || novaFila.getTempoMedio() < 0) {
+            throw new IllegalArgumentException("O tempo médio deve ser um número não negativo.");
+        }
+
+        novaFila.setAtivo(true);
+        novaFila.setDataCriacao(LocalDate.now());
+        return filaRepository.save(novaFila);
+>>>>>>> Stashed changes
     }
 
     public Long getFilaDoDia() {
@@ -124,4 +154,26 @@ public class FilaService {
 
         return fila.getId();
     }
+<<<<<<< Updated upstream
+=======
+
+    public Fila buscarPorId(Long id) {
+        if (id == null) {
+            throw new IllegalArgumentException("ID da fila não pode ser nulo");
+        }
+
+        return filaRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Fila não encontrada com ID: " + id));
+    }
+    public long getContagem() {
+        try {
+            return filaRepository.countByAtivoTrue();
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao contar filas ativas: " + e.getMessage(), e);
+        }
+    }
+    
+
+
+>>>>>>> Stashed changes
 }

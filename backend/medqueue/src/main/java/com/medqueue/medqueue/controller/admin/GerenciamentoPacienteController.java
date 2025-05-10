@@ -80,7 +80,7 @@ public class GerenciamentoPacienteController {
 
     @GetMapping("/count")
     @Operation(summary = "Obter contagem total de pacientes")
-    public ResponseEntity<Map<String, Long>> contar() {
+    public ResponseEntity<Map<String, Long>> contarPacientes() {
         long count = pacienteService.getContagem();
         return ResponseEntity.ok(Map.of("count", count));
     }

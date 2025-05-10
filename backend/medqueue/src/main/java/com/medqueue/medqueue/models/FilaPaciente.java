@@ -36,6 +36,10 @@ public class FilaPaciente {
     @Column(nullable = false)
     private Boolean atendido = false;
 
+    @Builder.Default
+    @Column(nullable = false)
+    private Boolean notificado = false;
+
     private LocalDateTime createdAt;
 
     public LocalDateTime getCreatedAt() {

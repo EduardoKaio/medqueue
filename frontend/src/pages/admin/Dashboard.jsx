@@ -4,9 +4,13 @@ import {
   Container,
   Typography,
   Grid,
+<<<<<<< Updated upstream
   Card,
   CardContent,
   
+=======
+
+>>>>>>> Stashed changes
 } from "@mui/material";
 import {
   Dashboard as DashboardIcon,
@@ -18,19 +22,14 @@ import { Sidebar } from "../../components/Sidebar";
 import Header from "../../components/Header";
 import { drawerWidth, drawerWidthClosed } from "../../components/Sidebar";
 import { getPacientesCount } from "../../services/GerenciamentoPacienteService";
-import {
-  LineChart,
-  Line,
-  CartesianGrid,
-  XAxis,
-  YAxis,
-  Tooltip,
-  PieChart,
-  Pie,
-  Cell,
-  ResponsiveContainer,
-  Legend,
-} from "recharts";
+import { getFilasAtivasCount } from "../../services/FilaService";
+import TotalPacientes from "../../components/dashboard/TotalPacientes";
+import {getTempoMedioEspera, getTamanhoMedioFilas} from "../../services/InsigthsAdmin";
+import FilasAtivas from "../../components/dashboard/FilasAtivas";
+import TempoMedioEspera from "../../components/dashboard/TempoMedioEspera";
+import TamanhoMedioFilas from "../../components/dashboard/TamanhoMedioFilas";
+import GraficoEsperaPorSetor from "../../components/dashboard/GraficoEsperaPorSetor";
+import GraficoPizzaDistPacienteSetor from "../../components/dashboard/GraficoPizzaDistPacienteSetor";
 
 const COLORS = ["#1976d2", "#26a69a", "#f44336", "#ffb300"];
 const adminMenu = [
@@ -39,20 +38,6 @@ const adminMenu = [
   { label: "Filas", path: "/admin/filas", icon: <PeopleAltIcon color="primary" /> },
 ];
 
-const dataEspera = [
-  { dia: "Seg", tempo: 12 },
-  { dia: "Ter", tempo: 15 },
-  { dia: "Qua", tempo: 10 },
-  { dia: "Qui", tempo: 14 },
-  { dia: "Sex", tempo: 9 },
-];
-
-const statusPacientes = [
-  { name: "Aguardando", value: 40 },
-  { name: "Em Atendimento", value: 25 },
-  { name: "Finalizado", value: 30 },
-  { name: "Faltou", value: 5 },
-];
 
 function Dashboard() {
   const [open, setOpen] = useState(true);
@@ -68,8 +53,14 @@ function Dashboard() {
       .catch((err) => {
         console.error("Erro ao buscar contagem de pacientes", err);
       });
+      getFilasAtivasCount()
+      .then((res) => {
+        setQueueCount(res.data.count);
+      })
+      .catch((err) => {
+        console.error("Erro ao buscar contagem de filas", err);
+      });
 
-    setQueueCount(8);
     setInsights({ today: 5, month: 120 });
   }, []);
 
@@ -80,6 +71,7 @@ function Dashboard() {
         component="main"
         sx={{ flexGrow: 1, bgcolor: "background.default", p: 3, mt: 8 }}
       >
+<<<<<<< Updated upstream
         <Header
           open={open}
           drawerWidth={drawerWidth}
@@ -88,12 +80,17 @@ function Dashboard() {
         />
         <Container maxWidth="xl">
         <Typography
+=======
+        <Container maxWidth="">
+          <Typography
+>>>>>>> Stashed changes
             variant="h4"
             sx={{ mb: 3, color: "#1976d2", fontWeight: "bold" }}
         >
             Dashboard Administrativo
         </Typography>
 
+<<<<<<< Updated upstream
         {/* Linha 1: Cards informativos */}
         <Grid container spacing={3} sx={{ mb: 2 }}>
             <Grid item xs={12} sm={6} md={4}>
@@ -188,6 +185,48 @@ function Dashboard() {
                 </ResponsiveContainer>
                 </CardContent>
             </Card>
+=======
+          {/* Linha 1: Cards informativos com ícones e cores */}
+          <Grid container spacing={3} sx={{ mb: 2, width: "100%", alignItems: "stretch" }}>
+          <Grid >
+              <FilasAtivas
+               trend="up"
+               diff={14}
+               value={queueCount.toLocaleString("pt-BR")}
+              />
+            </Grid>
+            <Grid >
+            <TamanhoMedioFilas value={12} />
+            </Grid>
+            <Grid>
+            <TotalPacientes
+              trend="up"
+              diff={14}
+              value={patientCount.toLocaleString("pt-BR")}
+            />
+            </Grid>
+            
+            <Grid >
+            <TempoMedioEspera
+               tempoMedio={30}
+              />
+            </Grid>
+            
+          </Grid>
+
+          {/* Linha 2: Gráficos lado a lado ocupando toda a largura */}
+          <Grid container spacing={3} sx={{ width: "100%", alignItems: "stretch", mt: 3 }}>
+            <Grid>
+            <GraficoEsperaPorSetor
+              chartSeries={[
+                { name: 'Tempo Médio de Espera', data: [22, 34, 18, 41, 26] }
+              ]}
+              categories={['Pediatria', 'Clínico Geral', 'Ortopedia', 'Oftalmo', 'Cardiologia']}
+            />
+            </Grid>
+            <Grid item xs={12} md={4} sx={{ height: "100%", width: "35%" }}>
+            <GraficoPizzaDistPacienteSetor  />
+>>>>>>> Stashed changes
             </Grid>
         </Grid>
         </Container>

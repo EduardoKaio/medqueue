@@ -41,10 +41,6 @@ public class Fila {
     private Boolean ativo = true;
 
     @Builder.Default
-    @Column(nullable = false)
-    private Integer prioridade = 0;
-
-    @Builder.Default
     @Column(name = "tempo_medio", nullable = false)
     private Double tempoMedio = 0.0;
 

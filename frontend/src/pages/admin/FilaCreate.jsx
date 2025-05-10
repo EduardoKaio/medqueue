@@ -10,22 +10,14 @@ import {
   Switch,
   FormControlLabel,
 } from "@mui/material";
-import { Sidebar } from "../../components/Sidebar";
-import Header from "../../components/Header";
-import { drawerWidth, drawerWidthClosed } from "../../components/Sidebar";
-import { 
-  ArrowBack as ArrowBackIcon, 
+import {
+  ArrowBack as ArrowBackIcon,
   Add as AddIcon,
-  Dashboard as DashboardIcon,
-  Person as PersonIcon,
-  PeopleAlt as PeopleAltIcon, 
 } from "@mui/icons-material";
 import { Link, useNavigate } from "react-router-dom";
 import { criarFila } from "../../services/FilaService";
 
 const FilaCreate = () => {
-  const [open, setOpen] = useState(true);
-
   const [nome, setNome] = useState("");
   const [descricao, setDescricao] = useState("");
   const [ativo, setAtivo] = useState(true);
@@ -33,18 +25,10 @@ const FilaCreate = () => {
   const [tempoMedio, setTempoMedio] = useState(0.0);
   const [error, setError] = useState("");
 
-  const adminMenu = [
-    { label: "Dashboard", path: "/admin/dashboard", icon: <DashboardIcon color="primary" /> },
-    { label: "Pacientes", path: "/admin/pacientes", icon: <PersonIcon color="primary" /> },
-    { label: "Filas", path: "/admin/filas", icon: <PeopleAltIcon color="primary" /> },
-  ];
-
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-<<<<<<< Updated upstream
-=======
     setError("");
 
     if (nome.trim() === "") {
@@ -52,25 +36,17 @@ const FilaCreate = () => {
       return;
     }
 
-    
-
     if (Number(tempoMedio) < 0) {
       setError("O tempo médio não pode ser negativo.");
       return;
     }
 
->>>>>>> Stashed changes
     const novaFila = {
       nome,
       descricao,
       ativo,
-<<<<<<< Updated upstream
-      prioridade: Number(prioridade),
       tempo_medio: Number(tempoMedio),
-=======
-      
-      tempoMedio: Number(tempoMedio),
->>>>>>> Stashed changes
+
     };
 
     try {
@@ -83,13 +59,27 @@ const FilaCreate = () => {
       });
     } catch (err) {
       console.error("Erro ao criar fila", err);
-      setError("Erro ao criar fila.");
+
+      if (err.response && err.response.data) {
+        if (err.response.data.message) {
+          setError(err.response.data.message);
+        } else if (typeof err.response.data === "string") {
+          setError(err.response.data);
+        } else {
+          setError("Erro ao criar fila. Verifique os dados informados.");
+        }
+      } else if (err.message) {
+        setError(err.message);
+      } else {
+        setError(
+          "Erro ao criar fila. Verifique sua conexão e tente novamente."
+        );
+      }
     }
   };
 
   return (
     <Box sx={{ display: "flex" }}>
-      <Sidebar open={open} setOpen={setOpen} menuItems={adminMenu} />
       <Box
         component="main"
         sx={{
@@ -99,12 +89,6 @@ const FilaCreate = () => {
           mt: 8,
         }}
       >
-        <Header
-          open={open}
-          drawerWidth={drawerWidth}
-          drawerWidthClosed={drawerWidthClosed}
-        />
-
         <Container>
           <Box
             sx={{
@@ -129,7 +113,6 @@ const FilaCreate = () => {
                 <ArrowBackIcon />
               </IconButton>
             </Link>
-
             <Typography
               variant="h4"
               sx={{
@@ -140,7 +123,6 @@ const FilaCreate = () => {
             >
               Adicionar Nova Fila
             </Typography>
-
             <Box width="40px" /> {/* espaçamento para balancear visualmente */}
           </Box>
 

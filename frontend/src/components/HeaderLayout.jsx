@@ -89,6 +89,7 @@ const HeaderLayout = () => {
     {
       label: "Fila Atual",
       path: "/paciente/fila-atual",
+
       icon: <QueueIcon color="primary" />,
     },
   ];

@@ -2,14 +2,13 @@ package com.medqueue.medqueue.service.admin;
 
 import com.medqueue.medqueue.models.Fila;
 import com.medqueue.medqueue.repository.FilaRepository;
+import com.medqueue.medqueue.dto.FilaDTO;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.List;
 
 @Service
@@ -36,86 +35,38 @@ public class FilaService {
 
     @Transactional
     public void deletarFila(Long id) {
-        if (id == null) {
-            throw new IllegalArgumentException("ID da fila não pode ser nulo");
-        }
+        if (id == null) throw new IllegalArgumentException("ID da fila não pode ser nulo");
 
-        try {
-            Fila fila = filaRepository.findById(id)
-                    .orElseThrow(() -> new EntityNotFoundException("Fila não encontrada com ID: " + id));
-            filaRepository.delete(fila);
-        } catch (EntityNotFoundException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new RuntimeException("Erro ao deletar fila: " + e.getMessage(), e);
-        }
+        Fila fila = filaRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Fila não encontrada com ID: " + id));
+        filaRepository.delete(fila);
     }
 
     @Transactional
-    public Fila atualizarCampo(Long id, String campo, Object valor) {
-        if (id == null) {
-            throw new IllegalArgumentException("ID da fila não pode ser nulo");
-        }
-        if (campo == null || campo.trim().isEmpty()) {
-            throw new IllegalArgumentException("Nome do campo não pode ser nulo ou vazio");
-        }
-        if (valor == null) {
-            throw new IllegalArgumentException("Valor do campo não pode ser nulo");
-        }
+    public Fila editarFila(Long id, FilaDTO dto) {
+        if (id == null) throw new IllegalArgumentException("ID da fila não pode ser nulo");
+        if (dto == null) throw new IllegalArgumentException("Dados para atualização não podem ser nulos");
 
-        try {
-            Fila fila = filaRepository.findById(id)
-                    .orElseThrow(() -> new EntityNotFoundException("Fila não encontrada com ID: " + id));
+        Fila fila = filaRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Fila não encontrada com ID: " + id));
 
-            switch (campo.toLowerCase()) {
-                case "nome":
-                    if (!(valor instanceof String)) {
-                        throw new IllegalArgumentException("Valor para o campo 'nome' deve ser uma String");
-                    }
-                    String nome = (String) valor;
-                    if (nome.trim().isEmpty()) {
-                        throw new IllegalArgumentException("Nome da fila não pode ser vazio");
-                    }
-                    fila.setNome(nome);
-                    break;
-                case "descricao":
-                    if (!(valor instanceof String)) {
-                        throw new IllegalArgumentException("Valor para o campo 'descricao' deve ser uma String");
-                    }
-                    fila.setDescricao((String) valor);
-                    break;
-                case "prioridade":
-                    if (!(valor instanceof Integer)) {
-                        throw new IllegalArgumentException("Valor para o campo 'prioridade' deve ser um Integer");
-                    }
-                    Integer prioridade = (Integer) valor;
-                    if (prioridade < 0) {
-                        throw new IllegalArgumentException("Prioridade não pode ser negativa");
-                    }
-                    fila.setPrioridade(prioridade);
-                    break;
-                case "tempo_medio":
-                    if (!(valor instanceof Double)) {
-                        throw new IllegalArgumentException("Valor para o campo 'tempo_medio' deve ser um Double");
-                    }
-                    Double tempoMedio = (Double) valor;
-                    if (tempoMedio < 0) {
-                        throw new IllegalArgumentException("Tempo médio não pode ser negativo");
-                    }
-                    fila.setTempoMedio(tempoMedio);
-                    break;
-                default:
-                    throw new IllegalArgumentException("Campo inválido para atualização: " + campo);
+        if (dto.getNome() != null) {
+            if (dto.getNome().trim().isEmpty()) {
+                throw new IllegalArgumentException("Nome da fila não pode ser vazio");
             }
-
-            return filaRepository.save(fila);
-        } catch (EntityNotFoundException | IllegalArgumentException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new RuntimeException("Erro ao atualizar fila: " + e.getMessage(), e);
+            fila.setNome(dto.getNome());
         }
-<<<<<<< Updated upstream
-=======
+
+        if (dto.getDescricao() != null) {
+            fila.setDescricao(dto.getDescricao());
+        }
+
+        if (dto.getPrioridade() != null) {
+            if (dto.getPrioridade() < 0) {
+                throw new IllegalArgumentException("Prioridade não pode ser negativa");
+            }
+            fila.setPrioridade(dto.getPrioridade());
+        }
 
         if (dto.getTempoMedio() != null) {
             if (dto.getTempoMedio() < 0) {
@@ -127,35 +78,44 @@ public class FilaService {
         if (dto.getAtivo() != null) {
             fila.setAtivo(dto.getAtivo());
         }
+        
+        if (dto.getTempoMedio() != null) {
+              if (dto.getTempoMedio() < 0) {
+                  throw new IllegalArgumentException("Tempo médio não pode ser negativo");
+              }
+              fila.setTempoMedio(dto.getTempoMedio());
+          }
+
+        if (dto.getAtivo() != null) {
+            fila.setAtivo(dto.getAtivo());
+        }
 
         return filaRepository.save(fila);
     }
 
     @Transactional
     public Fila criarFila(Fila novaFila) {
-        if (novaFila.getNome() == null || novaFila.getNome().trim().isEmpty()) {
-            throw new IllegalArgumentException("O nome da fila é obrigatório.");
-        }
-        if (novaFila.getTempoMedio() == null || novaFila.getTempoMedio() < 0) {
-            throw new IllegalArgumentException("O tempo médio deve ser um número não negativo.");
-        }
+      if (novaFila.getNome() == null || novaFila.getNome().trim().isEmpty()) {
+          throw new IllegalArgumentException("O nome da fila é obrigatório.");
+      }
+      if (novaFila.getTempoMedio() == null || novaFila.getTempoMedio() < 0) {
+          throw new IllegalArgumentException("O tempo médio deve ser um número não negativo.");
+      }
 
-        novaFila.setAtivo(true);
-        novaFila.setDataCriacao(LocalDate.now());
-        return filaRepository.save(novaFila);
->>>>>>> Stashed changes
+      novaFila.setAtivo(true);
+      novaFila.setDataCriacao(LocalDate.now());
+      return filaRepository.save(novaFila);
     }
+
 
     public Long getFilaDoDia() {
         LocalDate hoje = LocalDate.now();
 
         Fila fila = filaRepository.findByDataCriacao(hoje)
-            .orElseThrow(() -> new EntityNotFoundException("Não existe fila criada hoje"));
+                .orElseThrow(() -> new EntityNotFoundException("Não existe fila criada hoje"));
 
         return fila.getId();
     }
-<<<<<<< Updated upstream
-=======
 
     public Fila buscarPorId(Long id) {
         if (id == null) {
@@ -172,8 +132,4 @@ public class FilaService {
             throw new RuntimeException("Erro ao contar filas ativas: " + e.getMessage(), e);
         }
     }
-    
-
-
->>>>>>> Stashed changes
 }

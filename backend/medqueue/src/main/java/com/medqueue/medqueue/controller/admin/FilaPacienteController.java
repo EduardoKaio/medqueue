@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -80,5 +81,23 @@ public class FilaPacienteController {
     public ResponseEntity<List<Fila>> listarFilasAtivas() {
         List<Fila> filasAtivas = filaPacienteService.listarFilasAtivas();
         return ResponseEntity.ok(filasAtivas);
+    }
+
+    @PutMapping("/{filaId}/paciente/{pacienteId}/check-in")
+    @Operation(summary = "Realizar check-in do paciente na fila")
+    public ResponseEntity<?> realizarCheckIn(
+            @PathVariable Long filaId,
+            @PathVariable Long pacienteId) {
+        try {
+            FilaPacienteDTO pacienteAtualizado = filaPacienteService.realizarCheckIn(filaId, pacienteId);
+            return ResponseEntity.ok(pacienteAtualizado);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Erro ao realizar check-in: " + e.getMessage());
+        }
     }
 }

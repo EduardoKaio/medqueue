@@ -34,7 +34,6 @@ const FilaEdit = () => {
         setNome(fila.nome);
         setDescricao(fila.descricao || "");
         setAtivo(fila.ativo);
-        
         setTempoMedio(fila.tempoMedio);
         setLoading(false);
       } catch (err) {
@@ -56,7 +55,6 @@ const FilaEdit = () => {
         nome,
         descricao,
         ativo,
-        
         tempoMedio: Number(tempoMedio),
       };
 
@@ -172,7 +170,6 @@ const FilaEdit = () => {
                   required
                 />
               </Grid>
-
               <Grid item xs={12}>
                 <TextField
                   label="Descrição"

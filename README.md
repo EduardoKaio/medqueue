@@ -3,18 +3,18 @@
 ## 📊 Estatísticas de Commits
 
 👤 Contribuições por autor:
-- Kaio Eduardo: 34 commits
-- github-actions: 30 commits
-- Felipeftlp: 21 commits
-- Felipe Freitas: 9 commits
-- AllysonGustavo1: 2 commits
+- github-actions: 43 commits
+- Kaio Eduardo: 39 commits
+- Felipeftlp: 23 commits
+- Felipe Freitas: 10 commits
+- AllysonGustavo1: 7 commits
 
 🛠️ Commits por tipo:
-- feat: 21
+- feat: 28
 - fix: 6
 - docs: 3
 - chore: 0
-- refactor: 7
+- refactor: 8
 - test: 1
 - style: 0
 <!-- COMMIT_STATS_END -->

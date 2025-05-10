@@ -1,10 +1,15 @@
 package com.medqueue.medqueue.controller.admin;
 
 import com.medqueue.medqueue.models.Fila;
+import com.medqueue.medqueue.dto.FilaDTO;
 import com.medqueue.medqueue.service.admin.FilaService;
+import com.medqueue.medqueue.dto.ErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,24 +31,37 @@ public class FilaController {
         return ResponseEntity.ok(filasAtivas);
     }
 
+    @PostMapping
+    @Operation(summary = "Criar uma nova fila")
+    public ResponseEntity<?> criarFila(@RequestBody @Valid Fila novaFila) {
+        try {
+            Fila filaCriada = filaService.criarFila(novaFila);
+            return ResponseEntity.ok(filaCriada);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest()
+                .body(new ErrorResponse(e.getMessage()));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ErrorResponse("Erro interno ao processar a requisição."));
+        }
+    }
+
     @DeleteMapping("/{id}")
     @Operation(summary = "Deletar uma fila")
     public ResponseEntity<String> deletarFila(@PathVariable Long id) {
         filaService.deletarFila(id);
-        return ResponseEntity.ok("Fila com ID " + id + " foi desativada.");
+        return ResponseEntity.ok("Fila com ID " + id + " foi deletada.");
     }
 
     @PatchMapping("/{id}")
-    @Operation(summary = "Atualizar um campo específico da fila")
-    public ResponseEntity<Fila> atualizarCampo(
+    @Operation(summary = "Atualizar parcialmente uma fila")
+    public ResponseEntity<Fila> editarFila(
             @PathVariable Long id,
-            @RequestParam String campo,
-            @RequestParam Object valor) {
-        Fila filaAtualizada = filaService.atualizarCampo(id, campo, valor);
+            @RequestBody @Valid FilaDTO dto) {
+        Fila filaAtualizada = filaService.editarFila(id, dto);
         return ResponseEntity.ok(filaAtualizada);
     }
-<<<<<<< Updated upstream
-=======
 
     @GetMapping("/{id}")
     @Operation(summary = "Buscar fila por ID")
@@ -55,11 +73,11 @@ public class FilaController {
             return ResponseEntity.notFound().build();
         }
     }
+
     @GetMapping("/count")
     @Operation(summary = "Obter contagem total de filas ativas")
     public ResponseEntity<Map<String, Long>> contarFilasAtivas() {
         long count = filaService.getContagem();
         return ResponseEntity.ok(Map.of("count", count));
     }
->>>>>>> Stashed changes
 }

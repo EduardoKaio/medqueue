@@ -186,7 +186,9 @@ public void addPaciente(Long pacienteId, Long filaId) {
                             fp.getPaciente().getId(),
                             fp.getPaciente().getNome(),
                             fp.getPosicao(),
-                            fp.getAtendido()))
+                            fp.getAtendido(),
+                            fp.getDataEntrada(),
+                            fp.getCheckIn()))
                     .collect(Collectors.toList());
         } catch (EntityNotFoundException e) {
             throw e;
@@ -288,21 +290,13 @@ public void addPaciente(Long pacienteId, Long filaId) {
     //             return null;
     //         }
 
-<<<<<<< Updated upstream
-            return new FilaPacienteDTO(
-                    proximoPaciente.getPaciente().getId(),
-                    proximoPaciente.getPaciente().getNome(),
-                    proximoPaciente.getPosicao(),
-                    proximoPaciente.getAtendido());
-=======
-    //         return new FilaPacienteDTO(
-    //                 proximoPaciente.getPaciente().getId(),
-    //                 proximoPaciente.getPaciente().getNome(),
-    //                 proximoPaciente.getPosicao(),
-    //                 proximoPaciente.getAtendido(),
-    //                 proximoPaciente.getDataEntrada(),
-    //                 proximoPaciente.getCheckIn());
->>>>>>> Stashed changes
+// return new FilaPacienteDTO(
+//         proximoPaciente.getPaciente().getId(),
+//         proximoPaciente.getPaciente().getNome(),
+//         proximoPaciente.getPosicao(),
+//         proximoPaciente.getAtendido(),
+//         proximoPaciente.getDataEntrada(),
+//         proximoPaciente.getCheckIn());
 
     //     } catch (Exception e) {
     //         throw new RuntimeException("Erro ao buscar próximo paciente para atendimento: " + e.getMessage(), e);
@@ -423,14 +417,6 @@ public void addPaciente(Long pacienteId, Long filaId) {
     //                 fila.setPrioridade(1);
     //             }
 
-<<<<<<< Updated upstream
-                filaRepository.save(fila);
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("Erro ao rebalancear prioridades: " + e.getMessage(), e);
-        }
-    }
-=======
     //             filaRepository.save(fila);
     //         }
     //     } catch (Exception e) {
@@ -507,6 +493,4 @@ whatsAppService.sendWhatsAppMessage(telefone, mensagem);
             throw new RuntimeException("Erro ao realizar check-in do paciente: " + e.getMessage(), e);
         }
     }
-    
->>>>>>> Stashed changes
 }

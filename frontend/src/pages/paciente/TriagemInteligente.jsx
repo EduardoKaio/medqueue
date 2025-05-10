@@ -16,20 +16,13 @@ import {
   Snackbar,
 } from "@mui/material";
 import {
-  Home as HomeIcon,
-  Assignment as AssignmentIcon,
-  FormatListNumbered as QueueIcon,
-} from "@mui/icons-material";
-import { Sidebar } from "../../components/Sidebar";
-import Header from "../../components/Header";
-import { drawerWidth, drawerWidthClosed } from "../../components/Sidebar";
-import { avaliarPrioridade, recomendarEspecialista } from "../../services/LLMService";
+  avaliarPrioridade,
+  recomendarEspecialista,
+} from "../../services/LLMService";
 import MuiAlert from "@mui/material/Alert";
 import { enterQueue } from "../../services/PacienteService";
 
 function TriagemInteligente() {
-
-  const [open, setOpen] = useState(true);
   const [sintomas, setSintomas] = useState("");
   const [prioridade, setPrioridade] = useState(null);
   const [recomendacao, setRecomendacao] = useState(null);
@@ -37,19 +30,12 @@ function TriagemInteligente() {
   const [snackbarAberto, setSnackbarAberto] = useState(false);
   const [loading, setLoading] = useState(false);
 
-
-  const pacienteMenu = [
-    { label: "Início", path: "/paciente", icon: <HomeIcon color="primary" /> },
-    { label: "Triagem Inteligente", path: "/paciente/triagem", icon: <AssignmentIcon color="primary" /> },
-    { label: "Fila Atual", path: "/paciente/fila", icon: <QueueIcon color="primary" /> },
-  ];
-
   const handleAvaliarPrioridade = async () => {
     setLoading(true);
-  
+
     // Simulação do tempo de loading - 3 segundos
     const TEMPO_SIMULADO_MS = 1000;
-  
+
     setTimeout(async () => {
       try {
         const resposta = await avaliarPrioridade(sintomas);
@@ -74,11 +60,10 @@ function TriagemInteligente() {
       }
     }, TEMPO_SIMULADO_MS);
   };
-  
-  const handleEntrarNaFila = async (e) => {
 
+  const handleEntrarNaFila = async (e) => {
     e.preventDefault();
-    
+
     try {
       await enterQueue();
       console.log("Entrou na fila com prioridade", prioridade.nivel);
@@ -92,9 +77,9 @@ function TriagemInteligente() {
 
   const handleRecomendarEspecialista = async () => {
     setLoading(true);
-  
+
     const TEMPO_SIMULADO_MS = 1000;
-  
+
     setTimeout(async () => {
       try {
         const resposta = await recomendarEspecialista(sintomas);
@@ -107,7 +92,10 @@ function TriagemInteligente() {
         // Verifica se o erro é um erro de resposta da API
         if (error.response) {
           // O servidor respondeu com um erro (ex: 400 ou 404)
-          console.error("Erro ao recomendar especialista:", error.response.data);
+          console.error(
+            "Erro ao recomendar especialista:",
+            error.response.data
+          );
           alert("Erro: " + error.response.data.erro); // Exibe a mensagem de erro
         } else {
           // Outros erros, como problemas de rede
@@ -119,13 +107,18 @@ function TriagemInteligente() {
       }
     }, TEMPO_SIMULADO_MS);
   };
-  
-  
 
   const LoadingComponent = () => (
-    <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
+    <Box
+      display="flex"
+      justifyContent="center"
+      alignItems="center"
+      minHeight="200px"
+    >
       <Box textAlign="center">
-        <Typography variant="h6" mb={2}>Analisando seus sintomas...</Typography>
+        <Typography variant="h6" mb={2}>
+          Analisando seus sintomas...
+        </Typography>
         <Box
           sx={{
             display: "inline-block",
@@ -149,14 +142,10 @@ function TriagemInteligente() {
 
   return (
     <Box sx={{ display: "flex" }}>
-      <Sidebar open={open} setOpen={setOpen} menuItems={pacienteMenu} />
-      <Box component="main" sx={{ flexGrow: 1, bgcolor: "background.default", p: 3 }}>
-        <Header
-          open={open}
-          drawerWidth={drawerWidth}
-          drawerWidthClosed={drawerWidthClosed}
-          title="Área do Paciente"
-        />
+      <Box
+        component="main"
+        sx={{ flexGrow: 1, bgcolor: "background.default", p: 3 }}
+      >
         <Container maxWidth="md" sx={{ mt: 10 }}>
           <Typography variant="h5" sx={{ mb: 3, fontWeight: "bold" }}>
             Triagem Inteligente
@@ -218,44 +207,48 @@ function TriagemInteligente() {
                 <LoadingComponent />
               </CardContent>
             </Card>
-          ) : (prioridade || recomendacao) && (
-            <Card>
-              <CardContent>
-                <Typography variant="h6" gutterBottom>
-                  Resultado
-                </Typography>
-                {prioridade && (
-                  <>
-                    <Alert severity="warning" sx={{ mb: 2 }}>
-                      <strong>Prioridade:</strong> Nível {prioridade.nivel}
+          ) : (
+            (prioridade || recomendacao) && (
+              <Card>
+                <CardContent>
+                  <Typography variant="h6" gutterBottom>
+                    Resultado
+                  </Typography>
+                  {prioridade && (
+                    <>
+                      <Alert severity="warning" sx={{ mb: 2 }}>
+                        <strong>Prioridade:</strong> Nível {prioridade.nivel}
+                        <br />
+                        <strong>Justificativa:</strong>{" "}
+                        {prioridade.justificativa}
+                      </Alert>
+
+                      <Box display="flex" justifyContent="flex-end" mt={1}>
+                        <Button
+                          variant="contained"
+                          color="success"
+                          onClick={() => {
+                            setModalAberto(true);
+                          }}
+                        >
+                          Entrar na fila
+                        </Button>
+                      </Box>
+                    </>
+                  )}
+                  {recomendacao && (
+                    <Alert severity="info">
+                      <strong>Especialista sugerido:</strong>{" "}
+                      {recomendacao.especialista}
                       <br />
-                      <strong>Justificativa:</strong> {prioridade.justificativa}
+                      <strong>Justificativa:</strong>{" "}
+                      {recomendacao.justificativa}
                     </Alert>
-
-                    <Box display="flex" justifyContent="flex-end" mt={1}>
-                      <Button
-                        variant="contained"
-                        color="success"
-                        onClick={() => {
-                          setModalAberto(true);
-                        }}
-                      >
-                        Entrar na fila
-                      </Button>
-                    </Box>
-                  </>
-                )}
-                {recomendacao && (
-                  <Alert severity="info">
-                    <strong>Especialista sugerido:</strong> {recomendacao.especialista}
-                    <br />
-                    <strong>Justificativa:</strong> {recomendacao.justificativa}
-                  </Alert>
-                )}
-              </CardContent>
-            </Card>
+                  )}
+                </CardContent>
+              </Card>
+            )
           )}
-
         </Container>
       </Box>
 
@@ -264,30 +257,36 @@ function TriagemInteligente() {
         <DialogTitle>Confirmar Entrada na Fila</DialogTitle>
         <DialogContent>
           <Typography>
-            Você está prestes a entrar na fila com prioridade <strong>Nível {prioridade?.nivel}</strong>.
-            Deseja continuar?
+            Você está prestes a entrar na fila com prioridade{" "}
+            <strong>Nível {prioridade?.nivel}</strong>. Deseja continuar?
           </Typography>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setModalAberto(false)} sx={{
-            color: 'error.main',
-            fontWeight: 'bold',
-            borderRadius: 1,
-            '&:hover': {
-            backgroundColor: 'rgba(211, 47, 47, 0.1)', // vermelho claro com transparência
-            },
-        }}>
+          <Button
+            onClick={() => setModalAberto(false)}
+            sx={{
+              color: "error.main",
+              fontWeight: "bold",
+              borderRadius: 1,
+              "&:hover": {
+                backgroundColor: "rgba(211, 47, 47, 0.1)", // vermelho claro com transparência
+              },
+            }}
+          >
             Cancelar
           </Button>
-          <Button onClick={handleEntrarNaFila} sx={{
-            color: 'success.main',
-            fontWeight: 'bold',
-            borderRadius: 1,
-            '&:hover': {
-            backgroundColor: 'rgba(46, 125, 50, 0.1)', // verde claro com transparência
-            },
-        }}
-        autoFocus >
+          <Button
+            onClick={handleEntrarNaFila}
+            sx={{
+              color: "success.main",
+              fontWeight: "bold",
+              borderRadius: 1,
+              "&:hover": {
+                backgroundColor: "rgba(46, 125, 50, 0.1)", // verde claro com transparência
+              },
+            }}
+            autoFocus
+          >
             Confirmar
           </Button>
         </DialogActions>
@@ -300,7 +299,12 @@ function TriagemInteligente() {
         onClose={() => setSnackbarAberto(false)}
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
-        <MuiAlert severity="success" onClose={() => setSnackbarAberto(false)} elevation={6} variant="filled">
+        <MuiAlert
+          severity="success"
+          onClose={() => setSnackbarAberto(false)}
+          elevation={6}
+          variant="filled"
+        >
           Você foi adicionado à fila com sucesso!
         </MuiAlert>
       </Snackbar>

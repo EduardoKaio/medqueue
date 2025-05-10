@@ -3,7 +3,6 @@ package com.medqueue.medqueue.service.paciente;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.json.JSONObject;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -15,7 +14,6 @@ public class WhatsAppService {
 
     private final RestTemplate restTemplate;
 
-    @Autowired
     public WhatsAppService(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }

@@ -236,25 +236,25 @@ function FilaList() {
                 <Grid item xs={12} sm={6} md={4} key={f.id}>
                   <Card sx={{ borderRadius: 2, boxShadow: 3 }}>
                     <CardContent>
-                      <Typography variant="h6" gutterBottom>
-                        {f.nome}
-                      </Typography>
-
-                      <Typography variant="body2">
-                        Descrição: {f.descricao}
-                      </Typography>
-                      
-                      <Typography variant="body2">
-                        Tempo Médio: {f.tempoMedio} min
-                      </Typography>
-                      <Typography variant="body2">
-                        Descrição: {f.descricao}
-                      </Typography>
-                      </Typography>
-                      <Typography variant="body2">
-                        Tempo Médio: {f.tempoMedio} min
-                      </Typography>
-
+                      <>
+                        <Typography variant="h6" gutterBottom>
+                          {f.nome}
+                        </Typography>
+                    
+                        <Typography variant="body2">
+                          Descrição: {f.descricao}
+                        </Typography>
+                        
+                        <Typography variant="body2">
+                          Tempo Médio: {f.tempoMedio} min
+                        </Typography>
+                        <Typography variant="body2">
+                          Descrição: {f.descricao}
+                        </Typography>
+                        <Typography variant="body2">
+                          Tempo Médio: {f.tempoMedio} min
+                        </Typography>
+                      </>
                     </CardContent>
                     <CardActions sx={{ justifyContent: "flex-end" }}>
                       <Link to={`/admin/filas/edit/${f.id}`}>

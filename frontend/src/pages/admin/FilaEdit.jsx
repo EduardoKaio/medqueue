@@ -22,7 +22,6 @@ const FilaEdit = () => {
   const [nome, setNome] = useState("");
   const [descricao, setDescricao] = useState("");
   const [ativo, setAtivo] = useState(true);
-  const [prioridade, setPrioridade] = useState(0);
   const [tempoMedio, setTempoMedio] = useState(0.0);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
@@ -35,7 +34,6 @@ const FilaEdit = () => {
         setNome(fila.nome);
         setDescricao(fila.descricao || "");
         setAtivo(fila.ativo);
-        setPrioridade(fila.prioridade);
         setTempoMedio(fila.tempoMedio);
         setLoading(false);
       } catch (err) {
@@ -57,7 +55,6 @@ const FilaEdit = () => {
         nome,
         descricao,
         ativo,
-        prioridade: Number(prioridade),
         tempoMedio: Number(tempoMedio),
       };
 
@@ -173,18 +170,6 @@ const FilaEdit = () => {
                   required
                 />
               </Grid>
-
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  label="Prioridade"
-                  type="number"
-                  variant="outlined"
-                  fullWidth
-                  value={prioridade}
-                  onChange={(e) => setPrioridade(e.target.value)}
-                />
-              </Grid>
-
               <Grid item xs={12}>
                 <TextField
                   label="Descrição"

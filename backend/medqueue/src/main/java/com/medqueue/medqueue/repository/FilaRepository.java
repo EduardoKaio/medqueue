@@ -12,4 +12,5 @@ import com.medqueue.medqueue.models.Fila;
 public interface FilaRepository extends JpaRepository<Fila, Long> {
     List<Fila> findByAtivoTrue();
     Optional<Fila> findByDataCriacao(LocalDate data_criacao);
+    long countByAtivoTrue();
 }

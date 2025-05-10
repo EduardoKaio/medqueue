@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/admin/fila")
@@ -71,5 +72,12 @@ public class FilaController {
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @GetMapping("/count")
+    @Operation(summary = "Obter contagem total de filas ativas")
+    public ResponseEntity<Map<String, Long>> contarFilasAtivas() {
+        long count = filaService.getContagem();
+        return ResponseEntity.ok(Map.of("count", count));
     }
 }

@@ -5,17 +5,18 @@ import PacienteCreate from "./pages/admin/PacienteCreate";
 import PacienteEdit from "./pages/admin/PacienteEdit";
 import Home from "./pages/Home";
 import Dashboard from "./pages/admin/Dashboard";
-import FilaList from "./pages/admin/Filalist";
+import FilaList from "./pages/admin/FilaList";
 import FilaCreate from "./pages/admin/FilaCreate";
 import FilaEdit from "./pages/admin/FilaEdit";
 import FilaPacientesList from "./pages/admin/FilaPacienteList";
 import Register from "./pages/auth/Register";
 import LoginPage from "./pages/auth/Login";
-import TriagemInteligente from "./pages/Paciente/TriagemInteligente";
-import HomePaciente from "./pages/Paciente/HomePaciente";
+import TriagemInteligente from "./pages/paciente/TriagemInteligente";
+import HomePaciente from "./pages/paciente/HomePaciente";
 
 import PrivateRoute from "./components/PrivateRoute";
 import HeaderLayout from "./components/HeaderLayout";
+import FilaAtual from "./pages/paciente/FilaAtual";
 
 function App() {
   return (
@@ -41,11 +42,14 @@ function App() {
           </Route>
 
           {/* Pacient Routes  */}
-          <Route path="/paciente" element={<HeaderLayout />}>
+
+          <Route path="/paciente/" element={<HeaderLayout />}>
             <Route path="" element={<HomePaciente />} />
             <Route path="triagem" element={<TriagemInteligente />} />
+            <Route path="fila-atual" element={<FilaAtual />} />
           </Route>
         </Route>
+
       </Routes>
     </BrowserRouter>
   );

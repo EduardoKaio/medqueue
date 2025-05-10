@@ -51,17 +51,6 @@ public class FilaPacienteController {
         return ResponseEntity.ok(pacientes);
     }
 
-    @Operation(summary = "Verificar posição do paciente na fila", description = "Retorna a posição de um paciente em uma fila específica.")
-    @GetMapping("/position")
-    public ResponseEntity<String> verificarPosicaoPaciente(@RequestParam Long pacienteId, @RequestParam Long filaId) {
-        try {
-            FilaPaciente filaPaciente = filaPacienteService.buscarPacienteNaFila(pacienteId, filaId);
-            return ResponseEntity.ok("O paciente com ID " + pacienteId + " está na posição: " + filaPaciente.getPosicao());
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
-
     @Operation(summary = "Listar fila ordenada", description = "Retorna a lista de pacientes em uma fila específica, ordenada pela posição.")
     @GetMapping("/ordered-list")
     public ResponseEntity<List<FilaPacienteDTO>> listarFilaOrdenada(@RequestParam Long filaId) {

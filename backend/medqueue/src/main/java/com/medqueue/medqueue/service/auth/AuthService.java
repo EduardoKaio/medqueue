@@ -29,7 +29,6 @@ public class AuthService {
 
             return paciente.getId();
         }
-
         return null;
     }
 }

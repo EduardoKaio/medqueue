@@ -21,7 +21,7 @@ const FilaCreate = () => {
   const [nome, setNome] = useState("");
   const [descricao, setDescricao] = useState("");
   const [ativo, setAtivo] = useState(true);
-  const [prioridade, setPrioridade] = useState(0);
+  
   const [tempoMedio, setTempoMedio] = useState(0.0);
   const [error, setError] = useState("");
 
@@ -36,11 +36,6 @@ const FilaCreate = () => {
       return;
     }
 
-    if (Number(prioridade) < 0) {
-      setError("A prioridade não pode ser negativa.");
-      return;
-    }
-
     if (Number(tempoMedio) < 0) {
       setError("O tempo médio não pode ser negativo.");
       return;
@@ -50,8 +45,8 @@ const FilaCreate = () => {
       nome,
       descricao,
       ativo,
-      prioridade: Number(prioridade),
-      tempoMedio: Number(tempoMedio),
+      tempo_medio: Number(tempoMedio),
+
     };
 
     try {
@@ -147,17 +142,6 @@ const FilaCreate = () => {
                   value={nome}
                   onChange={(e) => setNome(e.target.value)}
                   required
-                />
-              </Grid>
-
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  label="Prioridade"
-                  type="number"
-                  variant="outlined"
-                  fullWidth
-                  value={prioridade}
-                  onChange={(e) => setPrioridade(e.target.value)}
                 />
               </Grid>
 

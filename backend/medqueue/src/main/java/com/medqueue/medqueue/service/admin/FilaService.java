@@ -78,26 +78,35 @@ public class FilaService {
         if (dto.getAtivo() != null) {
             fila.setAtivo(dto.getAtivo());
         }
+        
+        if (dto.getTempoMedio() != null) {
+              if (dto.getTempoMedio() < 0) {
+                  throw new IllegalArgumentException("Tempo médio não pode ser negativo");
+              }
+              fila.setTempoMedio(dto.getTempoMedio());
+          }
+
+        if (dto.getAtivo() != null) {
+            fila.setAtivo(dto.getAtivo());
+        }
 
         return filaRepository.save(fila);
     }
 
     @Transactional
     public Fila criarFila(Fila novaFila) {
-        if (novaFila.getNome() == null || novaFila.getNome().trim().isEmpty()) {
-            throw new IllegalArgumentException("O nome da fila é obrigatório.");
-        }
-        if (novaFila.getPrioridade() == null || novaFila.getPrioridade() < 0) {
-            throw new IllegalArgumentException("A prioridade da fila deve ser um número não negativo.");
-        }
-        if (novaFila.getTempoMedio() == null || novaFila.getTempoMedio() < 0) {
-            throw new IllegalArgumentException("O tempo médio deve ser um número não negativo.");
-        }
+      if (novaFila.getNome() == null || novaFila.getNome().trim().isEmpty()) {
+          throw new IllegalArgumentException("O nome da fila é obrigatório.");
+      }
+      if (novaFila.getTempoMedio() == null || novaFila.getTempoMedio() < 0) {
+          throw new IllegalArgumentException("O tempo médio deve ser um número não negativo.");
+      }
 
-        novaFila.setAtivo(true);
-        novaFila.setDataCriacao(LocalDate.now());
-        return filaRepository.save(novaFila);
+      novaFila.setAtivo(true);
+      novaFila.setDataCriacao(LocalDate.now());
+      return filaRepository.save(novaFila);
     }
+
 
     public Long getFilaDoDia() {
         LocalDate hoje = LocalDate.now();
@@ -115,5 +124,12 @@ public class FilaService {
 
         return filaRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Fila não encontrada com ID: " + id));
+    }
+    public long getContagem() {
+        try {
+            return filaRepository.countByAtivoTrue();
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao contar filas ativas: " + e.getMessage(), e);
+        }
     }
 }

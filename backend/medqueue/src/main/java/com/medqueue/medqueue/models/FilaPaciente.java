@@ -40,6 +40,10 @@ public class FilaPaciente {
     @Column(name = "check_in", nullable = false)
     private Boolean checkIn = false;
 
+    @Builder.Default
+    @Column(nullable = false)
+    private Boolean notificado = false;
+
     private LocalDateTime createdAt;
 
     public LocalDateTime getCreatedAt() {

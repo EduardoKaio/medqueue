@@ -43,7 +43,7 @@ public class FilaService {
     }
 
     @Transactional
-    public Fila editarFila(Long id, FilaDTO dto) {
+     public Fila editarFila(Long id, FilaDTO dto) {
         if (id == null) throw new IllegalArgumentException("ID da fila não pode ser nulo");
         if (dto == null) throw new IllegalArgumentException("Dados para atualização não podem ser nulos");
 
@@ -61,30 +61,12 @@ public class FilaService {
             fila.setDescricao(dto.getDescricao());
         }
 
-        if (dto.getPrioridade() != null) {
-            if (dto.getPrioridade() < 0) {
-                throw new IllegalArgumentException("Prioridade não pode ser negativa");
-            }
-            fila.setPrioridade(dto.getPrioridade());
-        }
-
         if (dto.getTempoMedio() != null) {
             if (dto.getTempoMedio() < 0) {
                 throw new IllegalArgumentException("Tempo médio não pode ser negativo");
             }
             fila.setTempoMedio(dto.getTempoMedio());
         }
-
-        if (dto.getAtivo() != null) {
-            fila.setAtivo(dto.getAtivo());
-        }
-        
-        if (dto.getTempoMedio() != null) {
-              if (dto.getTempoMedio() < 0) {
-                  throw new IllegalArgumentException("Tempo médio não pode ser negativo");
-              }
-              fila.setTempoMedio(dto.getTempoMedio());
-          }
 
         if (dto.getAtivo() != null) {
             fila.setAtivo(dto.getAtivo());
@@ -102,9 +84,9 @@ public class FilaService {
           throw new IllegalArgumentException("O tempo médio deve ser um número não negativo.");
       }
 
-      novaFila.setAtivo(true);
-      novaFila.setDataCriacao(LocalDate.now());
-      return filaRepository.save(novaFila);
+        novaFila.setAtivo(true);
+        novaFila.setDataCriacao(LocalDate.now());
+        return filaRepository.save(novaFila);
     }
 
 
@@ -132,4 +114,5 @@ public class FilaService {
             throw new RuntimeException("Erro ao contar filas ativas: " + e.getMessage(), e);
         }
     }
+    
 }

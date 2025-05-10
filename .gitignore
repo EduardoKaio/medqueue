@@ -40,4 +40,5 @@ backend/medqueue/.project
 # end managed by open-wa
 
 venom-server/node_modules
+venom-server/tokens
 frontend/node_modules

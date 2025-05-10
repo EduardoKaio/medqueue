@@ -1,5 +1,7 @@
 package com.medqueue.medqueue.dto;
 
+import java.time.LocalDate;
+
 import javax.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 import lombok.Data;

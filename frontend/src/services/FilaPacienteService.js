@@ -10,3 +10,10 @@ export const realizarCheckIn = async (filaId, pacienteId) => {
     `${API_URL}/${filaId}/paciente/${pacienteId}/check-in`
   );
 };
+
+export const marcarComoAtrasado = async (filaId, pacienteId) => {
+  return axiosInstance.put(
+    `${API_URL}/${filaId}/paciente/${pacienteId}/status`,
+    { status: "Atrasado" }
+  );
+};

@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import jakarta.persistence.EntityNotFoundException;
 
 @RestController
@@ -99,5 +100,21 @@ public class FilaPacienteController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Erro ao realizar check-in: " + e.getMessage());
         }
+    }
+
+    @PutMapping("/{filaId}/paciente/{pacienteId}/status")
+    @Operation(summary = "Atualiza o status de um paciente na fila")
+    public ResponseEntity<?> atualizarStatusPaciente(
+            @PathVariable Long filaId,
+            @PathVariable Long pacienteId,
+            @RequestBody Map<String, String> statusRequest) {
+        
+        String status = statusRequest.get("status");
+        if (status == null || status.isEmpty()) {
+            return ResponseEntity.badRequest().body("Status não pode ser vazio");
+        }
+        
+        FilaPacienteDTO paciente = filaPacienteService.atualizarStatusPaciente(filaId, pacienteId, status);
+        return ResponseEntity.ok(paciente);
     }
 }

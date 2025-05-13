@@ -1,15 +1,11 @@
 package com.medqueue.medqueue.service.paciente;
 
-import com.medqueue.medqueue.dto.FilaPacienteDTO;
 import com.medqueue.medqueue.dto.InfoFilaParaPacienteDTO;
 import com.medqueue.medqueue.models.FilaPaciente;
 import com.medqueue.medqueue.repository.FilaPacienteRepository;
 import com.medqueue.medqueue.service.auth.AuthService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 

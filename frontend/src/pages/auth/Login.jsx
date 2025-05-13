@@ -1,13 +1,13 @@
 import React, { useState } from "react";
-import { 
-    Box, 
-    TextField, 
-    Button, 
-    Typography, 
-    Paper, 
-    InputAdornment, 
-    IconButton, 
-    Link, 
+import {
+  Box,
+  TextField,
+  Button,
+  Typography,
+  Paper,
+  InputAdornment,
+  IconButton,
+  Link,
 } from "@mui/material";
 import { styled } from "@mui/system";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
@@ -46,19 +46,49 @@ const LoginPage = () => {
 
   const navigate = useNavigate();
 
+  const formatCPF = (value) => {
+    const digits = value.replace(/\D/g, "");
+    const cpfDigits = digits.slice(0, 11);
+    let formattedCPF = "";
+
+    if (cpfDigits.length > 0) {
+      formattedCPF = cpfDigits.slice(0, 3);
+
+      if (cpfDigits.length > 3) {
+        formattedCPF += "." + cpfDigits.slice(3, 6);
+      }
+
+      if (cpfDigits.length > 6) {
+        formattedCPF += "." + cpfDigits.slice(6, 9);
+      }
+
+      if (cpfDigits.length > 9) {
+        formattedCPF += "-" + cpfDigits.slice(9, 11);
+      }
+    }
+
+    return formattedCPF;
+  };
+
+  const handleCPFChange = (e) => {
+    const formattedCPF = formatCPF(e.target.value);
+    setCpf(formattedCPF);
+  };
+
   const handleLogin = async (event) => {
     event.preventDefault();
-    
+
+    const cpfClean = cpf.replace(/\D/g, "");
+
     const user = {
-        cpf,
-        senha
-    }
+      cpf: cpfClean,
+      senha,
+    };
 
     try {
       const response = await login(user);
 
       const token = response.data.token;
-
       localStorage.setItem("access_token", token);
 
       const roles = response.data.role;
@@ -70,8 +100,8 @@ const LoginPage = () => {
       } else {
         setError("Acesso não autorizado.");
       }
-
-    } catch (err) {
+    } catch (error) {
+      console.error("Login error:", error);
       setError("Credenciais inválidas. Tente novamente.");
     }
   };
@@ -91,7 +121,9 @@ const LoginPage = () => {
             fullWidth
             sx={{ marginBottom: 2 }}
             value={cpf}
-            onChange={(e) => setCpf(e.target.value)}
+            onChange={handleCPFChange}
+            inputProps={{ maxLength: 14 }}
+            placeholder="000.000.000-00"
             required
           />
           <TextField
@@ -106,17 +138,14 @@ const LoginPage = () => {
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">
-                  <IconButton
-                    onClick={handleClickShowPassword}
-                    edge="end"
-                  >
+                  <IconButton onClick={handleClickShowPassword} edge="end">
                     {showPassword ? <VisibilityOff /> : <Visibility />}
                   </IconButton>
                 </InputAdornment>
               ),
             }}
           />
-          {error && <Typography color="error" >{error}</Typography>}
+          {error && <Typography color="error">{error}</Typography>}
           <Button
             type="submit"
             variant="contained"
@@ -127,9 +156,9 @@ const LoginPage = () => {
             Entrar
           </Button>
         </form>
-        <Typography sx={{ marginTop: 2}}>
+        <Typography sx={{ marginTop: 2 }}>
           Ainda não tem uma conta?
-          <Link href="/register" variant="body2" sx={{ marginLeft: 0.5}}>
+          <Link href="/register" variant="body2" sx={{ marginLeft: 0.5 }}>
             Registre-se!
           </Link>
         </Typography>

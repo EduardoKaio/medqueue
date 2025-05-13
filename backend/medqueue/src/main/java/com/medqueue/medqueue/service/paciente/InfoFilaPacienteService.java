@@ -20,11 +20,11 @@ public class InfoFilaPacienteService {
         Long pacienteId = authService.getIdDoUsuario();
     
         FilaPaciente filaPaciente = filaPacienteRepository
-                .findFirstByPacienteIdAndAtendidoFalseAndFilaAtivoTrue(pacienteId)
+                .findFirstByPacienteIdAndStatusAndFilaAtivoTrue(pacienteId, "Na fila")
                 .orElseThrow(() -> new EntityNotFoundException(
                         "Paciente com ID " + pacienteId + " não está em nenhuma fila ativa."));
     
-        if (filaPaciente.getAtendido()) {
+        if ("Atendido".equals(filaPaciente.getStatus())) {
             throw new IllegalStateException("Paciente já foi atendido.");
         }
 

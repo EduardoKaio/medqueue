@@ -28,7 +28,7 @@ public class InfoFilaPacienteController {
         } catch (EntityNotFoundException e) {
             return ResponseEntity.badRequest().body("Paciente não está na fila ou fila inexistente.");
         } catch (IllegalStateException e) {
-            return ResponseEntity.badRequest().body(e.getMessage()); // Caso o paciente já tenha sido atendido
+            return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(500).body("Erro ao buscar informações da fila.");

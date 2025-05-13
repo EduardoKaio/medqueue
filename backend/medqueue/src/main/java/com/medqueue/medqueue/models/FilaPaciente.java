@@ -45,7 +45,7 @@ public class FilaPaciente {
 
     @Builder.Default
     @Column(nullable = false)
-    private Boolean atendido = false;
+    private String status = "Na fila";
 
     @Builder.Default
     @Column(nullable = false)

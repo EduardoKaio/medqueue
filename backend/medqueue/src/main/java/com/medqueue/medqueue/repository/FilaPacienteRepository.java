@@ -8,16 +8,20 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.medqueue.medqueue.models.FilaPaciente;
 
 public interface FilaPacienteRepository extends JpaRepository<FilaPaciente, Long> {
-
-    List<FilaPaciente> findByFilaIdAndAtendidoFalseOrderByPosicao(Long filaId);
-
-    FilaPaciente findFirstByFilaIdAndAtendidoFalseOrderByPosicao(Long filaId);
-
-    Optional<FilaPaciente> findByPacienteIdAndFilaIdAndAtendidoFalse(Long pacienteId, Long filaId);
-
-    Optional<FilaPaciente> findFirstByPacienteIdAndAtendidoFalseAndFilaAtivoTrue(Long pacienteId);
-
-    List<FilaPaciente> findByFilaIdAndAtendidoFalseAndCheckInFalseOrderByPosicao(Long filaId);
-
-    List<FilaPaciente> findByFilaIdAndAtendidoFalseOrderByPrioridade(Long filaId);
+  
+    List<FilaPaciente> findByFilaIdAndStatusOrderByPosicao(Long filaId, String status);
+    
+    FilaPaciente findFirstByFilaIdAndStatusOrderByPosicao(Long filaId, String status);
+     
+    Optional<FilaPaciente> findByPacienteIdAndFilaIdAndStatus(Long pacienteId, Long filaId, String status);
+    
+    Optional<FilaPaciente> findFirstByPacienteIdAndStatusAndFilaAtivoTrue(Long pacienteId, String status);
+    
+    List<FilaPaciente> findByFilaIdAndStatusAndCheckInFalseOrderByPosicao(Long filaId, String status);
+    
+    Optional<FilaPaciente> findByPacienteIdAndFilaId(Long pacienteId, Long filaId);
+    
+    List<FilaPaciente> findByFilaId(Long filaId);
+    
+    List<FilaPaciente> findByFilaIdAndStatusOrderByPrioridade(Long filaId, String status);
 }

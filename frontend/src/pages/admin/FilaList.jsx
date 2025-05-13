@@ -181,6 +181,9 @@ function FilaList() {
                     <TableCell sx={{ color: "white", fontWeight: "bold" }}>
                       Tempo Médio
                     </TableCell>
+                    <TableCell sx={{ color: "white", fontWeight: "bold" }}>
+                      Especialidade
+                    </TableCell>
                     <TableCell
                       sx={{
                         color: "white",
@@ -206,6 +209,7 @@ function FilaList() {
                       <TableCell>{f.descricao}</TableCell>
                       
                       <TableCell>{f.tempoMedio} min</TableCell>
+                      <TableCell>{f.especialidade}</TableCell>
                       <TableCell align="center">
                         <Link to={`/admin/filas/edit/${f.id}`}>
                           <IconButton color="primary">

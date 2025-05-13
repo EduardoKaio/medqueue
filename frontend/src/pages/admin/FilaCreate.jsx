@@ -21,6 +21,7 @@ const FilaCreate = () => {
   const [nome, setNome] = useState("");
   const [descricao, setDescricao] = useState("");
   const [ativo, setAtivo] = useState(true);
+  const [especialidade, setEspecialidade] = useState("");
   
   const [tempoMedio, setTempoMedio] = useState(0.0);
   const [error, setError] = useState("");
@@ -46,6 +47,7 @@ const FilaCreate = () => {
       descricao,
       ativo,
       tempo_medio: Number(tempoMedio),
+      especialidade,
 
     };
 
@@ -179,6 +181,17 @@ const FilaCreate = () => {
                     />
                   }
                   label="Fila Ativa"
+                />
+              </Grid>
+
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  label="Especialidade"
+                  variant="outlined"
+                  fullWidth
+                  value={especialidade}
+                  onChange={(e) => setEspecialidade(e.target.value)}
+                  required
                 />
               </Grid>
             </Grid>

@@ -23,6 +23,7 @@ const FilaEdit = () => {
   const [descricao, setDescricao] = useState("");
   const [ativo, setAtivo] = useState(true);
   const [tempoMedio, setTempoMedio] = useState(0.0);
+  const [especialidade, setEspecialidade] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
 
@@ -34,6 +35,7 @@ const FilaEdit = () => {
         setNome(fila.nome);
         setDescricao(fila.descricao || "");
         setAtivo(fila.ativo);
+        setEspecialidade(fila.especialidade);
         setTempoMedio(fila.tempoMedio);
         setLoading(false);
       } catch (err) {
@@ -56,6 +58,7 @@ const FilaEdit = () => {
         descricao,
         ativo,
         tempoMedio: Number(tempoMedio),
+        especialidade,
       };
 
       await atualizarFila(id, filaAtualizada);
@@ -204,6 +207,17 @@ const FilaEdit = () => {
                     />
                   }
                   label="Fila Ativa"
+                />
+              </Grid>
+
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  label="Especialidade"
+                  variant="outlined"
+                  fullWidth
+                  value={especialidade}
+                  onChange={(e) => setEspecialidade(e.target.value)}
+                  required
                 />
               </Grid>
             </Grid>

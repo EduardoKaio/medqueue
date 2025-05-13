@@ -3,10 +3,10 @@ package com.medqueue.medqueue.dto;
 import java.time.LocalDate;
 
 import javax.validation.constraints.Min;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import java.time.LocalDate;
 
 @Data
 @NoArgsConstructor
@@ -20,4 +20,5 @@ public class FilaDTO {
     private Double tempoMedio;
 
     private LocalDate dataCriacao;
+    private String especialidade;
 }

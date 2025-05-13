@@ -1,15 +1,15 @@
 package com.medqueue.medqueue.service.paciente;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.medqueue.medqueue.dto.PrioridadeResponseDTO;
-import com.medqueue.medqueue.dto.RecomendacaoResponseDTO;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;;
+import com.medqueue.medqueue.dto.RecomendacaoResponseDTO;;
 
 @Service
 public class LLMService {
@@ -54,7 +54,7 @@ public class LLMService {
         String pergunta = """
             Considere os sintomas informados por um paciente. 
             Com base no sintoma descrito, diga qual especialista médico o paciente deve procurar. 
-            Responda no seguinte formato:
+            Responda no seguinte formato, e dê apenas uma recomendação de especialista:
     
             Especialista: [Nome do especialista]
             Justificativa: [Explicação curta do motivo da recomendação]

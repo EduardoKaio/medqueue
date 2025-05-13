@@ -1,7 +1,6 @@
 package com.medqueue.medqueue.service.admin;
 
 import com.medqueue.medqueue.dto.FilaPacienteDTO;
-import com.medqueue.medqueue.dto.FilaPrioridadeDTO;
 import com.medqueue.medqueue.models.Fila;
 import com.medqueue.medqueue.models.FilaPaciente;
 import com.medqueue.medqueue.models.Paciente;
@@ -16,7 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -28,72 +26,76 @@ public class FilaPacienteService {
     private final FilaRepository filaRepository;
     private final PacienteRepository pacienteRepository;
     private final WhatsAppService whatsAppService;
-    
-    // Constantes para ajuste do algoritmo de prioridade
-    private static final double PESO_PRIORIDADE = 1000.0; // Peso da prioridade da fila
-    private static final double PESO_TEMPO_ESPERA = 5.0; // Peso do tempo de espera em minutos
 
     @Transactional
-public void addPaciente(Long pacienteId, Long filaId) {
-    if (pacienteId == null) {
-        throw new IllegalArgumentException("ID do paciente não pode ser nulo");
-    }
-    if (filaId == null) {
-        throw new IllegalArgumentException("ID da fila não pode ser nulo");
-    }
+    public void addPaciente(Long pacienteId, Long filaId, Integer prioridade) {
 
-    try {
-        Paciente paciente = pacienteRepository.findById(pacienteId)
-                .orElseThrow(() -> new EntityNotFoundException("Paciente não encontrado com ID: " + pacienteId));
-
-        Fila fila = filaRepository.findById(filaId)
-                .orElseThrow(() -> new EntityNotFoundException("Fila não encontrada com ID: " + filaId));
-
-        if (!fila.getAtivo()) {
-            throw new IllegalStateException("Fila com ID " + filaId + " está inativa");
+        if (pacienteId == null) {
+            throw new IllegalArgumentException("ID do paciente não pode ser nulo");
+        }
+        if (filaId == null) {
+            throw new IllegalArgumentException("ID da fila não pode ser nulo");
+        }
+        if (prioridade == null) {
+            throw new IllegalArgumentException("Prioridade não pode ser nula");
         }
 
-        // Verifica se o paciente já está na fila
-        Optional<FilaPaciente> existente = filaPacienteRepository
-                .findByPacienteIdAndFilaIdAndAtendidoFalse(pacienteId, filaId);
-
-        if (existente.isPresent()) {
-            throw new IllegalStateException("Paciente já está na fila com ID: " + filaId);
-        }
-
-        int posicao = filaPacienteRepository.findByFilaIdAndAtendidoFalseOrderByPosicao(filaId).size() + 1;
-
-        FilaPaciente filaPaciente = new FilaPaciente();
-        filaPaciente.setPaciente(paciente);
-        filaPaciente.setFila(fila);
-        filaPaciente.setPosicao(posicao);
-        filaPaciente.setAtendido(false);
-        filaPaciente.setDataEntrada(LocalDateTime.now());
-
-        filaPacienteRepository.save(filaPaciente);
-
-        // Enviar mensagem de boas-vindas
         try {
-            String telefone = paciente.getTelefone();
-            String primeiroNome = paciente.getNome().split(" ")[0];
+            Paciente paciente = pacienteRepository.findById(pacienteId)
+                    .orElseThrow(() -> new EntityNotFoundException("Paciente não encontrado com ID: " + pacienteId));
 
-            String mensagem = String.format(
-                "👋 Olá %s! Aqui é da equipe *MedQueue* 🏥\n\nVocê entrou na fila com sucesso! 🎉\nSua posição atual é: *%d*.\nAcompanhe seu status e fique atento para o seu atendimento.\n\nAgradecemos por utilizar o MedQueue! 😊",
-                primeiroNome, posicao
-            );
+            Fila fila = filaRepository.findById(filaId)
+                    .orElseThrow(() -> new EntityNotFoundException("Fila não encontrada com ID: " + filaId));
 
-            whatsAppService.sendWhatsAppMessage(telefone, mensagem);
+            if (!fila.getAtivo()) {
+                throw new IllegalStateException("Fila com ID " + filaId + " está inativa");
+            }
+
+            // Verifica se o paciente já está na fila
+            Optional<FilaPaciente> existente = filaPacienteRepository
+                    .findByPacienteIdAndFilaIdAndAtendidoFalse(pacienteId, filaId);
+
+            if (existente.isPresent()) {
+                throw new IllegalStateException("Paciente já está na fila com ID: " + filaId);
+            }
+
+            int posicao = filaPacienteRepository.findByFilaIdAndAtendidoFalseOrderByPosicao(filaId).size() + 1;
+
+            FilaPaciente filaPaciente = new FilaPaciente();
+            filaPaciente.setPaciente(paciente);
+            filaPaciente.setFila(fila);
+            filaPaciente.setPosicao(posicao);
+            filaPaciente.setAtendido(false);
+            filaPaciente.setDataEntrada(LocalDateTime.now());
+            filaPaciente.setPrioridade(prioridade);
+
+            filaPacienteRepository.save(filaPaciente);
+
+            if (prioridade != 3) {
+                atualizarPosicao(filaId);
+            }
+
+            // Enviar mensagem de boas-vindas
+            try {
+                String telefone = paciente.getTelefone();
+                String primeiroNome = paciente.getNome().split(" ")[0];
+
+                String mensagem = String.format(
+                        "👋 Olá %s! Aqui é da equipe *MedQueue* 🏥\n\nVocê entrou na fila com sucesso! 🎉\nSua posição atual é: *%d*.\nAcompanhe seu status e fique atento para o seu atendimento.\n\nAgradecemos por utilizar o MedQueue! 😊",
+                        primeiroNome, posicao
+                );
+
+                whatsAppService.sendWhatsAppMessage(telefone, mensagem);
+            } catch (Exception e) {
+                System.err.println("Erro ao enviar mensagem de boas-vindas ao paciente: " + e.getMessage());
+            }
+
+        } catch (EntityNotFoundException | IllegalStateException e) {
+            throw e;
         } catch (Exception e) {
-            System.err.println("Erro ao enviar mensagem de boas-vindas ao paciente: " + e.getMessage());
+            throw new RuntimeException("Erro ao adicionar paciente à fila: " + e.getMessage(), e);
         }
-
-    } catch (EntityNotFoundException | IllegalStateException e) {
-        throw e;
-    } catch (Exception e) {
-        throw new RuntimeException("Erro ao adicionar paciente à fila: " + e.getMessage(), e);
     }
-}
-
 
     @Transactional
     public FilaPaciente atenderProximoPaciente(Long filaId) {
@@ -183,12 +185,13 @@ public void addPaciente(Long pacienteId, Long filaId) {
 
             return filaPacientes.stream()
                     .map(fp -> new FilaPacienteDTO(
-                            fp.getPaciente().getId(),
-                            fp.getPaciente().getNome(),
-                            fp.getPosicao(),
-                            fp.getAtendido(),
-                            fp.getDataEntrada(),
-                            fp.getCheckIn()))
+                    fp.getPaciente().getId(),
+                    fp.getPaciente().getNome(),
+                    fp.getPosicao(),
+                    fp.getAtendido(),
+                    fp.getDataEntrada(),
+                    fp.getCheckIn(),
+                    fp.getPrioridade()))
                     .collect(Collectors.toList());
         } catch (EntityNotFoundException e) {
             throw e;
@@ -206,25 +209,23 @@ public void addPaciente(Long pacienteId, Long filaId) {
     }
 
     @Transactional
-    public Fila atualizarPrioridadeETempoMedio(Long filaId, Integer prioridade, Double tempoMedio) {
+    public void atualizarPosicao(Long filaId) {
         if (filaId == null) {
             throw new IllegalArgumentException("ID da fila não pode ser nulo");
         }
-        if (prioridade != null && prioridade < 0) {
-            throw new IllegalArgumentException("Prioridade não pode ser negativa");
-        }
-        if (tempoMedio != null && tempoMedio < 0) {
-            throw new IllegalArgumentException("Tempo médio não pode ser negativo");
-        }
 
         try {
-            Fila fila = filaRepository.findById(filaId)
-                    .orElseThrow(() -> new EntityNotFoundException("Fila não encontrada com ID: " + filaId));
+            List<FilaPaciente> filaPacientesOrdenada = filaPacienteRepository.findByFilaIdAndAtendidoFalseOrderByPrioridade(filaId);
 
-            if (tempoMedio != null) {
-                fila.setTempoMedio(tempoMedio);
+            int cont = 0;
+
+            for (FilaPaciente filaPaciente : filaPacientesOrdenada) {
+                cont++;
+
+                filaPaciente.setPosicao(cont);
+                filaPacienteRepository.save(filaPaciente);
             }
-            return filaRepository.save(fila);
+
         } catch (EntityNotFoundException e) {
             throw e;
         } catch (Exception e) {
@@ -260,11 +261,12 @@ public void addPaciente(Long pacienteId, Long filaId) {
     }
 
     /**
-     * Busca o próximo paciente a ser atendido considerando o sistema de prioridades
-     * Prioridade 3 > Prioridade 2 > Prioridade 1
-     * Em caso de mesma prioridade, considera-se o tempo de espera
-     * 
-     * @return O próximo paciente para atendimento ou null se não houver pacientes
+     * Busca o próximo paciente a ser atendido considerando o sistema de
+     * prioridades Prioridade 3 > Prioridade 2 > Prioridade 1 Em caso de mesma
+     * prioridade, considera-se o tempo de espera
+     *
+     * @return O próximo paciente para atendimento ou null se não houver
+     * pacientes
      */
     // @Transactional(readOnly = true)
     // public FilaPacienteDTO buscarProximoPaciente() {
@@ -272,24 +274,19 @@ public void addPaciente(Long pacienteId, Long filaId) {
     //         // Buscar todos os pacientes em filas ativas que não foram atendidos
     //         List<FilaPaciente> todosPacientes = new ArrayList<>();
     //         List<Fila> filasAtivas = filaRepository.findByAtivoTrue();
-
     //         for (Fila fila : filasAtivas) {
     //             List<FilaPaciente> pacientesNaFila = filaPacienteRepository
     //                     .findByFilaIdAndAtendidoFalseOrderByPosicao(fila.getId());
     //             todosPacientes.addAll(pacientesNaFila);
     //         }
-
     //         if (todosPacientes.isEmpty()) {
     //             return null;
     //         }
-
     //         // Calcular score de prioridade para cada paciente
     //         FilaPaciente proximoPaciente = calcularProximoPaciente(todosPacientes);
-
     //         if (proximoPaciente == null) {
     //             return null;
     //         }
-
     //         return new FilaPacienteDTO(
     //                 proximoPaciente.getPaciente().getId(),
     //                 proximoPaciente.getPaciente().getNome(),
@@ -297,12 +294,10 @@ public void addPaciente(Long pacienteId, Long filaId) {
     //                 proximoPaciente.getAtendido(),
     //                 proximoPaciente.getDataEntrada(),
     //                 proximoPaciente.getCheckIn());
-
     //     } catch (Exception e) {
     //         throw new RuntimeException("Erro ao buscar próximo paciente para atendimento: " + e.getMessage(), e);
     //     }
     // }
-
     // /**
     //  * Calcula qual paciente deve ser o próximo a ser atendido baseado no sistema de
     //  * prioridades
@@ -314,28 +309,22 @@ public void addPaciente(Long pacienteId, Long filaId) {
     //     if (pacientes == null || pacientes.isEmpty()) {
     //         return null;
     //     }
-
     //     LocalDateTime agora = LocalDateTime.now();
-
     //     // Calcular o score para cada paciente e encontrar o maior
     //     FilaPaciente pacientePrioritario = null;
     //     double maiorScore = -1;
-
     //     for (FilaPaciente paciente : pacientes) {
     //         // Obter a prioridade da fila (1, 2 ou 3)
     //         int prioridadeFila = paciente.getFila().getPrioridade();
-
     //         // Calcular o tempo de espera em minutos
     //         // Verificamos se o campo createdAt existe, se não, usamos a data atual como
     //         // fallback
     //         LocalDateTime dataCriacao = paciente.getCreatedAt() != null ? paciente.getCreatedAt() : LocalDateTime.now();
     //         long tempoEsperaMinutos = ChronoUnit.MINUTES.between(dataCriacao, agora);
-
     //         // Calcular o score de prioridade
     //         // Fórmula: (Prioridade da Fila * PESO_PRIORIDADE) + (Tempo de Espera *
     //         // PESO_TEMPO_ESPERA)
     //         double score = (prioridadeFila * PESO_PRIORIDADE) + (tempoEsperaMinutos * PESO_TEMPO_ESPERA);
-
     //         // Se este paciente tem um score maior que o atual maior, ele se torna o
     //         // prioritário
     //         if (score > maiorScore) {
@@ -343,10 +332,8 @@ public void addPaciente(Long pacienteId, Long filaId) {
     //             pacientePrioritario = paciente;
     //         }
     //     }
-
     //     return pacientePrioritario;
     // }
-
     // /**
     //  * Busca todos os pacientes em todas as filas com suas informações de prioridade
     //  * 
@@ -357,21 +344,16 @@ public void addPaciente(Long pacienteId, Long filaId) {
     //         List<FilaPrioridadeDTO> resultado = new ArrayList<>();
     //         List<Fila> filasAtivas = filaRepository.findByAtivoTrue();
     //         LocalDateTime agora = LocalDateTime.now();
-
     //         for (Fila fila : filasAtivas) {
     //             List<FilaPaciente> pacientesNaFila = filaPacienteRepository
     //                     .findByFilaIdAndAtendidoFalseOrderByPosicao(fila.getId());
-
     //             for (FilaPaciente paciente : pacientesNaFila) {
     //                 int prioridadeFila = fila.getPrioridade();
-
     //                 // Verificamos se o campo createdAt existe
     //                 LocalDateTime dataCriacao = paciente.getCreatedAt() != null ? paciente.getCreatedAt()
     //                         : LocalDateTime.now();
     //                 long tempoEsperaMinutos = ChronoUnit.MINUTES.between(dataCriacao, agora);
-
     //                 double score = (prioridadeFila * PESO_PRIORIDADE) + (tempoEsperaMinutos * PESO_TEMPO_ESPERA);
-
     //                 resultado.add(new FilaPrioridadeDTO(
     //                         paciente.getPaciente().getId(),
     //                         paciente.getPaciente().getNome(),
@@ -383,30 +365,26 @@ public void addPaciente(Long pacienteId, Long filaId) {
     //                         score));
     //             }
     //         }
-
     //         // Ordenar pela pontuação (score) de forma decrescente
     //         resultado.sort((p1, p2) -> Double.compare(p2.getScore(), p1.getScore()));
-
     //         return resultado;
     //     } catch (Exception e) {
     //         throw new RuntimeException("Erro ao listar pacientes com prioridade: " + e.getMessage(), e);
     //     }
     // }
-
     /**
-     * Atualiza as prioridades de todas as filas ativas para reequilibrar o sistema
+     * Atualiza as prioridades de todas as filas ativas para reequilibrar o
+     * sistema
      */
     // @Transactional
     // public void rebalancearPrioridades() {
     //     try {
     //         List<Fila> filas = filaRepository.findByAtivoTrue();
-
     //         // Implementação de algoritmo para reequilibrar prioridades
     //         // Por exemplo: filas com muitos pacientes podem receber prioridade maior
     //         for (Fila fila : filas) {
     //             int quantidadePacientes = filaPacienteRepository
     //                     .findByFilaIdAndAtendidoFalseOrderByPosicao(fila.getId()).size();
-
     //             // Ajuste baseado na quantidade de pacientes (exemplo simples)
     //             if (quantidadePacientes > 20) {
     //                 // Filas muito cheias recebem maior prioridade para evitar acúmulo
@@ -416,14 +394,12 @@ public void addPaciente(Long pacienteId, Long filaId) {
     //             } else {
     //                 fila.setPrioridade(1);
     //             }
-
     //             filaRepository.save(fila);
     //         }
     //     } catch (Exception e) {
     //         throw new RuntimeException("Erro ao rebalancear prioridades: " + e.getMessage(), e);
     //     }
     // }
-
     @Transactional
     public FilaPacienteDTO realizarCheckIn(Long filaId, Long pacienteId) {
         if (filaId == null) {
@@ -441,7 +417,7 @@ public void addPaciente(Long pacienteId, Long filaId) {
             FilaPaciente filaPaciente = filaPacienteRepository
                     .findByPacienteIdAndFilaIdAndAtendidoFalse(pacienteId, filaId)
                     .orElseThrow(() -> new EntityNotFoundException(
-                            "Paciente com ID " + pacienteId + " não está na fila com ID " + filaId));
+                    "Paciente com ID " + pacienteId + " não está na fila com ID " + filaId));
 
             if (filaPaciente.getCheckIn()) {
                 throw new IllegalStateException("Paciente já realizou check-in");
@@ -465,8 +441,8 @@ public void addPaciente(Long pacienteId, Long filaId) {
                         String primeiroNome = fp.getPaciente().getNome().split(" ")[0];
 
                         String mensagem = String.format(
-                            "👋 Olá %s! Aqui é da equipe *MedQueue* 🏥\n\nVocê é o *próximo da fila* para ser atendido! 🔔\nFique atento e se prepare para o seu atendimento.\n\nAgradecemos pela sua paciência! 😊",
-                            primeiroNome
+                                "👋 Olá %s! Aqui é da equipe *MedQueue* 🏥\n\nVocê é o *próximo da fila* para ser atendido! 🔔\nFique atento e se prepare para o seu atendimento.\n\nAgradecemos pela sua paciência! 😊",
+                                primeiroNome
                         );
 
                         whatsAppService.sendWhatsAppMessage(telefone, mensagem);
@@ -485,7 +461,8 @@ public void addPaciente(Long pacienteId, Long filaId) {
                     filaPaciente.getPosicao(),
                     filaPaciente.getAtendido(),
                     filaPaciente.getDataEntrada(),
-                    filaPaciente.getCheckIn());
+                    filaPaciente.getCheckIn(),
+                    filaPaciente.getPrioridade());
 
         } catch (EntityNotFoundException | IllegalStateException e) {
             throw e;
@@ -493,5 +470,5 @@ public void addPaciente(Long pacienteId, Long filaId) {
             throw new RuntimeException("Erro ao realizar check-in do paciente: " + e.getMessage(), e);
         }
     }
-    
+
 }

@@ -176,7 +176,7 @@ public class FilaPacienteService {
             }
             
             List<FilaPaciente> filaPacientes = filaPacienteRepository
-                    .findByFilaId(filaId);
+                    .findByFilaIdOrderByPosicao(filaId);
 
             if (filaPacientes.isEmpty()) {
                 return Collections.emptyList();
@@ -188,12 +188,13 @@ public class FilaPacienteService {
                     fp.getPaciente().getId(),
                     fp.getPaciente().getNome(),
                     fp.getPosicao(),
-                    fp.getAtendido(),
+                    fp.getStatus(),
                     fp.getDataEntrada(),
                     fp.getCheckIn(),
                     fp.getPrioridade()))
               
                     .collect(Collectors.toList());
+
         } catch (EntityNotFoundException e) {
             throw e;
         } catch (Exception e) {
@@ -273,16 +274,29 @@ public class FilaPacienteService {
                 throw new EntityNotFoundException("Fila não encontrada com ID: " + filaId);
             }
 
-            FilaPaciente filaPaciente = filaPacienteRepository
+            FilaPaciente filaPaciente = null;
+
+            FilaPaciente paciente = filaPacienteRepository.findByPacienteIdAndFilaId(pacienteId, filaId)
+                            .orElseThrow(() -> new EntityNotFoundException("Esse paciente não está na fila"));
+
+            if ("Na fila".equals(paciente.getStatus())) {
+                filaPaciente = filaPacienteRepository
                     .findByPacienteIdAndFilaIdAndStatus(pacienteId, filaId, "Na fila")
                     .orElseThrow(() -> new EntityNotFoundException(
+                    "Paciente com ID " + pacienteId + " não está na fila com ID " + filaId));                
+            } else {
+                filaPaciente = filaPacienteRepository
+                    .findByPacienteIdAndFilaIdAndStatus(pacienteId, filaId, "Atrasado")
+                    .orElseThrow(() -> new EntityNotFoundException(
                     "Paciente com ID " + pacienteId + " não está na fila com ID " + filaId));
+            }
 
             if (filaPaciente.getCheckIn()) {
                 throw new IllegalStateException("Paciente já realizou check-in");
             }
 
             filaPaciente.setCheckIn(true);
+            filaPaciente.setStatus("Em atendimento");
             filaPacienteRepository.save(filaPaciente);
 
             // Reorganizar posições: apenas dos que ainda não fizeram check-in e ainda não foram atendidos
@@ -411,7 +425,8 @@ public class FilaPacienteService {
                     filaPaciente.getPosicao(),
                     filaPaciente.getStatus(),
                     filaPaciente.getDataEntrada(),
-                    filaPaciente.getCheckIn());
+                    filaPaciente.getCheckIn(),
+                    filaPaciente.getPrioridade());
         } catch (EntityNotFoundException | IllegalArgumentException e) {
             throw e;
         } catch (Exception e) {

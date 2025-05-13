@@ -121,6 +121,7 @@ const FilaPacientesList = () => {
       const intervalo = setInterval(verificarTimeout, 1000);
       return () => clearInterval(intervalo);
     }
+
   }, [firstInQueueTimestamp, firstPatientId, fetchPacientes, id]);
 
   const handleCheckIn = async (pacienteId) => {
@@ -156,12 +157,14 @@ const FilaPacientesList = () => {
       !delayedPatients.includes(p.pacienteId) &&
       p.status !== "Atrasado"
   );
+
   const inQueuePatients = pacientes.filter(
     (p) =>
       !p.checkIn &&
       p.status === "Na fila" &&
       !delayedPatients.includes(p.pacienteId)
   );
+
   const timeoutPatients = pacientes.filter(
     (p) => p.status === "Atrasado" || delayedPatients.includes(p.pacienteId)
   );
@@ -404,6 +407,12 @@ const FilaPacientesList = () => {
                                       #{index + 1} - {paciente.nomePaciente}
                                     </Typography>
                                     <Typography
+                                      variant="body1"
+                                      fontWeight="medium"
+                                    >
+                                      Prioridade: {paciente.prioridade}
+                                    </Typography>
+                                    <Typography
                                       variant="body2"
                                       sx={{
                                         color:
@@ -543,17 +552,6 @@ const FilaPacientesList = () => {
                                       </Typography>
                                     }
                                   />
-                                  <Button
-                                    variant="outlined"
-                                    color="primary"
-                                    size="small"
-                                    onClick={() =>
-                                      handleCheckIn(paciente.pacienteId)
-                                    }
-                                    sx={{ ml: 2 }}
-                                  >
-                                    Check-in
-                                  </Button>
                                 </ListItem>
                                 <Divider />
                               </React.Fragment>

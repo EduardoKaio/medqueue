@@ -31,12 +31,12 @@ function HomePaciente() {
 
     try {
       await enterQueue("geral", 3);
+      setShowAlert(true); // Exibe o alerta de confirmação
     } catch (err) {
-      console.error("Erro ao criar paciente", err);
+      console.error("Erro ao entrar na fila", err);
     }
 
     setConfirmDialogOpen(false); // Fecha o modal
-    setShowAlert(true); // Exibe o alerta de confirmação
   };
 
   const handleTriagem = () => {

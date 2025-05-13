@@ -22,7 +22,7 @@ function HomePaciente() {
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const navigate = useNavigate();
 
-  const handleEntrarNaFila = () => {
+  const handleEntrarNaFila = () => {    
     setConfirmDialogOpen(true); // Abre o modal de confirmação
   };
 
@@ -30,7 +30,7 @@ function HomePaciente() {
     e.preventDefault();
 
     try {
-      await enterQueue();
+      await enterQueue("geral", 3);
     } catch (err) {
       console.error("Erro ao criar paciente", err);
     }

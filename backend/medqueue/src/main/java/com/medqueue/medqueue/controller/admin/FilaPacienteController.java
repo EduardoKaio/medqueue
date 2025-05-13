@@ -23,17 +23,6 @@ public class FilaPacienteController {
 
     private final FilaPacienteService filaPacienteService;
 
-    @Operation(summary = "Adicionar paciente à fila")
-    @PostMapping("/add")
-    public ResponseEntity<String> addPaciente(@RequestParam Long pacienteId, @RequestParam Long filaId) {
-        try {
-            filaPacienteService.addPaciente(pacienteId, filaId);
-            return ResponseEntity.ok("Paciente adicionado à fila com ID: " + filaId);
-        } catch (EntityNotFoundException | IllegalStateException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
-
     @Operation(summary = "Atender próximo paciente da fila", description = "Marca como atendido o próximo paciente da fila.")
     @DeleteMapping("/next")
     public ResponseEntity<String> atenderProximoPaciente(@RequestParam Long filaId) {
@@ -60,20 +49,6 @@ public class FilaPacienteController {
             return ResponseEntity.ok(filaOrdenada);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.badRequest().body(null);
-        }
-    }
-
-    @Operation(summary = "Atualizar prioridade e tempo médio da fila", description = "Atualiza a prioridade e o tempo médio de uma fila específica.")
-    @PutMapping("/update-priority-time")
-    public ResponseEntity<?> atualizarPrioridadeETempoMedio(
-            @RequestParam Long filaId,
-            @RequestParam Integer prioridade,
-            @RequestParam Double tempoMedio) {
-        try {
-            Fila filaAtualizada = filaPacienteService.atualizarPrioridadeETempoMedio(filaId, prioridade, tempoMedio);
-            return ResponseEntity.ok(filaAtualizada);
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 

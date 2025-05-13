@@ -14,4 +14,5 @@ public class FilaPacienteDTO {
     private String status;
     private LocalDateTime dataEntrada;
     private Boolean checkIn;
+    private Integer prioridade;
 }

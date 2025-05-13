@@ -28,12 +28,16 @@ public class FilaPacienteService {
     private final WhatsAppService whatsAppService;
 
     @Transactional
-    public void addPaciente(Long pacienteId, Long filaId) {
+    public void addPaciente(Long pacienteId, Long filaId, Integer prioridade) {
+
         if (pacienteId == null) {
             throw new IllegalArgumentException("ID do paciente não pode ser nulo");
         }
         if (filaId == null) {
             throw new IllegalArgumentException("ID da fila não pode ser nulo");
+        }
+        if (prioridade == null) {
+            throw new IllegalArgumentException("Prioridade não pode ser nula");
         }
 
         try {
@@ -56,31 +60,35 @@ public class FilaPacienteService {
             }
 
             int posicao = filaPacienteRepository.findByFilaIdAndStatusOrderByPosicao(filaId, "Na fila").size() + 1;
-
+          
             FilaPaciente filaPaciente = new FilaPaciente();
             filaPaciente.setPaciente(paciente);
             filaPaciente.setFila(fila);
             filaPaciente.setPosicao(posicao);
             filaPaciente.setStatus("Na fila");
             filaPaciente.setDataEntrada(LocalDateTime.now());
+            filaPaciente.setPrioridade(prioridade);
 
             filaPacienteRepository.save(filaPaciente);
 
+            if (prioridade != 3) {
+                atualizarPosicao(filaId);
+            }
+          
             // Enviar mensagem de boas-vindas
             try {
                 String telefone = paciente.getTelefone();
                 String primeiroNome = paciente.getNome().split(" ")[0];
 
                 String mensagem = String.format(
-                    "👋 Olá %s! Aqui é da equipe *MedQueue* 🏥\n\nVocê entrou na fila com sucesso! 🎉\nSua posição atual é: *%d*.\nAcompanhe seu status e fique atento para o seu atendimento.\n\nAgradecemos por utilizar o MedQueue! 😊",
-                    primeiroNome, posicao
+                        "👋 Olá %s! Aqui é da equipe *MedQueue* 🏥\n\nVocê entrou na fila com sucesso! 🎉\nSua posição atual é: *%d*.\nAcompanhe seu status e fique atento para o seu atendimento.\n\nAgradecemos por utilizar o MedQueue! 😊",
+                        primeiroNome, posicao
                 );
 
                 whatsAppService.sendWhatsAppMessage(telefone, mensagem);
             } catch (Exception e) {
                 System.err.println("Erro ao enviar mensagem de boas-vindas ao paciente: " + e.getMessage());
             }
-
         } catch (EntityNotFoundException | IllegalStateException e) {
             throw e;
         } catch (Exception e) {
@@ -176,12 +184,15 @@ public class FilaPacienteService {
 
             return filaPacientes.stream()
                     .map(fp -> new FilaPacienteDTO(
-                            fp.getPaciente().getId(),
-                            fp.getPaciente().getNome(),
-                            fp.getPosicao(),
-                            fp.getStatus(),
-                            fp.getDataEntrada(),
-                            fp.getCheckIn()))
+
+                    fp.getPaciente().getId(),
+                    fp.getPaciente().getNome(),
+                    fp.getPosicao(),
+                    fp.getAtendido(),
+                    fp.getDataEntrada(),
+                    fp.getCheckIn(),
+                    fp.getPrioridade()))
+              
                     .collect(Collectors.toList());
         } catch (EntityNotFoundException e) {
             throw e;
@@ -199,25 +210,23 @@ public class FilaPacienteService {
     }
 
     @Transactional
-    public Fila atualizarPrioridadeETempoMedio(Long filaId, Integer prioridade, Double tempoMedio) {
+    public void atualizarPosicao(Long filaId) {
         if (filaId == null) {
             throw new IllegalArgumentException("ID da fila não pode ser nulo");
         }
-        if (prioridade != null && prioridade < 0) {
-            throw new IllegalArgumentException("Prioridade não pode ser negativa");
-        }
-        if (tempoMedio != null && tempoMedio < 0) {
-            throw new IllegalArgumentException("Tempo médio não pode ser negativo");
-        }
 
         try {
-            Fila fila = filaRepository.findById(filaId)
-                    .orElseThrow(() -> new EntityNotFoundException("Fila não encontrada com ID: " + filaId));
+            List<FilaPaciente> filaPacientesOrdenada = filaPacienteRepository.findByFilaIdAndStatusOrderByPrioridade(filaId, "Na fila");
 
-            if (tempoMedio != null) {
-                fila.setTempoMedio(tempoMedio);
+            int cont = 0;
+
+            for (FilaPaciente filaPaciente : filaPacientesOrdenada) {
+                cont++;
+
+                filaPaciente.setPosicao(cont);
+                filaPacienteRepository.save(filaPaciente);
             }
-            return filaRepository.save(fila);
+
         } catch (EntityNotFoundException e) {
             throw e;
         } catch (Exception e) {
@@ -267,7 +276,7 @@ public class FilaPacienteService {
             FilaPaciente filaPaciente = filaPacienteRepository
                     .findByPacienteIdAndFilaIdAndStatus(pacienteId, filaId, "Na fila")
                     .orElseThrow(() -> new EntityNotFoundException(
-                            "Paciente com ID " + pacienteId + " não está na fila com ID " + filaId));
+                    "Paciente com ID " + pacienteId + " não está na fila com ID " + filaId));
 
             if (filaPaciente.getCheckIn()) {
                 throw new IllegalStateException("Paciente já realizou check-in");
@@ -291,8 +300,8 @@ public class FilaPacienteService {
                         String primeiroNome = fp.getPaciente().getNome().split(" ")[0];
 
                         String mensagem = String.format(
-                            "👋 Olá %s! Aqui é da equipe *MedQueue* 🏥\n\nVocê é o *próximo da fila* para ser atendido! 🔔\nFique atento e se prepare para o seu atendimento.\n\nAgradecemos pela sua paciência! 😊",
-                            primeiroNome
+                                "👋 Olá %s! Aqui é da equipe *MedQueue* 🏥\n\nVocê é o *próximo da fila* para ser atendido! 🔔\nFique atento e se prepare para o seu atendimento.\n\nAgradecemos pela sua paciência! 😊",
+                                primeiroNome
                         );
 
                         whatsAppService.sendWhatsAppMessage(telefone, mensagem);
@@ -311,7 +320,8 @@ public class FilaPacienteService {
                     filaPaciente.getPosicao(),
                     filaPaciente.getStatus(),
                     filaPaciente.getDataEntrada(),
-                    filaPaciente.getCheckIn());
+                    filaPaciente.getCheckIn(),
+                    filaPaciente.getPrioridade());
 
         } catch (EntityNotFoundException | IllegalStateException e) {
             throw e;
@@ -408,5 +418,4 @@ public class FilaPacienteService {
             throw new RuntimeException("Erro ao atualizar status do paciente: " + e.getMessage(), e);
         }
     }
-    
 }

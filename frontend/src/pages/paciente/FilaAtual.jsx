@@ -48,10 +48,21 @@ function FilaAtual() {
     );
   }
 
+  // Verifica se o backend retornou uma mensagem indicando que o paciente não está em nenhuma fila
+ if (queueInfo?.mensagem) {
+  return (
+    <Box sx={{ display: "flex", justifyContent: "center", mt: 10 }}>
+      <Alert severity="info">
+        Você não está em nenhuma fila no momento.
+      </Alert>
+    </Box>
+  );
+}
+
   return (
     <Box sx={{ display: "flex", justifyContent: "center", mt: 12, px: 2 }}>
       <Stack
-        direction={{ xs: "column", md: "row" }} // Altere para coluna em telas menores
+        direction={{ xs: "column", md: "row" }}
         spacing={4}
         alignItems="center"
         justifyContent="center"

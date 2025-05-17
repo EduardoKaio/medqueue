@@ -100,7 +100,7 @@ public class FilaService {
         novaFila.setDataCriacao(LocalDate.now());
         novaFila.setEspecialidade(novaFila.getEspecialidade().toLowerCase());
 
-        boolean filaExistente = filaRepository.findByEspecialidade(novaFila.getEspecialidade()).isPresent();
+        boolean filaExistente = filaRepository.findByEspecialidadeAndAtivoTrue(novaFila.getEspecialidade()).isPresent();
 
         if (filaExistente) {
             throw new IllegalArgumentException("Não podem existir duas filas com a mesma especialidade");
@@ -110,7 +110,7 @@ public class FilaService {
     }
 
     public Long getFilaComEspecialidade(String especialidade) {
-        return filaRepository.findByEspecialidade(especialidade)
+        return filaRepository.findByEspecialidadeAndAtivoTrue(especialidade)
                 .orElseThrow(() -> new EntityNotFoundException("Não existe fila com essa especialidade"))
                 .getId();
     }

@@ -1,6 +1,8 @@
 package com.medqueue.medqueue.service.admin;
 
 import com.medqueue.medqueue.dto.FilaPacienteDTO;
+import com.medqueue.medqueue.dto.HistoricoFilaDTO;
+import com.medqueue.medqueue.dto.HistoricoPacienteAdminDTO;
 import com.medqueue.medqueue.models.Fila;
 import com.medqueue.medqueue.models.FilaPaciente;
 import com.medqueue.medqueue.models.Paciente;
@@ -11,8 +13,11 @@ import com.medqueue.medqueue.service.paciente.WhatsAppService;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -96,39 +101,6 @@ public class FilaPacienteService {
         }
     }
 
-    @Transactional
-    public FilaPaciente atenderProximoPaciente(Long filaId) {
-        if (filaId == null) {
-            throw new IllegalArgumentException("ID da fila não pode ser nulo");
-        }
-
-        try {
-            // Verifica se a fila existe
-            if (!filaRepository.existsById(filaId)) {
-                throw new EntityNotFoundException("Fila não encontrada com ID: " + filaId);
-            }
-
-            FilaPaciente filaPaciente = filaPacienteRepository.findFirstByFilaIdAndStatusOrderByPosicao(filaId, "Na fila");
-            if (filaPaciente == null) {
-                throw new EntityNotFoundException("Nenhum paciente na fila com ID: " + filaId);
-            }
-            filaPaciente.setStatus("Atendido");
-
-            // Reorganizar as posições dos pacientes restantes na fila
-            List<FilaPaciente> filaRestante = filaPacienteRepository.findByFilaIdAndStatusOrderByPosicao(filaId, "Na fila");
-            for (FilaPaciente fp : filaRestante) {
-                fp.setPosicao(fp.getPosicao() - 1);
-                filaPacienteRepository.save(fp);
-            }
-
-            return filaPacienteRepository.save(filaPaciente);
-        } catch (EntityNotFoundException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new RuntimeException("Erro ao atender próximo paciente: " + e.getMessage(), e);
-        }
-    }
-
     public List<FilaPaciente> listarPacientes(Long filaId) {
         if (filaId == null) {
             throw new IllegalArgumentException("ID da fila não pode ser nulo");
@@ -145,22 +117,6 @@ public class FilaPacienteService {
             throw e;
         } catch (Exception e) {
             throw new RuntimeException("Erro ao listar pacientes na fila: " + e.getMessage(), e);
-        }
-    }
-
-    public String buscarNomePacientePorId(Long pacienteId) {
-        if (pacienteId == null) {
-            throw new IllegalArgumentException("ID do paciente não pode ser nulo");
-        }
-
-        try {
-            Paciente paciente = pacienteRepository.findById(pacienteId)
-                    .orElseThrow(() -> new EntityNotFoundException("Paciente não encontrado com ID: " + pacienteId));
-            return paciente.getNome();
-        } catch (EntityNotFoundException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new RuntimeException("Erro ao buscar nome do paciente: " + e.getMessage(), e);
         }
     }
 
@@ -230,33 +186,9 @@ public class FilaPacienteService {
 
         } catch (EntityNotFoundException e) {
             throw e;
-        } catch (Exception e) {
-            throw new RuntimeException("Erro ao atualizar prioridade e tempo médio: " + e.getMessage(), e);
-        }
-    }
-
-    @Transactional
-    public void deletarFila(Long filaId) {
-        if (filaId == null) {
-            throw new IllegalArgumentException("ID da fila não pode ser nulo");
-        }
-
-        try {
-            Fila fila = filaRepository.findById(filaId)
-                    .orElseThrow(() -> new EntityNotFoundException("Fila não encontrada com ID: " + filaId));
-
-            List<FilaPaciente> pacientesNaFila = filaPacienteRepository
-                    .findByFilaIdAndStatusOrderByPosicao(filaId, "Na fila");
-            if (!pacientesNaFila.isEmpty()) {
-                throw new IllegalStateException("Não é possível deletar fila com pacientes pendentes");
-            }
-
-            fila.setAtivo(false);
-            filaRepository.save(fila);
-        } catch (EntityNotFoundException | IllegalStateException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new RuntimeException("Erro ao deletar fila: " + e.getMessage(), e);
+            // ajeitar isso incliuir mensagem tirar catch de baixo
+        // } catch (Exception e) {
+        //     throw new RuntimeException("Erro ao atualizar prioridade e tempo médio: " + e.getMessage(), e);
         }
     }
 
@@ -278,7 +210,7 @@ public class FilaPacienteService {
 
             FilaPaciente paciente = filaPacienteRepository.findByPacienteIdAndFilaId(pacienteId, filaId)
                             .orElseThrow(() -> new EntityNotFoundException("Esse paciente não está na fila"));
-
+            
             if ("Na fila".equals(paciente.getStatus())) {
                 filaPaciente = filaPacienteRepository
                     .findByPacienteIdAndFilaIdAndStatus(pacienteId, filaId, "Na fila")
@@ -307,21 +239,21 @@ public class FilaPacienteService {
             for (FilaPaciente fp : filaRestante) {
                 fp.setPosicao(novaPosicao++);
 
-                // Se ele está na posição 2 e ainda não foi notificado
-                if (fp.getPosicao() == 2 && !Boolean.TRUE.equals(fp.getNotificado())) {
+                // Se ele está na posição 1 e ainda não foi notificado
+                if (fp.getPosicao() == 1 && !Boolean.TRUE.equals(fp.getNotificado())) {
                     try {
                         String telefone = fp.getPaciente().getTelefone();
                         String primeiroNome = fp.getPaciente().getNome().split(" ")[0];
 
                         String mensagem = String.format(
-                                "👋 Olá %s! Aqui é da equipe *MedQueue* 🏥\n\nVocê é o *próximo da fila* para ser atendido! 🔔\nFique atento e se prepare para o seu atendimento.\n\nAgradecemos pela sua paciência! 😊",
+                                "👋 Olá %s! Aqui é da equipe *MedQueue* 🏥\n\nVocê é o *próximo da fila* à ser atendido! 🔔\nFique atento e se prepare para o seu atendimento.\n\nAgradecemos pela sua paciência! 😊",
                                 primeiroNome
                         );
 
                         whatsAppService.sendWhatsAppMessage(telefone, mensagem);
                         fp.setNotificado(true);
                     } catch (Exception e) {
-                        System.err.println("Erro ao enviar WhatsApp para o paciente na posição 2: " + e.getMessage());
+                        System.err.println("Erro ao enviar WhatsApp para o paciente na posição 1: " + e.getMessage());
                     }
                 }
 
@@ -433,4 +365,31 @@ public class FilaPacienteService {
             throw new RuntimeException("Erro ao atualizar status do paciente: " + e.getMessage(), e);
         }
     }
+
+    public HistoricoPacienteAdminDTO historicoFilaPacienteId(Long pacienteId) {
+    
+        var paciente = pacienteRepository.findById(pacienteId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Paciente não encontrado."));
+        
+        List<FilaPaciente> filas = filaPacienteRepository.findAllByPacienteId(pacienteId);
+
+        if (filas.isEmpty()) {
+            throw new RuntimeException("O paciente ainda não possui histórico de filas.");
+        }
+
+        List<HistoricoFilaDTO> historicoFilas = filas.stream()
+            .filter(filaPaciente -> filaPaciente.getFila() != null)
+            .map(filaPaciente -> new HistoricoFilaDTO(
+                filaPaciente.getFila().getId(),
+                filaPaciente.getFila().getNome(),
+                filaPaciente.getFila().getEspecialidade(),
+                filaPaciente.getPrioridade(),
+                filaPaciente.getStatus(),
+                filaPaciente.getDataEntrada()
+            ))
+            .collect(Collectors.toList());
+
+        return new HistoricoPacienteAdminDTO(paciente.getNome(), historicoFilas);
+    }
+
 }

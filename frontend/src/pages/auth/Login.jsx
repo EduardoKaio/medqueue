@@ -123,7 +123,7 @@ const LoginPage = () => {
             value={cpf}
             onChange={handleCPFChange}
             inputProps={{ maxLength: 14 }}
-            placeholder="000.000.000-00"
+            placeholder="123.456.789-12"
             required
           />
           <TextField

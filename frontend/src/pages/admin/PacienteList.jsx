@@ -31,6 +31,7 @@ import {
   Delete as DeleteIcon,
   ViewModule,
   TableChart,
+  History as HistoryIcon,
 } from "@mui/icons-material";
 import { Link } from "react-router-dom";
 import {
@@ -87,9 +88,9 @@ function PacienteList() {
         });
       });
   };
-
   const pacientesFiltrados = pacientes.filter((p) =>
-    p.nome.toLowerCase().includes(searchTerm.toLowerCase())
+    p.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    p.cpf.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -145,7 +146,7 @@ function PacienteList() {
 
           {/* Campo de busca */}
           <TextField
-            label="Pesquisar por nome"
+            label="Pesquisar por nome ou CPF"
             variant="outlined"
             fullWidth
             value={searchTerm}
@@ -203,9 +204,15 @@ function PacienteList() {
                       <TableCell>{p.email}</TableCell>
                       <TableCell>{p.telefone}</TableCell>
                       <TableCell align="center">
+                        
                         <Link to={`/admin/pacientes/edit/${p.id}`}>
                           <IconButton color="primary">
                             <EditIcon />
+                          </IconButton>
+                        </Link>
+                        <Link to={`/admin/pacientes/historico/${p.id}`}>
+                          <IconButton color="gray">
+                            <HistoryIcon />
                           </IconButton>
                         </Link>
                         <IconButton

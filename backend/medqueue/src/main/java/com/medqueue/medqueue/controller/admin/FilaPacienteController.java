@@ -3,6 +3,8 @@ package com.medqueue.medqueue.controller.admin;
 import com.medqueue.medqueue.models.FilaPaciente;
 import com.medqueue.medqueue.models.Fila;
 import com.medqueue.medqueue.dto.FilaPacienteDTO;
+import com.medqueue.medqueue.dto.HistoricoFilaDTO;
+import com.medqueue.medqueue.dto.HistoricoPacienteAdminDTO;
 import com.medqueue.medqueue.service.admin.FilaPacienteService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -10,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Map;
@@ -23,16 +26,6 @@ public class FilaPacienteController {
 
     private final FilaPacienteService filaPacienteService;
 
-    @Operation(summary = "Atender próximo paciente da fila", description = "Marca como atendido o próximo paciente da fila.")
-    @DeleteMapping("/next")
-    public ResponseEntity<String> atenderProximoPaciente(@RequestParam Long filaId) {
-        try {
-            FilaPaciente filaPaciente = filaPacienteService.atenderProximoPaciente(filaId);
-            return ResponseEntity.ok("Paciente " + filaPaciente.getPaciente().getNome() + " atendido da fila com ID: " + filaId);
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
 
     @Operation(summary = "Listar pacientes na fila")
     @GetMapping("/list")
@@ -92,4 +85,22 @@ public class FilaPacienteController {
         FilaPacienteDTO paciente = filaPacienteService.atualizarStatusPaciente(filaId, pacienteId, status);
         return ResponseEntity.ok(paciente);
     }
+
+    @GetMapping("/historico/{pacienteId}")
+    public ResponseEntity<?> getHistoricoDoPaciente(@PathVariable Long pacienteId) {
+        try {
+            HistoricoPacienteAdminDTO historico = filaPacienteService.historicoFilaPacienteId(pacienteId);
+            return ResponseEntity.ok(historico);
+        } catch (ResponseStatusException e) {
+            // Captura erros com status customizados do service
+            return ResponseEntity.status(e.getStatusCode())
+                .body(Map.of("mensagem", e.getReason()));
+        } catch (RuntimeException e) {
+            // Erros genéricos, como paciente sem histórico
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(Map.of("mensagem", e.getMessage()));
+        }
+    }
+    
+
 }

@@ -11,7 +11,7 @@ public interface FilaRepository extends JpaRepository<Fila, Long> {
 
     List<Fila> findByAtivoTrue();
 
-    Optional<Fila> findByEspecialidade(String especialidade);
+    Optional<Fila> findByEspecialidadeAndAtivoTrue(String especialidade);
 
     long countByAtivoTrue();
 }

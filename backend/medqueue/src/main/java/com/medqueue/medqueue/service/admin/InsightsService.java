@@ -56,4 +56,58 @@ public class InsightsService {
 
         return resposta;
     }
+
+    public Map<String, Double> calcularTempoMedioPorEspecialidade() {
+        List<Fila> filasAtivas = filaService.listarAtivas();
+
+        if (filasAtivas.isEmpty()) {
+            throw new IllegalStateException("Não há filas ativas para calcular o tempo médio por especialidade.");
+        }
+
+        // Agrupa por especialidade e calcula a média
+        Map<String, Double> mediaPorEspecialidade = filasAtivas.stream()
+            .collect(
+                java.util.stream.Collectors.groupingBy(
+                    Fila::getEspecialidade,
+                    java.util.stream.Collectors.averagingDouble(Fila::getTempoMedio)
+                )
+            );
+
+        // Cria novo mapa com nomes ajustados
+        Map<String, Double> resultadoFinal = new HashMap<>();
+        for (Map.Entry<String, Double> entry : mediaPorEspecialidade.entrySet()) {
+            String especialidade = entry.getKey();
+            Double media = entry.getValue();
+
+            if (especialidade.equalsIgnoreCase("geral")) {
+                resultadoFinal.put("Clínico Geral", media);
+            } else {
+                resultadoFinal.put(especialidade, media);
+            }
+        }
+
+        return resultadoFinal;
+    }
+    public Map<String, Integer> calcularPacientesPorEspecialidade() {
+        List<Fila> filasAtivas = filaService.listarAtivas();
+
+        if (filasAtivas.isEmpty()) {
+            throw new IllegalStateException("Não há filas ativas para contar pacientes por especialidade.");
+        }
+
+        Map<String, Integer> pacientesPorEspecialidade = new HashMap<>();
+
+        for (Fila fila : filasAtivas) {
+            String especialidade = fila.getEspecialidade();
+            if (especialidade.equalsIgnoreCase("geral")) {
+                especialidade = "Clínico Geral";
+            }
+
+            int quantidade = filaPacienteService.listarPacientes(fila.getId()).size();
+            pacientesPorEspecialidade.merge(especialidade, quantidade, Integer::sum);
+        }
+
+        return pacientesPorEspecialidade;
+    }
+
 }

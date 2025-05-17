@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
@@ -18,27 +18,16 @@ import { Chart } from './Chart';
  */
 function GraficoEsperaPorSetor({ chartSeries, categories, sx = {} }) {
   const theme = useTheme();
-  const [data, setData] = useState(chartSeries);
   const [chartKey, setChartKey] = useState(0);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    // Força animação ao montar
-    setChartKey(prev => prev + 1);
-  }, []);
-
   const handleRefresh = () => {
     setLoading(true);
+    // Aqui você pode emitir um evento para o componente pai buscar dados novamente (se for o caso)
     setTimeout(() => {
-      // Simula novos dados (ou chame sua API)
-      const newData = data.map(serie => ({
-        ...serie,
-        data: serie.data.map(() => Math.floor(Math.random() * 10) + 1)
-      }));
-      setData(newData);
-      setChartKey(prev => prev + 1); // força re-render
+      setChartKey(prev => prev + 1); // força re-renderização
       setLoading(false);
-    }, 1000);
+    }, 500); // Simula um curto tempo de atualização visual
   };
 
   const chartOptions = {
@@ -74,22 +63,26 @@ function GraficoEsperaPorSetor({ chartSeries, categories, sx = {} }) {
       labels: { offsetY: 5, style: { colors: theme.palette.text.secondary } },
     },
     yaxis: {
-      labels: { formatter: (value) => `${value} min`, offsetX: -10, style: { colors: theme.palette.text.secondary } },
+      labels: {
+        formatter: (value) => `${value} min`,
+        offsetX: -10,
+        style: { colors: theme.palette.text.secondary },
+      },
     },
   };
 
   return (
     <Card
       sx={{
-        width: '60rem',          // ajuste largura padrão
-        height: '36rem',         // ajuste altura padrão
-        padding: 2,          // padding externo do Card
+        width: '60rem',
+        height: '36rem',
+        padding: 2,
         display: 'flex',
         flexDirection: 'column',
         borderRadius: '20px',
-      boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.1)',
-      border: '1px solid rgba(0, 0, 0, 0.1)',
-        ...sx                // mescla propriedades passadas
+        boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.1)',
+        border: '1px solid rgba(0, 0, 0, 0.1)',
+        ...sx,
       }}
     >
       <CardHeader
@@ -97,9 +90,7 @@ function GraficoEsperaPorSetor({ chartSeries, categories, sx = {} }) {
           <Button
             color="inherit"
             size="small"
-            startIcon={
-              loading ? <CircularProgress size={16} /> : <ArrowClockwiseIcon fontSize="var(--icon-fontSize-md)" />
-            }
+            startIcon={loading ? <CircularProgress size={16} /> : <ArrowClockwiseIcon fontSize="var(--icon-fontSize-md)" />}
             onClick={handleRefresh}
             disabled={loading}
           >
@@ -114,11 +105,12 @@ function GraficoEsperaPorSetor({ chartSeries, categories, sx = {} }) {
           key={chartKey}
           height={350}
           options={chartOptions}
-          series={data}
+          series={chartSeries}
           type="bar"
           width="100%"
         />
       </CardContent>
+      
       <Divider />
       <CardActions sx={{ justifyContent: 'flex-end' }}>
         <Button color="inherit" endIcon={<ArrowRightIcon fontSize="var(--icon-fontSize-md)" />} size="small">

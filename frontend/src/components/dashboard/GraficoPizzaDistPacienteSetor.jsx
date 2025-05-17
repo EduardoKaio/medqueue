@@ -9,17 +9,22 @@ import { useTheme } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
 import { Chart } from './Chart';
 
-const setores = ['Oftalmologia', 'Cardiologia', 'Clínico Geral'];
-const dados = [45, 30, 25]; 
-
-export default function GraficoPizzaDistPacienteSetor({ sx }) {
+export default function GraficoPizzaDistPacienteSetor({ data = [], labels = [], sx }) {
   const theme = useTheme();
+
+  const hasData = data && data.length > 0 && data.some((val) => val > 0);
 
   const chartOptions = {
     chart: { background: 'transparent' },
-    colors: [theme.palette.primary.main, theme.palette.success.main, theme.palette.warning.main],
+    colors: [
+      theme.palette.primary.main,
+      theme.palette.success.main,
+      theme.palette.warning.main,
+      theme.palette.error.main,
+      theme.palette.info.main,
+    ],
     dataLabels: { enabled: false },
-    labels: setores,
+    labels,
     legend: { show: false },
     plotOptions: { pie: { expandOnClick: false } },
     states: {
@@ -34,32 +39,40 @@ export default function GraficoPizzaDistPacienteSetor({ sx }) {
   return (
     <Card
       sx={{
-        width:'31rem',    // largura
-        height: '36rem',      // altura
-        p: 2,             // padding externo do card
+        width: '31rem',
+        height: '36rem',
+        p: 2,
         borderRadius: '20px',
-      boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.1)',
-      border: '1px solid rgba(0, 0, 0, 0.1)',
-        ...sx             // permite sobrescrever via props
+        boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.1)',
+        border: '1px solid rgba(0, 0, 0, 0.1)',
+        ...sx,
       }}
     >
       <CardHeader
         title="Pacientes por Especialidade"
-        sx={{ pb: 2 }} // reduz espaço abaixo do header
+        sx={{ pb: 2 }}
       />
-      <CardContent sx={{ p: 2 }}> {/* padding interno do conteúdo */}
-        <Stack spacing={4}>
-          <Chart height={350} options={chartOptions} series={dados} type="donut" width="100%" />
-          <Stack direction="row" spacing={3} sx={{ alignItems: 'center', justifyContent: 'center' }}>
-            {setores.map((setor, index) => (
-              <Stack key={setor} spacing={0.5} sx={{ alignItems: 'center' }}>
-                <Typography variant="h6">{setor}</Typography>
-                <Typography color="text.secondary" variant="subtitle2">
-                  {dados[index]}%
-                </Typography>
+      <CardContent sx={{ p: 2 }}>
+        <Stack spacing={5} alignItems="center" justifyContent="center" height="100%">
+          {hasData ? (
+            <>
+              <Chart height={450} options={chartOptions} series={data} type="donut" width="100%" />
+              <Stack direction="row" spacing={4} sx={{ alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap' }}>
+                {labels.map((label, index) => (
+                  <Stack key={label} spacing={0.5} sx={{ alignItems: 'center' }}>
+                    <Typography variant="h6">{label}</Typography>
+                    <Typography color="text.secondary" variant="subtitle2">
+                      {((data[index] / data.reduce((a, b) => a + b, 0)) * 100).toFixed(0)}%
+                    </Typography>
+                  </Stack>
+                ))}
               </Stack>
-            ))}
-          </Stack>
+            </>
+          ) : (
+            <Typography variant="subtitle1" color="text.secondary">
+              Não há pacientes em nenhuma fila no momento.
+            </Typography>
+          )}
         </Stack>
       </CardContent>
     </Card>

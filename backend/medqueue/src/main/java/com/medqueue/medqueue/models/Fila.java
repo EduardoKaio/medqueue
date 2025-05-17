@@ -23,7 +23,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @SQLDelete(sql = "UPDATE fila SET ativo = false WHERE id = ?")
-@SQLRestriction("ativo = true")
+// @SQLRestriction("ativo = true")
 public class Fila {
 
     @Id
@@ -47,4 +47,8 @@ public class Fila {
     @Builder.Default
     @Column(name = "data_criacao", nullable = false, updatable = false)
     private LocalDate dataCriacao = LocalDate.now();
+
+    @Builder.Default
+    @Column(name = "especialidade", nullable = false)
+    private String especialidade = "geral";
 }

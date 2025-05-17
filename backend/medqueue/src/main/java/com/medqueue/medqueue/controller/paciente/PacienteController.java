@@ -1,9 +1,15 @@
 package com.medqueue.medqueue.controller.paciente;
 
-import lombok.RequiredArgsConstructor;
+import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.medqueue.medqueue.dto.PacienteDTO;
 import com.medqueue.medqueue.service.admin.FilaPacienteService;
@@ -14,8 +20,7 @@ import com.medqueue.medqueue.service.auth.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.persistence.EntityNotFoundException;
-
-import java.util.Map;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/paciente")
@@ -49,8 +54,8 @@ public class PacienteController {
         try {
             Long id = authService.getIdDoUsuario();
 
-            PacienteDTO atualizado = pacienteService.atualizar(id, pacienteDTO);          
-            return ResponseEntity.ok(atualizado);            
+            PacienteDTO atualizado = pacienteService.atualizar(id, pacienteDTO);
+            return ResponseEntity.ok(atualizado);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(404).body(Map.of("erro", e.getMessage()));
         } catch (IllegalArgumentException e) {
@@ -60,14 +65,17 @@ public class PacienteController {
 
     @PostMapping("/enterQueue")
     @Operation(summary = "Paciente entra na fila")
-    public ResponseEntity<String> enterQueue() {
+    public ResponseEntity<String> enterQueue(@RequestParam String especialidade, @RequestParam Integer prioridade) {
         try {
             Long pacienteId = authService.getIdDoUsuario();
-            Long filaId = filaService.getFilaDoDia();
+            Long filaId = filaService.getFilaComEspecialidade(especialidade);
 
-            filaPacienteService.addPaciente(pacienteId, filaId);
+            filaPacienteService.addPaciente(pacienteId, filaId, prioridade);
             return ResponseEntity.ok("Paciente adicionado à fila com ID: " + filaId);
-        } catch (EntityNotFoundException | IllegalStateException e) {
+
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
+        } catch (IllegalStateException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }

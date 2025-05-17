@@ -14,6 +14,8 @@ import {
   DialogContent,
   DialogActions,
   Snackbar,
+  Tooltip,
+  tooltipClasses,
 } from "@mui/material";
 import {
   avaliarPrioridade,
@@ -22,6 +24,11 @@ import {
 import MuiAlert from "@mui/material/Alert";
 import { enterQueue } from "../../services/PacienteService";
 
+import PriorityHighIcon from "@mui/icons-material/PriorityHigh";
+import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
+
+import { styled } from "@mui/material/styles";
+
 function TriagemInteligente() {
   const [sintomas, setSintomas] = useState("");
   const [prioridade, setPrioridade] = useState(null);
@@ -29,83 +36,84 @@ function TriagemInteligente() {
   const [modalAberto, setModalAberto] = useState(false);
   const [snackbarAberto, setSnackbarAberto] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [filaNaoEncontrada, setFilaNaoEncontrada] = useState(false);
 
-  const handleAvaliarPrioridade = async () => {
+  const TriagemTooltip = styled(({ className, ...props }) => (
+    <Tooltip {...props} classes={{ popper: className }} />
+  ))(({ theme }) => ({
+    [`& .${tooltipClasses.tooltip}`]: {
+      backgroundColor: "#f5f5f9",
+      color: "rgba(0, 0, 0, 0.87)",
+      maxWidth: 500,
+      fontSize: theme.typography.pxToRem(16),
+      border: "1px solid #dadde9",
+    },
+  }));
+
+  const handleRealizarTriagem = async () => {
     setLoading(true);
 
-    // Simulação do tempo de loading - 3 segundos
-    const TEMPO_SIMULADO_MS = 1000;
+    try {
+      // Simula tempo de processamento, se necessário
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    setTimeout(async () => {
-      try {
-        const resposta = await avaliarPrioridade(sintomas);
-        setPrioridade({
-          nivel: resposta.prioridade,
-          justificativa: resposta.resposta,
-        });
-        setRecomendacao(null);
-      } catch (error) {
-        // Verifica se o erro é um erro de resposta da API
-        if (error.response) {
-          // O servidor respondeu com um erro (ex: 400 ou 404)
-          console.error("Erro ao avaliar prioridade:", error.response.data);
-          alert("Erro: " + error.response.data.erro); // Exibe a mensagem de erro
-        } else {
-          // Outros erros, como problemas de rede
-          console.error("Erro desconhecido:", error);
-          alert("Erro desconhecido. Tente novamente mais tarde.");
-        }
-      } finally {
-        setLoading(false);
+      // Avalia prioridade
+      const respostaPrioridade = await avaliarPrioridade(sintomas);
+      setPrioridade({
+        nivel: respostaPrioridade.prioridade,
+        justificativa: respostaPrioridade.resposta,
+      });
+
+      // Recomenda especialista
+      const respostaEspecialista = await recomendarEspecialista(sintomas);
+      setRecomendacao({
+        especialista: respostaEspecialista.recomendacao_especialista,
+        justificativa: respostaEspecialista.justificativa,
+      });
+    } catch (error) {
+      if (error.response) {
+        // Erro retornado pela API
+        console.error("Erro:", error.response.data);
+        alert(
+          "Erro: " + (error.response.data.erro || "Ocorreu um erro na triagem.")
+        );
+      } else {
+        // Erro de rede ou outro
+        console.error("Erro desconhecido:", error);
+        alert("Erro desconhecido. Tente novamente mais tarde.");
       }
-    }, TEMPO_SIMULADO_MS);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleEntrarNaFila = async (e) => {
     e.preventDefault();
 
     try {
-      await enterQueue();
-      console.log("Entrou na fila com prioridade", prioridade.nivel);
+      if (!filaNaoEncontrada) {
+        await enterQueue(recomendacao.especialista, prioridade.nivel);
+        console.log("Entrou na fila com prioridade", prioridade.nivel);
+        setSnackbarAberto(true);
+      } else {
+        await enterQueue("geral", prioridade.nivel);
+        console.log("Entrou na fila com prioridade", prioridade.nivel);
+        setFilaNaoEncontrada(false);
+        setSnackbarAberto(true);
+      }
     } catch (err) {
-      console.error("Erro ao entrar na fila", err);
+      if (err.response && err.response.status === 404) {
+        const mensagem = err.response.data;
+
+        console.error("Erro: ", mensagem);
+
+        setFilaNaoEncontrada(true);
+      } else {
+        console.error("Erro ao entrar na fila", err);
+      }
     }
 
     setModalAberto(false);
-    setSnackbarAberto(true);
-  };
-
-  const handleRecomendarEspecialista = async () => {
-    setLoading(true);
-
-    const TEMPO_SIMULADO_MS = 1000;
-
-    setTimeout(async () => {
-      try {
-        const resposta = await recomendarEspecialista(sintomas);
-        setRecomendacao({
-          especialista: resposta.recomendacao_especialista,
-          justificativa: resposta.justificativa,
-        });
-        setPrioridade(null);
-      } catch (error) {
-        // Verifica se o erro é um erro de resposta da API
-        if (error.response) {
-          // O servidor respondeu com um erro (ex: 400 ou 404)
-          console.error(
-            "Erro ao recomendar especialista:",
-            error.response.data
-          );
-          alert("Erro: " + error.response.data.erro); // Exibe a mensagem de erro
-        } else {
-          // Outros erros, como problemas de rede
-          console.error("Erro desconhecido:", error);
-          alert("Erro desconhecido. Tente novamente mais tarde.");
-        }
-      } finally {
-        setLoading(false);
-      }
-    }, TEMPO_SIMULADO_MS);
   };
 
   const LoadingComponent = () => (
@@ -181,19 +189,9 @@ function TriagemInteligente() {
                     variant="contained"
                     color="primary"
                     fullWidth
-                    onClick={handleAvaliarPrioridade}
+                    onClick={handleRealizarTriagem}
                   >
-                    Avaliar Prioridade
-                  </Button>
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <Button
-                    variant="outlined"
-                    color="secondary"
-                    fullWidth
-                    onClick={handleRecomendarEspecialista}
-                  >
-                    Recomendar Especialista
+                    Realizar Triagem
                   </Button>
                 </Grid>
               </Grid>
@@ -216,12 +214,53 @@ function TriagemInteligente() {
                   </Typography>
                   {prioridade && (
                     <>
-                      <Alert severity="warning" sx={{ mb: 2 }}>
-                        <strong>Prioridade:</strong> Nível {prioridade.nivel}
-                        <br />
-                        <strong>Justificativa:</strong>{" "}
-                        {prioridade.justificativa}
-                      </Alert>
+                      <Grid container spacing={2}>
+                        <Grid item size={{ xs: 12, sm: 12 }}>
+                          <TriagemTooltip
+                            title={
+                              <React.Fragment>
+                                <Typography color="inherit">
+                                  Justificativa da prioridade:
+                                </Typography>
+                                {prioridade.justificativa}
+                              </React.Fragment>
+                            }
+                            arrow
+                            placement="right"
+                          >
+                            <Button
+                              variant="contained"
+                              color="warning"
+                              startIcon={<PriorityHighIcon />}
+                            >
+                              Prioridade: Nível {prioridade.nivel}
+                            </Button>
+                          </TriagemTooltip>
+                        </Grid>
+
+                        <Grid item size={{ xs: 12, sm: 12 }}>
+                          <TriagemTooltip
+                            title={
+                              <React.Fragment>
+                                <Typography color="inherit">
+                                  Justificativa da Recomendação:
+                                </Typography>
+                                {recomendacao.justificativa}
+                              </React.Fragment>
+                            }
+                            arrow
+                            placement="right"
+                          >
+                            <Button
+                              variant="contained"
+                              color="error"
+                              startIcon={<LocalHospitalIcon />}
+                            >
+                              Especialista: {recomendacao.especialista}
+                            </Button>
+                          </TriagemTooltip>
+                        </Grid>
+                      </Grid>
 
                       <Box display="flex" justifyContent="flex-end" mt={1}>
                         <Button
@@ -235,15 +274,6 @@ function TriagemInteligente() {
                         </Button>
                       </Box>
                     </>
-                  )}
-                  {recomendacao && (
-                    <Alert severity="info">
-                      <strong>Especialista sugerido:</strong>{" "}
-                      {recomendacao.especialista}
-                      <br />
-                      <strong>Justificativa:</strong>{" "}
-                      {recomendacao.justificativa}
-                    </Alert>
                   )}
                 </CardContent>
               </Card>
@@ -264,6 +294,49 @@ function TriagemInteligente() {
         <DialogActions>
           <Button
             onClick={() => setModalAberto(false)}
+            sx={{
+              color: "error.main",
+              fontWeight: "bold",
+              borderRadius: 1,
+              "&:hover": {
+                backgroundColor: "rgba(211, 47, 47, 0.1)", // vermelho claro com transparência
+              },
+            }}
+          >
+            Cancelar
+          </Button>
+          <Button
+            onClick={handleEntrarNaFila}
+            sx={{
+              color: "success.main",
+              fontWeight: "bold",
+              borderRadius: 1,
+              "&:hover": {
+                backgroundColor: "rgba(46, 125, 50, 0.1)", // verde claro com transparência
+              },
+            }}
+            autoFocus
+          >
+            Confirmar
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Modal de confirmação */}
+      <Dialog
+        open={filaNaoEncontrada}
+        onClose={() => setFilaNaoEncontrada(false)}
+      >
+        <DialogTitle>Fila com especialidade não encontrada</DialogTitle>
+        <DialogContent>
+          <Typography>
+            Não encotramos nenhuma fila com a especialidade esperada. Deseja
+            entrar em uma fila geral mantendo sua prioridade?
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => setFilaNaoEncontrada(false)}
             sx={{
               color: "error.main",
               fontWeight: "bold",

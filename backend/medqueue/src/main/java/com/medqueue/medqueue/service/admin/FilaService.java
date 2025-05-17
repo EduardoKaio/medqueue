@@ -1,15 +1,17 @@
 package com.medqueue.medqueue.service.admin;
 
-import com.medqueue.medqueue.models.Fila;
-import com.medqueue.medqueue.repository.FilaRepository;
-import com.medqueue.medqueue.dto.FilaDTO;
-import jakarta.persistence.EntityNotFoundException;
-import lombok.RequiredArgsConstructor;
+import java.time.LocalDate;
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
-import java.util.List;
+import com.medqueue.medqueue.dto.FilaDTO;
+import com.medqueue.medqueue.models.Fila;
+import com.medqueue.medqueue.repository.FilaRepository;
+
+import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -35,7 +37,9 @@ public class FilaService {
 
     @Transactional
     public void deletarFila(Long id) {
-        if (id == null) throw new IllegalArgumentException("ID da fila não pode ser nulo");
+        if (id == null) {
+            throw new IllegalArgumentException("ID da fila não pode ser nulo");
+        }
 
         Fila fila = filaRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Fila não encontrada com ID: " + id));
@@ -43,9 +47,13 @@ public class FilaService {
     }
 
     @Transactional
-     public Fila editarFila(Long id, FilaDTO dto) {
-        if (id == null) throw new IllegalArgumentException("ID da fila não pode ser nulo");
-        if (dto == null) throw new IllegalArgumentException("Dados para atualização não podem ser nulos");
+    public Fila editarFila(Long id, FilaDTO dto) {
+        if (id == null) {
+            throw new IllegalArgumentException("ID da fila não pode ser nulo");
+        }
+        if (dto == null) {
+            throw new IllegalArgumentException("Dados para atualização não podem ser nulos");
+        }
 
         Fila fila = filaRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Fila não encontrada com ID: " + id));
@@ -72,31 +80,39 @@ public class FilaService {
             fila.setAtivo(dto.getAtivo());
         }
 
+        if (dto.getEspecialidade() != null) {
+            fila.setEspecialidade(dto.getEspecialidade().toLowerCase());
+        }
+
         return filaRepository.save(fila);
     }
 
     @Transactional
     public Fila criarFila(Fila novaFila) {
-      if (novaFila.getNome() == null || novaFila.getNome().trim().isEmpty()) {
-          throw new IllegalArgumentException("O nome da fila é obrigatório.");
-      }
-      if (novaFila.getTempoMedio() == null || novaFila.getTempoMedio() < 0) {
-          throw new IllegalArgumentException("O tempo médio deve ser um número não negativo.");
-      }
+        if (novaFila.getNome() == null || novaFila.getNome().trim().isEmpty()) {
+            throw new IllegalArgumentException("O nome da fila é obrigatório.");
+        }
+        if (novaFila.getTempoMedio() == null || novaFila.getTempoMedio() < 0) {
+            throw new IllegalArgumentException("O tempo médio deve ser um número não negativo.");
+        }
 
         novaFila.setAtivo(true);
         novaFila.setDataCriacao(LocalDate.now());
+        novaFila.setEspecialidade(novaFila.getEspecialidade().toLowerCase());
+
+        boolean filaExistente = filaRepository.findByEspecialidadeAndAtivoTrue(novaFila.getEspecialidade()).isPresent();
+
+        if (filaExistente) {
+            throw new IllegalArgumentException("Não podem existir duas filas com a mesma especialidade");
+        }
+
         return filaRepository.save(novaFila);
     }
 
-
-    public Long getFilaDoDia() {
-        LocalDate hoje = LocalDate.now();
-
-        Fila fila = filaRepository.findByDataCriacao(hoje)
-                .orElseThrow(() -> new EntityNotFoundException("Não existe fila criada hoje"));
-
-        return fila.getId();
+    public Long getFilaComEspecialidade(String especialidade) {
+        return filaRepository.findByEspecialidadeAndAtivoTrue(especialidade)
+                .orElseThrow(() -> new EntityNotFoundException("Não existe fila com essa especialidade"))
+                .getId();
     }
 
     public Fila buscarPorId(Long id) {
@@ -107,6 +123,7 @@ public class FilaService {
         return filaRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Fila não encontrada com ID: " + id));
     }
+
     public long getContagem() {
         try {
             return filaRepository.countByAtivoTrue();
@@ -114,5 +131,5 @@ public class FilaService {
             throw new RuntimeException("Erro ao contar filas ativas: " + e.getMessage(), e);
         }
     }
-    
+
 }

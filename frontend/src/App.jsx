@@ -17,6 +17,8 @@ import HomePaciente from "./pages/paciente/HomePaciente";
 import PrivateRoute from "./components/PrivateRoute";
 import HeaderLayout from "./components/HeaderLayout";
 import FilaAtual from "./pages/paciente/FilaAtual";
+import HistoricoFilas from "./pages/paciente/HistoricoFilas";
+import HistoricoPacienteAdmin from "./pages/admin/historicoPacienteAdmin";
 
 function App() {
   return (
@@ -35,6 +37,7 @@ function App() {
             <Route path="pacientes" element={<PacienteList />} />
             <Route path="pacientes/create" element={<PacienteCreate />} />
             <Route path="pacientes/edit/:id" element={<PacienteEdit />} />
+            <Route path="pacientes/historico/:id" element={<HistoricoPacienteAdmin />} />
             <Route path="filas" element={<FilaList />} />
             <Route path="filas/create" element={<FilaCreate />} />
             <Route path="filas/edit/:id" element={<FilaEdit />} />{" "}
@@ -47,6 +50,7 @@ function App() {
             <Route path="" element={<HomePaciente />} />
             <Route path="triagem" element={<TriagemInteligente />} />
             <Route path="fila-atual" element={<FilaAtual />} />
+            <Route path="Historico" element={<HistoricoFilas />} />
           </Route>
         </Route>
 

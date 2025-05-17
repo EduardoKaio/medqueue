@@ -9,15 +9,12 @@ import {
 import { getPacientesCount } from "../../services/GerenciamentoPacienteService";
 import { getFilasAtivasCount } from "../../services/FilaService";
 import TotalPacientes from "../../components/dashboard/TotalPacientes";
-import { getTempoMedioEspera, getTamanhoMedioFila } from "../../services/InsigthsAdmin";
+import { getTempoMedioEspera, getTamanhoMedioFila, getPacientesPorEspecialidade, getTempoMedioPorEspecialidade } from "../../services/InsigthsAdmin";
 import FilasAtivas from "../../components/dashboard/FilasAtivas";
 import TempoMedioEspera from "../../components/dashboard/TempoMedioEspera";
 import TamanhoMedioFilas from "../../components/dashboard/TamanhoMedioFilas";
 import GraficoEsperaPorSetor from "../../components/dashboard/GraficoEsperaPorSetor";
 import GraficoPizzaDistPacienteSetor from "../../components/dashboard/GraficoPizzaDistPacienteSetor";
-
-const COLORS = ["#1976d2", "#26a69a", "#f44336", "#ffb300"];
-
 
 function Dashboard() {
   const [patientCount, setPatientCount] = useState(0);
@@ -25,6 +22,8 @@ function Dashboard() {
   const [tempoMedioEspera, setTempoMedioEspera] = useState(0);
   const [tamanhoMedioFilas, setTamanhoMedioFilas] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [esperaPorEspecialidade, setEsperaPorEspecialidade] = useState([]);
+  const [pacientesPorEspecialidade, setPacientesPorEspecialidade] = useState([]);
 
   useEffect(() => {
     Promise.all([
@@ -40,6 +39,20 @@ function Dashboard() {
       getTamanhoMedioFila()
         .then((res) => setTamanhoMedioFilas(res.data.tamanhoMedioFilas))
         .catch((err) => console.error("Erro ao buscar tamanho médio das filas", err)),
+      getTempoMedioPorEspecialidade()
+        .then((res) => {
+          const categorias = Object.keys(res.data);
+          const valores = Object.values(res.data);
+          setEsperaPorEspecialidade({ categorias, valores });
+        })
+        .catch((err) => console.error("Erro ao buscar tempo por especialidade", err)),
+      getPacientesPorEspecialidade()
+        .then((res) => {
+          const categorias = Object.keys(res.data);
+          const valores = Object.values(res.data);
+          setPacientesPorEspecialidade({ categorias, valores });
+        })
+        .catch((err) => console.error("Erro ao buscar pacientes por especialidade", err)),
     ]).finally(() => setLoading(false));
   }, []);
 
@@ -108,19 +121,19 @@ function Dashboard() {
             <Grid item xs={12} md={8}>
               <GraficoEsperaPorSetor
                 chartSeries={[
-                  { name: "Tempo Médio de Espera", data: [22, 34, 18, 41, 26] },
+                  {
+                    name: "Tempo Médio de Espera",
+                    data: esperaPorEspecialidade.valores || [],
+                  },
                 ]}
-                categories={[
-                  "Pediatria",
-                  "Clínico Geral",
-                  "Ortopedia",
-                  "Oftalmo",
-                  "Cardiologia",
-                ]}
+                categories={esperaPorEspecialidade.categorias || []}
               />
             </Grid>
             <Grid item xs={12} md={4}>
-              <GraficoPizzaDistPacienteSetor />
+              <GraficoPizzaDistPacienteSetor
+                data={pacientesPorEspecialidade.valores || []}
+                labels={pacientesPorEspecialidade.categorias || []}
+              />
             </Grid>
           </Grid>
         </Container>

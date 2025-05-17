@@ -1,11 +1,15 @@
 package com.medqueue.medqueue.service.paciente;
 
+import com.medqueue.medqueue.dto.HistoricoFilaDTO;
 import com.medqueue.medqueue.dto.InfoFilaParaPacienteDTO;
 import com.medqueue.medqueue.models.FilaPaciente;
 import com.medqueue.medqueue.repository.FilaPacienteRepository;
 import com.medqueue.medqueue.service.auth.AuthService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -18,30 +22,51 @@ public class InfoFilaPacienteService {
 
     public InfoFilaParaPacienteDTO infoFilaPaciente() {
         Long pacienteId = authService.getIdDoUsuario();
-    
-        FilaPaciente filaPaciente = filaPacienteRepository
+
+        return filaPacienteRepository
                 .findFirstByPacienteIdAndStatusAndFilaAtivoTrue(pacienteId, "Na fila")
-                .orElseThrow(() -> new EntityNotFoundException(
-                        "Paciente com ID " + pacienteId + " não está em nenhuma fila ativa."));
-    
-        if ("Atendido".equals(filaPaciente.getStatus())) {
-            throw new IllegalStateException("Paciente já foi atendido.");
+                .filter(filaPaciente -> {
+                    if ("Atendido".equals(filaPaciente.getStatus()) || Boolean.TRUE.equals(filaPaciente.getCheckIn())) {
+                        return false;
+                    }
+                    return true;
+                })
+                .map(filaPaciente -> {
+                    int posicao = filaPaciente.getPosicao();
+                    double tempoMedio = filaPaciente.getFila().getTempoMedio();
+                    double tempoEstimado = tempoMedio * (posicao - 1);
+
+                    return new InfoFilaParaPacienteDTO(
+                            filaPaciente.getFila().getId(),
+                            pacienteId,
+                            posicao,
+                            tempoEstimado
+                    );
+                })
+                .orElse(null); // retorna null se não estiver em nenhuma fila válida
+    }
+
+
+    public List<HistoricoFilaDTO> historicoFilasPaciente() {
+        Long pacienteId = authService.getIdDoUsuario();
+
+        List<FilaPaciente> filas = filaPacienteRepository.findAllByPacienteId(pacienteId);
+
+        if (filas.isEmpty()) {
+            throw new RuntimeException("O paciente ainda não possui histórico de filas.");
         }
 
-        if (filaPaciente.getCheckIn()) {
-            throw new IllegalStateException("Paciente já realizou o check-in.");
-        }
-    
-        int posicao = filaPaciente.getPosicao();
-        double tempoMedio = filaPaciente.getFila().getTempoMedio();
-        double tempoEstimado = tempoMedio * (posicao - 1);
-    
-        return new InfoFilaParaPacienteDTO(
+        return filas.stream()
+            .filter(filaPaciente -> filaPaciente.getFila() != null)
+            .map(filaPaciente -> new HistoricoFilaDTO(
                 filaPaciente.getFila().getId(),
-                pacienteId,
-                posicao,
-                tempoEstimado
-        );
+                filaPaciente.getFila().getNome(),
+                filaPaciente.getFila().getEspecialidade(),
+                filaPaciente.getPrioridade(),
+                filaPaciente.getStatus(),
+                filaPaciente.getDataEntrada()
+            ))
+            .collect(Collectors.toList());
     }
     
 }

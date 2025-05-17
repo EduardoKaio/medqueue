@@ -17,3 +17,4 @@ export const marcarComoAtrasado = async (filaId, pacienteId) => {
     { status: "Atrasado" }
   );
 };
+export const getHistoricoPacienteAdmin = (pacienteId) => axiosInstance.get(`${API_URL}/historico/${pacienteId}`);

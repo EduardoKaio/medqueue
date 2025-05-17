@@ -1,4 +1,4 @@
-package com.medqueue.medqueue.controller.admin;
+package com.medqueue.medqueue.controller.auth;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

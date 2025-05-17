@@ -13,3 +13,4 @@ export const enterQueue = (especialidade, prioridade) =>
     },
   });
 export const getQueueInfo = () => axiosInstance.get(`${API_URL}/fila/info`);
+export const getHistoricoFilas = () => axiosInstance.get(`${API_URL}/fila/historico`);

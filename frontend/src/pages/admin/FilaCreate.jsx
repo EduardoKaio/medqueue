@@ -46,7 +46,7 @@ const FilaCreate = () => {
       nome,
       descricao,
       ativo,
-      tempo_medio: Number(tempoMedio),
+      tempoMedio: Number(tempoMedio),
       especialidade,
 
     };
@@ -58,7 +58,9 @@ const FilaCreate = () => {
           message: "Fila criada com sucesso!",
           severity: "success",
         },
+        
       });
+      console.log(tempoMedio)
     } catch (err) {
       console.error("Erro ao criar fila", err);
 

@@ -12,6 +12,7 @@ import {
   Dashboard as DashboardIcon,
   Person as PersonIcon,
   PeopleAlt as PeopleAltIcon,
+  History as HistoryIcon,
 } from "@mui/icons-material";
 
 export const drawerWidth = 240;
@@ -91,6 +92,12 @@ const HeaderLayout = () => {
       path: "/paciente/fila-atual",
 
       icon: <QueueIcon color="primary" />,
+    },
+    {
+      label: "Histórico",
+      path: "/paciente/historico",
+
+      icon: <HistoryIcon color="primary" />,
     },
   ];
 

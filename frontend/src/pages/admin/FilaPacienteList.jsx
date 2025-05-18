@@ -14,15 +14,20 @@ import {
   Alert,
   Grid,
   Divider,
-   TextField,
+  TextField,
+  Tooltip,
 } from "@mui/material";
 import { useParams, Link } from "react-router-dom";
-import { ArrowBack as ArrowBackIcon } from "@mui/icons-material";
+import {
+  ArrowBack as ArrowBackIcon,
+  HowToReg as HowToRegIcon,
+} from "@mui/icons-material";
 import {
   listarFilaOrdenada,
   realizarCheckIn,
   marcarComoAtrasado,
 } from "../../services/FilaPacienteService";
+import { buscarFilaPorId } from "../../services/FilaService";
 
 const FilaPacientesList = () => {
   const { id } = useParams();
@@ -34,17 +39,35 @@ const FilaPacientesList = () => {
     severity: "success",
   });
   const [delayedPatients, setDelayedPatients] = useState([]);
-  const [firstInQueueTimestamp, setFirstInQueueTimestamp] = useState(null);
   const [firstPatientId, setFirstPatientId] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [filaDetalhes, setFilaDetalhes] = useState(null);
+  const [timeUpdateTrigger, setTimeUpdateTrigger] = useState(0);
+
+  const fetchFilaDetalhes = useCallback(async () => {
+    try {
+      const response = await buscarFilaPorId(id);
+      setFilaDetalhes(response.data);
+    } catch (error) {
+      console.error("Erro ao buscar detalhes da fila:", error);
+    }
+  }, [id]);
 
   useEffect(() => {
     fetchPacientes();
+    fetchFilaDetalhes();
 
-    // Atualizar a cada 30 segundos
     const interval = setInterval(fetchPacientes, 30000);
     return () => clearInterval(interval);
-  }, [id]);
+  }, [id, fetchFilaDetalhes]);
+
+  useEffect(() => {
+    const timerInterval = setInterval(() => {
+      setTimeUpdateTrigger((prev) => prev + 1);
+    }, 1000);
+
+    return () => clearInterval(timerInterval);
+  }, []);
 
   const fetchPacientes = useCallback(async () => {
     try {
@@ -79,11 +102,10 @@ const FilaPacientesList = () => {
 
         if (firstPatientId !== firstPatient.pacienteId) {
           setFirstPatientId(firstPatient.pacienteId);
-          setFirstInQueueTimestamp(Date.now());
+          // Não definimos firstInQueueTimestamp aqui, usaremos a dataEntrada do paciente
         }
       } else {
         setFirstPatientId(null);
-        setFirstInQueueTimestamp(null);
       }
     } catch (error) {
       console.error("Erro ao buscar pacientes da fila:", error);
@@ -100,13 +122,23 @@ const FilaPacientesList = () => {
   }, [id, fetchPacientes]);
 
   useEffect(() => {
-    if (firstInQueueTimestamp && firstPatientId) {
-      // Função que verifica o tempo e move o paciente se necessário
-      const verificarTimeout = () => {
-        const currentTime = Date.now();
-        const waitTime = currentTime - firstInQueueTimestamp;
+    if (firstPatientId && filaDetalhes && filaDetalhes.tempoMedio) {
+      const tempoLimiteMs = filaDetalhes.tempoMedio * 60 * 1000;
 
-        if (waitTime >= 30000) {
+      const verificarTimeout = () => {
+        const firstPatient = pacientes.find(
+          (p) => p.pacienteId === firstPatientId
+        );
+
+        if (!firstPatient || !firstPatient.dataEntrada) {
+          return;
+        }
+
+        const dataEntrada = new Date(firstPatient.dataEntrada);
+        const agora = new Date();
+        const tempoDecorridoMs = agora - dataEntrada;
+
+        if (tempoDecorridoMs >= tempoLimiteMs) {
           setDelayedPatients((prev) => [...prev, firstPatientId]);
 
           marcarComoAtrasado(id, firstPatientId)
@@ -123,7 +155,6 @@ const FilaPacientesList = () => {
               console.error("Erro ao marcar paciente como atrasado:", error);
             });
 
-          setFirstInQueueTimestamp(null);
           setFirstPatientId(null);
         }
       };
@@ -131,14 +162,12 @@ const FilaPacientesList = () => {
       const intervalo = setInterval(verificarTimeout, 1000);
       return () => clearInterval(intervalo);
     }
-
-  }, [firstInQueueTimestamp, firstPatientId, fetchPacientes, id]);
+  }, [firstPatientId, filaDetalhes, pacientes, id, fetchPacientes]);
 
   const handleCheckIn = async (pacienteId) => {
     try {
       await realizarCheckIn(id, pacienteId);
       if (pacienteId === firstPatientId) {
-        setFirstInQueueTimestamp(null);
         setFirstPatientId(null);
       }
       setNotification({
@@ -161,17 +190,50 @@ const FilaPacientesList = () => {
     setNotification({ ...notification, open: false });
   };
 
-  // Separar pacientes em duas categorias
-  const otherPatients = pacientes.filter((p) => p.checkIn || p.atendido);
-  const inQueuePatients = pacientes.filter((p) => !p.checkIn && !p.atendido);
+  const otherPatients = pacientes.filter(
+    (p) => p.checkIn || p.status === "Atendido"
+  );
+  const inQueuePatients = pacientes.filter(
+    (p) => !p.checkIn && p.status === "Na fila"
+  );
   const timeoutPatients = pacientes.filter(
     (p) => p.status === "Atrasado" || delayedPatients.includes(p.pacienteId)
   );
-  
-  // const pacientesFiltrados = pacientes.filter((p) =>
-  //   p.nomePaciente.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //   p.cpf.toLowerCase().includes(searchTerm.toLowerCase())
-  // );
+
+  const calcularTempoEsperado = (index, pacienteId) => {
+    if (!filaDetalhes || filaDetalhes.tempoMedio === undefined) {
+      return "Calculando...";
+    }
+
+    const paciente = pacientes.find((p) => p.pacienteId === pacienteId);
+    if (!paciente || !paciente.dataEntrada) {
+      return "Calculando...";
+    }
+
+    const tempoTotalEstimadoMinutos = filaDetalhes.tempoMedio * (index + 1);
+
+    const dataEntrada = new Date(paciente.dataEntrada);
+    const agora = new Date();
+    const tempoDecorridoMs = agora - dataEntrada;
+    const tempoDecorridoMinutos = tempoDecorridoMs / (1000 * 60);
+
+    const tempoRestanteMinutos = Math.max(
+      0,
+      tempoTotalEstimadoMinutos - tempoDecorridoMinutos
+    );
+
+    if (tempoRestanteMinutos === 0) {
+      return "Atendimento a qualquer momento";
+    } else if (tempoRestanteMinutos < 1) {
+      return "Menos de 1 minuto";
+    } else if (tempoRestanteMinutos < 60) {
+      return `${Math.round(tempoRestanteMinutos)} min`;
+    } else {
+      const horas = Math.floor(tempoRestanteMinutos / 60);
+      const minutos = Math.round(tempoRestanteMinutos % 60);
+      return `${horas}h ${minutos > 0 ? minutos + "min" : ""}`;
+    }
+  };
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -207,15 +269,6 @@ const FilaPacientesList = () => {
               Pacientes da Fila
             </Typography>
           </Box>
-          {/* Campo de busca */}
-          {/* <TextField
-            label="Pesquisar por nome ou CPF"
-            variant="outlined"
-            fullWidth
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            sx={{ mb: 3 }}
-          /> */}
           {loading ? (
             <Box sx={{ display: "flex", justifyContent: "center", my: 8 }}>
               <CircularProgress />
@@ -242,9 +295,9 @@ const FilaPacientesList = () => {
                     flex: 1,
                     height: "40rem",
                     overflow: "hidden",
-                    borderRadius: '20px',
-                    boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.1)',
-                    border: '1px solid rgba(0, 0, 0, 0.1)',
+                    borderRadius: "20px",
+                    boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.1)",
+                    border: "1px solid rgba(0, 0, 0, 0.1)",
                   }}
                 >
                   <Box
@@ -339,9 +392,9 @@ const FilaPacientesList = () => {
                     flex: 1,
                     height: "40rem",
                     overflow: "hidden",
-                    borderRadius: '20px',
-                    boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.1)',
-                    border: '1px solid rgba(0, 0, 0, 0.1)',
+                    borderRadius: "20px",
+                    boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.1)",
+                    border: "1px solid rgba(0, 0, 0, 0.1)",
                   }}
                 >
                   <Box
@@ -386,14 +439,25 @@ const FilaPacientesList = () => {
                               sx={{
                                 py: 2,
                                 px: 3,
-                                backgroundColor:
-                                  index === 0
-                                    ? firstInQueueTimestamp &&
-                                      Date.now() - firstInQueueTimestamp >
-                                        240000
-                                      ? "#ffe0e0"
-                                      : "#fff3e0"
-                                    : "#fff3e0",
+                                backgroundColor: () => {
+                                  if (index !== 0) return "#fff3e0";
+                                  if (
+                                    !filaDetalhes ||
+                                    !filaDetalhes.tempoMedio ||
+                                    !paciente.dataEntrada
+                                  )
+                                    return "#fff3e0";
+                                  const dataEntrada = new Date(
+                                    paciente.dataEntrada
+                                  );
+                                  const agora = new Date();
+                                  const tempoDecorridoMs = agora - dataEntrada;
+                                  const limiteAlerta =
+                                    filaDetalhes.tempoMedio * 60 * 1000 * 0.8;
+                                  return tempoDecorridoMs > limiteAlerta
+                                    ? "#ffe0e0"
+                                    : "#fff3e0";
+                                },
                                 display: "flex",
                                 flexDirection: { xs: "column", sm: "row" },
                                 alignItems: {
@@ -409,16 +473,10 @@ const FilaPacientesList = () => {
                                   mb: { xs: 2, sm: 0 },
                                 }}
                               >
-                                <Typography
-                                  variant="body1"
-                                  fontWeight="medium"
-                                >
+                                <Typography variant="body1" fontWeight="medium">
                                   #{index + 1} - {paciente.nomePaciente}
                                 </Typography>
-                                <Typography
-                                  variant="body1"
-                                  fontWeight="medium"
-                                >
+                                <Typography variant="body1" fontWeight="medium">
                                   Prioridade: {paciente.prioridade}
                                 </Typography>
                                 <Typography
@@ -426,58 +484,77 @@ const FilaPacientesList = () => {
                                   sx={{
                                     color:
                                       index === 0 &&
-                                      firstInQueueTimestamp &&
-                                      Date.now() - firstInQueueTimestamp >
+                                      firstPatientId &&
+                                      Date.now() -
+                                        new Date(
+                                          pacientes.find(
+                                            (p) =>
+                                              p.pacienteId === firstPatientId
+                                          ).dataEntrada
+                                        ) >
                                         240000
                                         ? "error.main"
                                         : "warning.main",
                                     mt: 0.5,
                                   }}
                                 >
-                                  {index === 0
-                                    ? firstInQueueTimestamp &&
-                                      Date.now() - firstInQueueTimestamp >
-                                        240000
+                                  {index === 0 &&
+                                  filaDetalhes &&
+                                  filaDetalhes.tempoMedio
+                                    ? firstPatientId &&
+                                      Date.now() -
+                                        new Date(
+                                          pacientes.find(
+                                            (p) =>
+                                              p.pacienteId === firstPatientId
+                                          ).dataEntrada
+                                        ) >
+                                        filaDetalhes.tempoMedio *
+                                          60 *
+                                          1000 *
+                                          0.8
                                       ? "Prestes a ser removido!"
                                       : "Primeiro da fila"
                                     : "Na fila"}
                                 </Typography>
-                                {index === 0 && firstInQueueTimestamp && (
-                                  <Typography
-                                    variant="caption"
-                                    sx={{ color: "text.secondary" }}
-                                  >
-                                    Tempo restante:{" "}
-                                    {(() => {
-                                      const remainingTime = Math.max(
-                                        0,
-                                        30000 -
-                                          (Date.now() - firstInQueueTimestamp)
-                                      );
-                                      const minutes = Math.floor(
-                                        remainingTime / 60000
-                                      );
-                                      const seconds = Math.floor(
-                                        (remainingTime % 60000) / 1000
-                                      );
-                                      return remainingTime < 60000
-                                        ? `${seconds}s`
-                                        : `${minutes}m`;
-                                    })()}
-                                  </Typography>
-                                )}
+                                <Typography
+                                  variant="caption"
+                                  sx={{
+                                    display: "block",
+                                    color: "text.secondary",
+                                    mt: 0.5,
+                                  }}
+                                >
+                                  Tempo estimado de espera:{" "}
+                                  {calcularTempoEsperado(
+                                    index,
+                                    paciente.pacienteId
+                                  )}
+                                </Typography>
                               </Box>
-                              <Button
-                                variant="contained"
-                                color="primary"
-                                size="small"
-                                onClick={() =>
-                                  handleCheckIn(paciente.pacienteId)
-                                }
-                                sx={{ minWidth: 120 }}
+                              <Tooltip
+                                title="Fazer check-in"
+                                arrow
+                                placement="top"
                               >
-                                Fazer check-in
-                              </Button>
+                                <Button
+                                  variant="contained"
+                                  color="primary"
+                                  size="small"
+                                  onClick={() =>
+                                    handleCheckIn(paciente.pacienteId)
+                                  }
+                                  sx={{
+                                    minWidth: "auto",
+                                    width: 48,
+                                    height: 48,
+                                    borderRadius: "50%",
+                                    padding: 0,
+                                  }}
+                                >
+                                  <HowToRegIcon />
+                                </Button>
+                              </Tooltip>
                             </ListItem>
                             <Divider />
                           </React.Fragment>
@@ -496,9 +573,9 @@ const FilaPacientesList = () => {
                     flex: 1,
                     height: "40rem",
                     overflow: "hidden",
-                    borderRadius: '20px',
-                    boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.1)',
-                    border: '1px solid rgba(0, 0, 0, 0.1)',
+                    borderRadius: "20px",
+                    boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.1)",
+                    border: "1px solid rgba(0, 0, 0, 0.1)",
                   }}
                 >
                   <Box

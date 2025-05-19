@@ -40,5 +40,9 @@ export const marcarComoAtendidoAtrasado = (filaId, pacienteId) => {
   return alterarStatusFilaPaciente(filaId, pacienteId, "Atendido - Atrasado");
 };
 
+export const marcarComoRemovido = (filaId, pacienteId) => {
+  return alterarStatusFilaPaciente(filaId, pacienteId, "Removido");
+};
+
 export const getHistoricoPacienteAdmin = (pacienteId) =>
   axiosInstance.get(`${API_URL}/historico/${pacienteId}`);

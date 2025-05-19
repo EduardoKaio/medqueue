@@ -22,6 +22,7 @@ import {
   ArrowBack as ArrowBackIcon,
   HowToReg as HowToRegIcon,
   TaskAlt as TaskAltIcon,
+  Delete as DeleteIcon,
 } from "@mui/icons-material";
 import {
   listarFilaOrdenada,
@@ -29,6 +30,7 @@ import {
   realizarCheckInAtrasado,
   marcarComoAtrasado,
   alterarStatusFilaPaciente,
+  marcarComoRemovido,
 } from "../../services/FilaPacienteService";
 import { buscarFilaPorId } from "../../services/FilaService";
 
@@ -239,6 +241,28 @@ const FilaPacientesList = () => {
     }
   };
 
+  const handleRemoverPaciente = async (pacienteId) => {
+    try {
+      await marcarComoRemovido(id, pacienteId);
+      if (pacienteId === firstPatientId) {
+        setFirstPatientId(null);
+      }
+      setNotification({
+        open: true,
+        message: "Paciente removido da fila com sucesso!",
+        severity: "warning",
+      });
+      fetchPacientes();
+    } catch (error) {
+      console.error("Erro ao remover paciente:", error);
+      setNotification({
+        open: true,
+        message: "Erro ao remover paciente da fila.",
+        severity: "error",
+      });
+    }
+  };
+
   const handleCloseNotification = () => {
     setNotification({ ...notification, open: false });
   };
@@ -250,7 +274,10 @@ const FilaPacientesList = () => {
     (p) => !p.checkIn && p.status === "Na fila"
   );
   const timeoutPatients = pacientes.filter(
-    (p) => p.status === "Atrasado" || delayedPatients.includes(p.pacienteId)
+    (p) =>
+      p.status === "Atrasado" ||
+      p.status === "Removido" ||
+      delayedPatients.includes(p.pacienteId)
   );
 
   const calcularTempoEsperado = (index, pacienteId) => {
@@ -639,29 +666,55 @@ const FilaPacientesList = () => {
                                   )}
                                 </Typography>
                               </Box>
-                              <Tooltip
-                                title="Fazer check-in"
-                                arrow
-                                placement="top"
-                              >
-                                <Button
-                                  variant="contained"
-                                  color="primary"
-                                  size="small"
-                                  onClick={() =>
-                                    handleCheckIn(paciente.pacienteId)
-                                  }
-                                  sx={{
-                                    minWidth: "auto",
-                                    width: 48,
-                                    height: 48,
-                                    borderRadius: "50%",
-                                    padding: 0,
-                                  }}
+                              <Box sx={{ display: "flex", gap: 1 }}>
+                                <Tooltip
+                                  title="Fazer check-in"
+                                  arrow
+                                  placement="top"
                                 >
-                                  <HowToRegIcon />
-                                </Button>
-                              </Tooltip>
+                                  <Button
+                                    variant="contained"
+                                    color="primary"
+                                    size="small"
+                                    onClick={() =>
+                                      handleCheckIn(paciente.pacienteId)
+                                    }
+                                    sx={{
+                                      minWidth: "auto",
+                                      width: 48,
+                                      height: 48,
+                                      borderRadius: "50%",
+                                      padding: 0,
+                                    }}
+                                  >
+                                    <HowToRegIcon />
+                                  </Button>
+                                </Tooltip>
+
+                                <Tooltip
+                                  title="Remover da fila"
+                                  arrow
+                                  placement="top"
+                                >
+                                  <Button
+                                    variant="contained"
+                                    color="error"
+                                    size="small"
+                                    onClick={() =>
+                                      handleRemoverPaciente(paciente.pacienteId)
+                                    }
+                                    sx={{
+                                      minWidth: "auto",
+                                      width: 48,
+                                      height: 48,
+                                      borderRadius: "50%",
+                                      padding: 0,
+                                    }}
+                                  >
+                                    <DeleteIcon />
+                                  </Button>
+                                </Tooltip>
+                              </Box>
                             </ListItem>
                             <Divider />
                           </React.Fragment>
@@ -750,9 +803,7 @@ const FilaPacientesList = () => {
                                     mt: 0.5,
                                   }}
                                 >
-                                  {paciente.status === "Atrasado"
-                                    ? "Removido por atraso"
-                                    : paciente.status}
+                                  {paciente.status}
                                 </Typography>
                               </Box>
 

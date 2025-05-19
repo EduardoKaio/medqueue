@@ -289,9 +289,10 @@ public class FilaPacienteService {
         }
 
         try {
-            // Atualizar a lista de status permitidos
+            // Lista de status permitidos
             List<String> statusPermitidos = Arrays.asList(
-                "Na fila", "Atendido", "Atrasado", "Em atendimento", "Em atendimento - Atrasado", "Atendido - Atrasado"
+                "Na fila", "Atendido", "Atrasado", "Em atendimento", "Em atendimento - Atrasado", 
+                "Atendido - Atrasado", "Removido"
             );
             if (!statusPermitidos.contains(status)) {
                 throw new IllegalArgumentException("Status inválido: " + status);

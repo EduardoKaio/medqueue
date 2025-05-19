@@ -289,8 +289,10 @@ public class FilaPacienteService {
         }
 
         try {
-            // Verificar se os status permitidos incluem o novo status
-            List<String> statusPermitidos = Arrays.asList("Na fila", "Atendido", "Atrasado", "Em atendimento");
+            // Atualizar a lista de status permitidos
+            List<String> statusPermitidos = Arrays.asList(
+                "Na fila", "Atendido", "Atrasado", "Em atendimento", "Em atendimento - Atrasado", "Atendido - Atrasado"
+            );
             if (!statusPermitidos.contains(status)) {
                 throw new IllegalArgumentException("Status inválido: " + status);
             }
@@ -311,13 +313,20 @@ public class FilaPacienteService {
             String statusAntigo = filaPaciente.getStatus();
             filaPaciente.setStatus(status);
             
-            // Se o status for Atrasado e o paciente estava "Na fila",
-            // precisamos reorganizar as posições dos outros pacientes
-            if ("Atrasado".equals(status) && "Na fila".equals(statusAntigo)) {
+            // Caso específico para qualquer tipo de status "Em atendimento"
+            if (status.startsWith("Em atendimento")) {
+                filaPaciente.setCheckIn(true);
+            }
+            
+            // Se mudar para Atrasado ou Em atendimento e estava "Na fila",
+            // precisamos reorganizar as posições
+            if (("Atrasado".equals(status) || "Em atendimento".equals(status)) 
+                && "Na fila".equals(statusAntigo)) {
                 int posicaoAntiga = filaPaciente.getPosicao();
                 
-                // Reorganizar as posições dos pacientes restantes na fila
-                List<FilaPaciente> filaRestante = filaPacienteRepository.findByFilaIdAndStatusOrderByPosicao(filaId, "Na fila");
+                // Reorganizar posições
+                List<FilaPaciente> filaRestante = filaPacienteRepository
+                    .findByFilaIdAndStatusOrderByPosicao(filaId, "Na fila");
                 for (FilaPaciente fp : filaRestante) {
                     if (fp.getPosicao() > posicaoAntiga) {
                         fp.setPosicao(fp.getPosicao() - 1);
@@ -325,17 +334,20 @@ public class FilaPacienteService {
                     }
                 }
                 
-                // Notificar o novo primeiro da fila se o paciente atrasado era o primeiro
+                // Notificar o novo primeiro da fila
                 if (posicaoAntiga == 1) {
-                    FilaPaciente novoProximo = filaPacienteRepository.findFirstByFilaIdAndStatusOrderByPosicao(filaId, "Na fila");
+                    FilaPaciente novoProximo = filaPacienteRepository
+                        .findFirstByFilaIdAndStatusOrderByPosicao(filaId, "Na fila");
                     if (novoProximo != null && !Boolean.TRUE.equals(novoProximo.getNotificado())) {
                         try {
                             String telefone = novoProximo.getPaciente().getTelefone();
                             String primeiroNome = novoProximo.getPaciente().getNome().split(" ")[0];
                             
                             String mensagem = String.format(
-                                "👋 Olá %s! Aqui é da equipe *MedQueue* 🏥\n\nVocê é o *próximo da fila* para ser atendido! 🔔\n" +
-                                "Fique atento e se prepare para o seu atendimento.\n\nAgradecemos pela sua paciência! 😊",
+                                "👋 Olá %s! Aqui é da equipe *MedQueue* 🏥\n\n" +
+                                "Você é o *próximo da fila* para ser atendido! 🔔\n" +
+                                "Fique atento e se prepare para o seu atendimento.\n\n" +
+                                "Agradecemos pela sua paciência! 😊",
                                 primeiroNome
                             );
                             
@@ -343,7 +355,7 @@ public class FilaPacienteService {
                             novoProximo.setNotificado(true);
                             filaPacienteRepository.save(novoProximo);
                         } catch (Exception e) {
-                            System.err.println("Erro ao enviar WhatsApp para o novo primeiro paciente da fila: " + e.getMessage());
+                            System.err.println("Erro ao enviar WhatsApp: " + e.getMessage());
                         }
                     }
                 }
@@ -359,6 +371,7 @@ public class FilaPacienteService {
                     filaPaciente.getDataEntrada(),
                     filaPaciente.getCheckIn(),
                     filaPaciente.getPrioridade());
+                
         } catch (EntityNotFoundException | IllegalArgumentException e) {
             throw e;
         } catch (Exception e) {

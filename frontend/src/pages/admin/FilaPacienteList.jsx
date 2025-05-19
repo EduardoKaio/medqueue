@@ -21,11 +21,14 @@ import { useParams, Link } from "react-router-dom";
 import {
   ArrowBack as ArrowBackIcon,
   HowToReg as HowToRegIcon,
+  TaskAlt as TaskAltIcon,
 } from "@mui/icons-material";
 import {
   listarFilaOrdenada,
   realizarCheckIn,
+  realizarCheckInAtrasado,
   marcarComoAtrasado,
+  alterarStatusFilaPaciente,
 } from "../../services/FilaPacienteService";
 import { buscarFilaPorId } from "../../services/FilaService";
 
@@ -102,7 +105,6 @@ const FilaPacientesList = () => {
 
         if (firstPatientId !== firstPatient.pacienteId) {
           setFirstPatientId(firstPatient.pacienteId);
-          // Não definimos firstInQueueTimestamp aqui, usaremos a dataEntrada do paciente
         }
       } else {
         setFirstPatientId(null);
@@ -181,6 +183,57 @@ const FilaPacientesList = () => {
       setNotification({
         open: true,
         message: "Erro ao realizar check-in.",
+        severity: "error",
+      });
+    }
+  };
+
+  const handleCheckInAtrasado = async (pacienteId) => {
+    try {
+      await realizarCheckInAtrasado(id, pacienteId);
+      setDelayedPatients((prev) => prev.filter((id) => id !== pacienteId));
+      setNotification({
+        open: true,
+        message: "Check-in de paciente atrasado realizado com sucesso!",
+        severity: "success",
+      });
+      fetchPacientes();
+    } catch (error) {
+      console.error("Erro ao realizar check-in de paciente atrasado:", error);
+      setNotification({
+        open: true,
+        message: "Erro ao realizar check-in de paciente atrasado.",
+        severity: "error",
+      });
+    }
+  };
+
+  const handleMarcarAtendido = async (pacienteId) => {
+    try {
+      const paciente = pacientes.find((p) => p.pacienteId === pacienteId);
+      if (!paciente) {
+        console.error("Paciente não encontrado");
+        return;
+      }
+
+      const novoStatus =
+        paciente.status === "Em atendimento - Atrasado"
+          ? "Atendido - Atrasado"
+          : "Atendido";
+
+      await alterarStatusFilaPaciente(id, pacienteId, novoStatus);
+
+      setNotification({
+        open: true,
+        message: "Paciente marcado como atendido com sucesso!",
+        severity: "success",
+      });
+      fetchPacientes();
+    } catch (error) {
+      console.error("Erro ao marcar paciente como atendido:", error);
+      setNotification({
+        open: true,
+        message: "Erro ao marcar paciente como atendido.",
         severity: "error",
       });
     }
@@ -336,48 +389,102 @@ const FilaPacientesList = () => {
                       </Box>
                     ) : (
                       <List disablePadding>
-                        {otherPatients.map((paciente, index) => (
-                          <React.Fragment key={paciente.pacienteId}>
-                            <ListItem
-                              sx={{
-                                py: 2,
-                                px: 3,
-                                backgroundColor:
-                                  paciente.status === "Atendido"
-                                    ? "#e8f5e9"
-                                    : "#e3f2fd",
-                              }}
-                            >
-                              <ListItemText
-                                primary={
+                        {otherPatients
+                          .sort((a, b) => {
+                            // Primeiro verificar se o status começa com "Em atendimento"
+                            const aEmAtendimento =
+                              a.status.startsWith("Em atendimento");
+                            const bEmAtendimento =
+                              b.status.startsWith("Em atendimento");
+
+                            if (aEmAtendimento && !bEmAtendimento) return -1;
+                            if (!aEmAtendimento && bEmAtendimento) return 1;
+
+                            // Se ambos tiverem o mesmo status (ambos em atendimento ou ambos atendidos), manter a ordem original
+                            return 0;
+                          })
+                          .map((paciente, index) => (
+                            <React.Fragment key={paciente.pacienteId}>
+                              <ListItem
+                                sx={{
+                                  py: 2,
+                                  px: 3,
+                                  backgroundColor:
+                                    paciente.status === "Atendido" ||
+                                    paciente.status === "Atendido - Atrasado"
+                                      ? "#e8f5e9"
+                                      : "#e3f2fd",
+                                  display: "flex",
+                                  flexDirection: { xs: "column", sm: "row" },
+                                  alignItems: {
+                                    xs: "flex-start",
+                                    sm: "center",
+                                  },
+                                }}
+                              >
+                                <Box
+                                  sx={{
+                                    flex: 1,
+                                    mr: { xs: 0, sm: 2 },
+                                    mb: { xs: 2, sm: 0 },
+                                  }}
+                                >
                                   <Typography
                                     variant="body1"
                                     fontWeight="medium"
                                   >
                                     #{index + 1} - {paciente.nomePaciente}
                                   </Typography>
-                                }
-                                secondary={
                                   <Typography
                                     variant="body2"
                                     sx={{
                                       color:
-                                        paciente.status === "Atendido"
-                                          ? "success.main"
-                                          : "info.main",
+                                        paciente.status === "Atendido" ||
+                                        paciente.status ===
+                                          "Atendido - Atrasado"
+                                          ? "success.main" // Verde para qualquer tipo de atendido
+                                          : "info.main", // Azul para em atendimento
                                       mt: 0.5,
                                     }}
                                   >
-                                    {paciente.status === "Atendido"
-                                      ? "Atendido"
-                                      : "Aguardando atendimento"}
+                                    {paciente.status}
                                   </Typography>
-                                }
-                              />
-                            </ListItem>
-                            <Divider />
-                          </React.Fragment>
-                        ))}
+                                </Box>
+
+                                {/* Mostrar o botão para todos os pacientes em atendimento (normal ou atrasado) */}
+                                {(paciente.status === "Em atendimento" ||
+                                  paciente.status ===
+                                    "Em atendimento - Atrasado") && (
+                                  <Tooltip
+                                    title="Marcar como atendido"
+                                    arrow
+                                    placement="top"
+                                  >
+                                    <Button
+                                      variant="contained"
+                                      color="success"
+                                      size="small"
+                                      onClick={() =>
+                                        handleMarcarAtendido(
+                                          paciente.pacienteId
+                                        )
+                                      }
+                                      sx={{
+                                        minWidth: "auto",
+                                        width: 48,
+                                        height: 48,
+                                        borderRadius: "50%",
+                                        padding: 0,
+                                      }}
+                                    >
+                                      <TaskAltIcon />
+                                    </Button>
+                                  </Tooltip>
+                                )}
+                              </ListItem>
+                              <Divider />
+                            </React.Fragment>
+                          ))}
                       </List>
                     )}
                   </Box>
@@ -621,29 +728,60 @@ const FilaPacientesList = () => {
                                 py: 2,
                                 px: 3,
                                 backgroundColor: "#ffebee",
+                                display: "flex",
+                                flexDirection: { xs: "column", sm: "row" },
+                                alignItems: { xs: "flex-start", sm: "center" },
                               }}
                             >
-                              <ListItemText
-                                primary={
-                                  <Typography
-                                    variant="body1"
-                                    fontWeight="medium"
-                                  >
-                                    #{index + 1} - {paciente.nomePaciente}
-                                  </Typography>
-                                }
-                                secondary={
-                                  <Typography
-                                    variant="body2"
+                              <Box
+                                sx={{
+                                  flex: 1,
+                                  mr: { xs: 0, sm: 2 },
+                                  mb: { xs: 2, sm: 0 },
+                                }}
+                              >
+                                <Typography variant="body1" fontWeight="medium">
+                                  #{index + 1} - {paciente.nomePaciente}
+                                </Typography>
+                                <Typography
+                                  variant="body2"
+                                  sx={{
+                                    color: "error.main",
+                                    mt: 0.5,
+                                  }}
+                                >
+                                  {paciente.status === "Atrasado"
+                                    ? "Removido por atraso"
+                                    : paciente.status}
+                                </Typography>
+                              </Box>
+
+                              {/* Adicionar botão de check-in para pacientes atrasados */}
+                              {paciente.status === "Atrasado" && (
+                                <Tooltip
+                                  title="Fazer check-in (atrasado)"
+                                  arrow
+                                  placement="top"
+                                >
+                                  <Button
+                                    variant="contained"
+                                    color="warning"
+                                    size="small"
+                                    onClick={() =>
+                                      handleCheckInAtrasado(paciente.pacienteId)
+                                    }
                                     sx={{
-                                      color: "error.main",
-                                      mt: 0.5,
+                                      minWidth: "auto",
+                                      width: 48,
+                                      height: 48,
+                                      borderRadius: "50%",
+                                      padding: 0,
                                     }}
                                   >
-                                    Removido por atraso
-                                  </Typography>
-                                }
-                              />
+                                    <HowToRegIcon />
+                                  </Button>
+                                </Tooltip>
+                              )}
                             </ListItem>
                             <Divider />
                           </React.Fragment>

@@ -90,8 +90,8 @@ const PacienteCreate = () => {
           mt: 8,
         }}
       >
-        <Container sx={{ display: "flex", justifyContent: "center" }}>
-          <PaperWrapper>
+        <Container sx={{ display: "flex", justifyContent: "center", }}>
+          <PaperWrapper sx={{ bgcolor: "background.default", }}>
             <Box
               sx={{
                 display: "grid",
@@ -113,8 +113,8 @@ const PacienteCreate = () => {
                 Adicionar Novo Paciente
               </Title>
             </Box>
-            <form onSubmit={handleSubmit}>
-              <Grid container spacing={3} sx={{ mt: "5px" }}>
+            <form onSubmit={handleSubmit} >
+              <Grid container spacing={3} sx={{ mt: "5px", }}>
                 <Grid item size={{ xs: 12, sm: 8 }}>
                   <TextField
                     label="Nome Completo"

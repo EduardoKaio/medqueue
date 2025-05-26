@@ -164,9 +164,6 @@ function PacienteList() {
                 <TableHead>
                   <TableRow sx={{ backgroundColor: "#1976d2" }}>
                     <TableCell sx={{ color: "white", fontWeight: "bold" }}>
-                      ID
-                    </TableCell>
-                    <TableCell sx={{ color: "white", fontWeight: "bold" }}>
                       Nome
                     </TableCell>
                     <TableCell sx={{ color: "white", fontWeight: "bold" }}>
@@ -198,7 +195,6 @@ function PacienteList() {
                         "&:hover": { backgroundColor: "#e3f2fd" },
                       }}
                     >
-                      <TableCell>{p.id}</TableCell>
                       <TableCell>{p.nome}</TableCell>
                       <TableCell>{p.cpf}</TableCell>
                       <TableCell>{p.email}</TableCell>

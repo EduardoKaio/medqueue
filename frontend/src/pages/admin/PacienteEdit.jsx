@@ -42,8 +42,6 @@ const PacienteEdit = () => {
   const { id } = useParams(); // ID da rota
   const navigate = useNavigate();
 
-  const [role, setRole] = useState("");
-
   const [paciente, setPaciente] = useState({
     nome: "",
     cpf: "",
@@ -84,10 +82,14 @@ const PacienteEdit = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setRole(ativo ? "ROLE_ADMIN" : "ROLE_USER");
-    paciente.role = role;
+
+    const userAtualizado = {
+      ...paciente,
+      role: ativo ? "ROLE_ADMIN" : "ROLE_USER",
+    };
+
     try {
-      await updatePaciente(id, paciente);
+      await updatePaciente(id, userAtualizado);
       navigate("/admin/pacientes", {
         state: {
           message: "Paciente atualizado com sucesso!",
@@ -112,7 +114,7 @@ const PacienteEdit = () => {
         }}
       >
         <Container>
-          <PaperWrapper>
+          <PaperWrapper sx={{ bgcolor: "background.default" }}>
             <Box
               sx={{
                 display: "grid",
@@ -128,16 +130,25 @@ const PacienteEdit = () => {
                 sx={{
                   display: "flex",
                   justifySelf: "center",
-                  paddingRight: "60px",
+                  paddingRight: "85px",
                 }}
               >
                 Editar Paciente
               </Title>
             </Box>
             <form onSubmit={handleSubmit}>
-              <Grid container spacing={3} sx={{ mt: "5px" }}>
+              <Grid
+                container
+                spacing={3}
+                sx={{
+                  mt: "5px",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
                 <Grid item size={{ xs: 12, sm: 8 }}>
                   <TextField
+                    name="nome"
                     label="Nome Completo"
                     variant="outlined"
                     fullWidth
@@ -146,18 +157,20 @@ const PacienteEdit = () => {
                     required
                   />
                 </Grid>
-                <Grid item size={{ xs: 6, sm: 4 }}>
+                <Grid item size={{ xs: 12, sm: 5 }}>
                   <TextField
-                    label="CPF"
+                    name="email"
+                    label="E-mail"
                     variant="outlined"
                     fullWidth
-                    value={paciente.cpf}
+                    value={paciente.email}
                     onChange={handleChange}
                     required
                   />
                 </Grid>
-                <Grid item size={{ xs: 6, sm: 4 }}>
+                <Grid item size={{ xs: 6, sm: 3 }}>
                   <TextField
+                    name="telefone"
                     label="Telefone"
                     variant="outlined"
                     fullWidth
@@ -168,16 +181,7 @@ const PacienteEdit = () => {
                 </Grid>
                 <Grid item size={{ xs: 12, sm: 8 }}>
                   <TextField
-                    label="E-mail"
-                    variant="outlined"
-                    fullWidth
-                    value={paciente.email}
-                    onChange={handleChange}
-                    required
-                  />
-                </Grid>
-                <Grid item size={{ xs: 12, sm: 8 }}>
-                  <TextField
+                    name="endereco"
                     label="Endereço"
                     variant="outlined"
                     fullWidth
@@ -186,8 +190,20 @@ const PacienteEdit = () => {
                     required
                   />
                 </Grid>
-                <Grid item size={{ xs: 6, sm: 4 }}>
+                <Grid item size={{ xs: 6, sm: 5 }}>
                   <TextField
+                    name="cpf"
+                    label="CPF"
+                    variant="outlined"
+                    fullWidth
+                    value={paciente.cpf}
+                    onChange={handleChange}
+                    required
+                  />
+                </Grid>
+                <Grid item size={{ xs: 6, sm: 3 }}>
+                  <TextField
+                    name="dataNascimento"
                     label="Data de Nascimento"
                     type="date"
                     variant="outlined"
@@ -204,6 +220,7 @@ const PacienteEdit = () => {
                   <FormControl fullWidth required>
                     <InputLabel>Gênero</InputLabel>
                     <Select
+                      name="sexo"
                       value={paciente.sexo}
                       onChange={handleChange}
                       label="Gênero"
@@ -214,20 +231,9 @@ const PacienteEdit = () => {
                     </Select>
                   </FormControl>
                 </Grid>
-                <Grid item size={{ xs: 12, sm: 5 }}>
-                  <TextField
-                    label="senha"
-                    variant="outlined"
-                    fullWidth
-                    value={paciente.senha}
-                    onChange={handleChange}
-                    disabled
-                    type="password"
-                  />
-                </Grid>
                 <Grid
                   item
-                  size={{ xs: 12, sm: 2 }}
+                  size={{ xs: 12, sm: 3 }}
                   display="flex"
                   alignItems="center"
                   justifyContent="center"
@@ -235,6 +241,7 @@ const PacienteEdit = () => {
                   <FormControlLabel
                     control={
                       <Switch
+                        name="role"
                         checked={ativo}
                         onChange={(e) => setAtivo(e.target.checked)}
                         color="primary"
@@ -244,7 +251,7 @@ const PacienteEdit = () => {
                   />
                 </Grid>
               </Grid>
-              <Box sx={{ mt: 2 }}>
+              <Box sx={{ mt: 2, display: "flex", justifyContent: "end" }}>
                 {error && <Typography color="error">{error}</Typography>}
                 <Button
                   type="submit"

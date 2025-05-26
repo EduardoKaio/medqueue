@@ -168,10 +168,6 @@ function FilaList() {
               <Table>
                 <TableHead>
                   <TableRow sx={{ backgroundColor: "#1976d2" }}>
-
-                    <TableCell sx={{ color: "white", fontWeight: "bold" }}>
-                      ID
-                    </TableCell>
                     <TableCell sx={{ color: "white", fontWeight: "bold" }}>
                       Nome
                     </TableCell>
@@ -183,6 +179,12 @@ function FilaList() {
                     </TableCell>
                     <TableCell sx={{ color: "white", fontWeight: "bold" }}>
                       Especialidade
+                    </TableCell>
+                    <TableCell sx={{ color: "white", fontWeight: "bold" }}>
+                      Status
+                    </TableCell>
+                    <TableCell sx={{ color: "white", fontWeight: "bold" }}>
+                      Data de Criação
                     </TableCell>
                     <TableCell
                       sx={{
@@ -204,12 +206,15 @@ function FilaList() {
                         "&:hover": { backgroundColor: "#e3f2fd" },
                       }}
                     >
-                      <TableCell>{f.id}</TableCell>
                       <TableCell>{f.nome}</TableCell>
                       <TableCell>{f.descricao}</TableCell>
                       
                       <TableCell>{f.tempoMedio} min</TableCell>
                       <TableCell>{f.especialidade}</TableCell>
+                      <TableCell>{f.ativo ? 'Ativo' : 'Inativo'}</TableCell>
+                      <TableCell>
+                        {new Intl.DateTimeFormat('pt-BR').format(new Date(f.dataCriacao + 'T12:00:00'))}
+                      </TableCell>
                       <TableCell align="center">
                         <Link to={`/admin/filas/edit/${f.id}`}>
                           <IconButton color="primary">
@@ -226,7 +231,7 @@ function FilaList() {
                           <DeleteIcon />
                         </IconButton>
                         <Link to={`/admin/filas/${f.id}`}>
-                          <Button variant="outlined">Ver pacientes</Button>
+                          <Button variant="outlined">V</Button>
                         </Link>
                       </TableCell>
                     </TableRow>

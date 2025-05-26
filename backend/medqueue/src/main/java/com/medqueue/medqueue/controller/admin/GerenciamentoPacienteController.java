@@ -40,7 +40,6 @@ public class GerenciamentoPacienteController {
         }
     }
 
-
     @PostMapping
     @Operation(summary = "Cadastrar novo paciente")
     public ResponseEntity<?> criar(@RequestBody PacienteDTO pacienteDTO) {

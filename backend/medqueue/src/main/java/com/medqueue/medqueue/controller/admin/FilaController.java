@@ -30,6 +30,14 @@ public class FilaController {
         return ResponseEntity.ok(filasAtivas);
     }
 
+    @GetMapping("/listAll")
+    @Operation(summary = "Listar filas ativas")
+    public ResponseEntity<List<Fila>> listarTodasFilas() {
+        List<Fila> filas = filaService.listarTodas();
+        return ResponseEntity.ok(filas);
+    }
+
+
     @PostMapping
     @Operation(summary = "Criar uma nova fila")
     public ResponseEntity<?> criarFila(@RequestBody Fila novaFila) {
@@ -78,5 +86,21 @@ public class FilaController {
     public ResponseEntity<Map<String, Long>> contarFilasAtivas() {
         long count = filaService.getContagem();
         return ResponseEntity.ok(Map.of("count", count));
+    }
+
+    @PostMapping("/filaDoDia")
+    @Operation(summary = "Criar uma nova fila")
+    public ResponseEntity<?> criarFilaGeralDoDia(@RequestBody Fila filaGeralDoDia) {
+        try {
+            Fila filaGeral = filaService.criarFilaGeralDoDia(filaGeralDoDia);
+            return ResponseEntity.ok(filaGeral);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest()
+                .body(new ErrorResponse(e.getMessage()));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ErrorResponse("Erro interno ao processar a requisição."));
+        }
     }
 }

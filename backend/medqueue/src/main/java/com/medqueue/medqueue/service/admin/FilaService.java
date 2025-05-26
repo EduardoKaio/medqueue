@@ -21,7 +21,7 @@ public class FilaService {
 
     public List<Fila> listarTodas() {
         try {
-            return filaRepository.findAll();
+            return filaRepository.findAllByOrderByDataCriacaoDesc();
         } catch (Exception e) {
             throw new RuntimeException("Erro ao listar filas: " + e.getMessage(), e);
         }
@@ -132,4 +132,33 @@ public class FilaService {
         }
     }
 
+    public Fila criarFilaGeralDoDia(Fila filaGeralDoDia) {
+        desativarFilaDoDiaAnterior();
+
+        filaGeralDoDia.setAtivo(true);
+        filaGeralDoDia.setDataCriacao(LocalDate.now());
+        filaGeralDoDia.setEspecialidade("geral");
+
+        boolean filaExistente = filaRepository.findByEspecialidadeAndAtivoTrue("geral").isPresent();
+
+        if (filaExistente) {
+            throw new IllegalArgumentException("Não podem existir duas filas com a mesma especialidade");
+        }
+
+        return filaRepository.save(filaGeralDoDia);
+    }
+
+    public void desativarFilaDoDiaAnterior() {
+        LocalDate ontem = LocalDate.now().minusDays(1);
+
+        Long idFilaDeOntem = filaRepository.findByDataCriacaoAndEspecialidade(ontem, "geral")
+                                    .orElseThrow(() -> new EntityNotFoundException("Não existe fila com essa especialidade, no dia anterior"))
+                                    .getId();
+
+        Fila filaDeOntem = buscarPorId(idFilaDeOntem);
+
+        filaDeOntem.setAtivo(false);
+
+        filaRepository.save(filaDeOntem);
+    }
 }

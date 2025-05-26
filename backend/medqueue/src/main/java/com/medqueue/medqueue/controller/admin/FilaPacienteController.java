@@ -77,13 +77,25 @@ public class FilaPacienteController {
             @PathVariable Long pacienteId,
             @RequestBody Map<String, String> statusRequest) {
         
-        String status = statusRequest.get("status");
-        if (status == null || status.isEmpty()) {
-            return ResponseEntity.badRequest().body("Status não pode ser vazio");
+        try {
+            String status = statusRequest.get("status");
+            if (status == null || status.isEmpty()) {
+                return ResponseEntity.badRequest().body("Status não pode ser vazio");
+            }
+            
+            FilaPacienteDTO paciente = filaPacienteService.atualizarStatusPaciente(filaId, pacienteId, status);
+            return ResponseEntity.ok(paciente);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("erro", e.getMessage()));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("erro", e.getMessage()));
+        } catch (Exception e) {
+            e.printStackTrace(); // Log detalhado para depuração no console do servidor
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("erro", "Erro ao atualizar status: " + e.getMessage()));
         }
-        
-        FilaPacienteDTO paciente = filaPacienteService.atualizarStatusPaciente(filaId, pacienteId, status);
-        return ResponseEntity.ok(paciente);
     }
 
     @GetMapping("/historico/{pacienteId}")

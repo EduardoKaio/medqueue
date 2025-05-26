@@ -35,6 +35,8 @@ function TriagemInteligente() {
   const [recomendacao, setRecomendacao] = useState(null);
   const [modalAberto, setModalAberto] = useState(false);
   const [snackbarAberto, setSnackbarAberto] = useState(false);
+  const [snackbarErro, setSnackbarErro] = useState(false);
+  const [mensagemErro, setMensagemErro] = useState("");
   const [loading, setLoading] = useState(false);
   const [filaNaoEncontrada, setFilaNaoEncontrada] = useState(false);
 
@@ -93,27 +95,40 @@ function TriagemInteligente() {
     try {
       if (!filaNaoEncontrada) {
         await enterQueue(recomendacao.especialista, prioridade.nivel);
-        console.log("Entrou na fila com prioridade", prioridade.nivel);
         setSnackbarAberto(true);
       } else {
         await enterQueue("geral", prioridade.nivel);
-        console.log("Entrou na fila com prioridade", prioridade.nivel);
         setFilaNaoEncontrada(false);
         setSnackbarAberto(true);
       }
     } catch (err) {
-      if (err.response && err.response.status === 404) {
-        const mensagem = err.response.data;
+      if (err.response) {
+        const { errorCode, message } = err.response.data || {};
 
-        console.error("Erro: ", mensagem);
-
-        setFilaNaoEncontrada(true);
+        switch (errorCode) {
+          case "FILA_NAO_ENCONTRADA":
+            setFilaNaoEncontrada(true);
+            break;
+          case "PACIENTE_JA_NA_FILA":
+          case "PACIENTE_EM_OUTRA_FILA":
+            setMensagemErro(message);
+            setSnackbarErro(true);
+            break;
+          default:
+            setMensagemErro(
+              "Erro ao entrar na fila. Tente novamente mais tarde."
+            );
+            setSnackbarErro(true);
+        }
       } else {
-        console.error("Erro ao entrar na fila", err);
+        setMensagemErro(
+          "Erro ao conectar com o servidor. Verifique sua conexão."
+        );
+        setSnackbarErro(true);
       }
-    }
 
-    setModalAberto(false);
+      setModalAberto(false);
+    }
   };
 
   const LoadingComponent = () => (
@@ -365,7 +380,7 @@ function TriagemInteligente() {
         </DialogActions>
       </Dialog>
 
-      {/* Snackbar de confirmação */}
+      {/* Snackbar de confirmação de sucesso */}
       <Snackbar
         open={snackbarAberto}
         autoHideDuration={4000}
@@ -379,6 +394,23 @@ function TriagemInteligente() {
           variant="filled"
         >
           Você foi adicionado à fila com sucesso!
+        </MuiAlert>
+      </Snackbar>
+
+      {/* Snackbar de erro */}
+      <Snackbar
+        open={snackbarErro}
+        autoHideDuration={6000}
+        onClose={() => setSnackbarErro(false)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <MuiAlert
+          severity="error"
+          onClose={() => setSnackbarErro(false)}
+          elevation={6}
+          variant="filled"
+        >
+          {mensagemErro}
         </MuiAlert>
       </Snackbar>
     </Box>

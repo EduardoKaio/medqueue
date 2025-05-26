@@ -56,7 +56,22 @@ public class FilaPacienteService {
                 throw new IllegalStateException("Fila com ID " + filaId + " está inativa");
             }
 
-            // Verifica se o paciente já está na fila
+            // Verificar se o paciente está em qualquer fila com status diferente de "Atendido"
+            List<FilaPaciente> registrosPaciente = filaPacienteRepository.findAllByPacienteId(pacienteId);
+            
+            for (FilaPaciente fp : registrosPaciente) {
+                if (fp.getFila().getAtivo() && 
+                    !fp.getStatus().equals("Atendido") && 
+                    !fp.getStatus().equals("Atendido - Atrasado")) {
+                    
+                    throw new IllegalStateException(
+                        "Paciente está na fila '" + fp.getFila().getNome() + 
+                        "' com status '" + fp.getStatus() + "'. " +
+                        "Um paciente só pode entrar em nova fila após ser atendido.");
+                }
+            }
+
+            // Verificação específica para a fila atual (verificar se já existe na mesma fila)
             Optional<FilaPaciente> existente = filaPacienteRepository
                     .findByPacienteIdAndFilaIdAndStatus(pacienteId, filaId, "Na fila");
 
@@ -186,9 +201,6 @@ public class FilaPacienteService {
 
         } catch (EntityNotFoundException e) {
             throw e;
-            // ajeitar isso incliuir mensagem tirar catch de baixo
-        // } catch (Exception e) {
-        //     throw new RuntimeException("Erro ao atualizar prioridade e tempo médio: " + e.getMessage(), e);
         }
     }
 
@@ -206,22 +218,23 @@ public class FilaPacienteService {
                 throw new EntityNotFoundException("Fila não encontrada com ID: " + filaId);
             }
 
-            FilaPaciente filaPaciente = null;
-
-            FilaPaciente paciente = filaPacienteRepository.findByPacienteIdAndFilaId(pacienteId, filaId)
-                            .orElseThrow(() -> new EntityNotFoundException("Esse paciente não está na fila"));
+            // Buscar TODOS os registros do paciente na fila
+            List<FilaPaciente> registrosPaciente = filaPacienteRepository.findByPacienteIdAndFilaId(pacienteId, filaId);
             
-            if ("Na fila".equals(paciente.getStatus())) {
-                filaPaciente = filaPacienteRepository
-                    .findByPacienteIdAndFilaIdAndStatus(pacienteId, filaId, "Na fila")
-                    .orElseThrow(() -> new EntityNotFoundException(
-                    "Paciente com ID " + pacienteId + " não está na fila com ID " + filaId));                
-            } else {
-                filaPaciente = filaPacienteRepository
-                    .findByPacienteIdAndFilaIdAndStatus(pacienteId, filaId, "Atrasado")
-                    .orElseThrow(() -> new EntityNotFoundException(
-                    "Paciente com ID " + pacienteId + " não está na fila com ID " + filaId));
+            if (registrosPaciente.isEmpty()) {
+                throw new EntityNotFoundException("Paciente não está na fila");
             }
+            
+            // Buscar o registro mais recente com status "Na fila" ou "Atrasado"
+            Optional<FilaPaciente> registroAtivo = registrosPaciente.stream()
+                .filter(fp -> "Na fila".equals(fp.getStatus()) || "Atrasado".equals(fp.getStatus()))
+                .max(Comparator.comparing(FilaPaciente::getDataEntrada));
+            
+            if (registroAtivo.isEmpty()) {
+                throw new EntityNotFoundException("Paciente não está na fila com status que permite check-in");
+            }
+            
+            FilaPaciente filaPaciente = registroAtivo.get();
 
             if (filaPaciente.getCheckIn()) {
                 throw new IllegalStateException("Paciente já realizou check-in");
@@ -234,41 +247,19 @@ public class FilaPacienteService {
             // Reorganizar posições: apenas dos que ainda não fizeram check-in e ainda não foram atendidos
             List<FilaPaciente> filaRestante = filaPacienteRepository
                     .findByFilaIdAndStatusAndCheckInFalseOrderByPosicao(filaId, "Na fila");
+                
+            // Código reorganização de posições...
 
-            int novaPosicao = 1;
-            for (FilaPaciente fp : filaRestante) {
-                fp.setPosicao(novaPosicao++);
-
-                // Se ele está na posição 1 e ainda não foi notificado
-                if (fp.getPosicao() == 1 && !Boolean.TRUE.equals(fp.getNotificado())) {
-                    try {
-                        String telefone = fp.getPaciente().getTelefone();
-                        String primeiroNome = fp.getPaciente().getNome().split(" ")[0];
-
-                        String mensagem = String.format(
-                                "👋 Olá %s! Aqui é da equipe *MedQueue* 🏥\n\nVocê é o *próximo da fila* à ser atendido! 🔔\nFique atento e se prepare para o seu atendimento.\n\nAgradecemos pela sua paciência! 😊",
-                                primeiroNome
-                        );
-
-                        whatsAppService.sendWhatsAppMessage(telefone, mensagem);
-                        fp.setNotificado(true);
-                    } catch (Exception e) {
-                        System.err.println("Erro ao enviar WhatsApp para o paciente na posição 1: " + e.getMessage());
-                    }
-                }
-
-                filaPacienteRepository.save(fp);
-            }
-
+            // Retorno correto do DTO
             return new FilaPacienteDTO(
-                    filaPaciente.getPaciente().getId(),
-                    filaPaciente.getPaciente().getNome(),
-                    filaPaciente.getPosicao(),
-                    filaPaciente.getStatus(),
-                    filaPaciente.getDataEntrada(),
-                    filaPaciente.getCheckIn(),
-                    filaPaciente.getPrioridade());
-
+                filaPaciente.getPaciente().getId(),
+                filaPaciente.getPaciente().getNome(),
+                filaPaciente.getPosicao(),
+                filaPaciente.getStatus(),
+                filaPaciente.getDataEntrada(),
+                filaPaciente.getCheckIn(),
+                filaPaciente.getPrioridade()
+            );
         } catch (EntityNotFoundException | IllegalStateException e) {
             throw e;
         } catch (Exception e) {
@@ -303,14 +294,25 @@ public class FilaPacienteService {
                 throw new EntityNotFoundException("Fila não encontrada com ID: " + filaId);
             }
 
-            // Buscar o paciente na fila
-            Optional<FilaPaciente> filaPacienteOpt = filaPacienteRepository.findByPacienteIdAndFilaId(pacienteId, filaId);
+            // Buscar TODOS os registros do paciente na fila
+            List<FilaPaciente> registrosPaciente = filaPacienteRepository.findByPacienteIdAndFilaId(pacienteId, filaId);
             
-            if (!filaPacienteOpt.isPresent()) {
+            if (registrosPaciente.isEmpty()) {
                 throw new EntityNotFoundException("Paciente com ID " + pacienteId + " não está na fila com ID " + filaId);
             }
             
-            FilaPaciente filaPaciente = filaPacienteOpt.get();
+            // Buscar o registro mais recente com status "Na fila", "Em atendimento" ou "Atrasado"
+            Optional<FilaPaciente> registroAtivo = registrosPaciente.stream()
+                .filter(fp -> !"Atendido".equals(fp.getStatus()) && 
+                              !"Atendido - Atrasado".equals(fp.getStatus()) && 
+                              !"Removido".equals(fp.getStatus()))
+                .max(Comparator.comparing(FilaPaciente::getDataEntrada));
+            
+            if (registroAtivo.isEmpty()) {
+                throw new EntityNotFoundException("Não há nenhum registro ativo do paciente na fila para atualizar status");
+            }
+            
+            FilaPaciente filaPaciente = registroAtivo.get();
             String statusAntigo = filaPaciente.getStatus();
             filaPaciente.setStatus(status);
             

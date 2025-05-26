@@ -19,8 +19,6 @@ public interface FilaPacienteRepository extends JpaRepository<FilaPaciente, Long
     
     List<FilaPaciente> findByFilaIdAndStatusAndCheckInFalseOrderByPosicao(Long filaId, String status);
     
-    Optional<FilaPaciente> findByPacienteIdAndFilaId(Long pacienteId, Long filaId);
-    
     List<FilaPaciente> findByFilaId(Long filaId);
 
     List<FilaPaciente> findByFilaIdOrderByPosicao(Long filaId);
@@ -29,4 +27,7 @@ public interface FilaPacienteRepository extends JpaRepository<FilaPaciente, Long
 
     List<FilaPaciente> findAllByPacienteId(Long pacienteId);
     
+    Optional<FilaPaciente> findByPacienteIdAndFilaIdAndStatusIn(Long pacienteId, Long filaId, List<String> statusList);
+    
+    List<FilaPaciente> findByPacienteIdAndFilaId(Long pacienteId, Long filaId);
 }

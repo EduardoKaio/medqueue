@@ -3,7 +3,6 @@ package com.medqueue.medqueue.controller.admin;
 import com.medqueue.medqueue.models.FilaPaciente;
 import com.medqueue.medqueue.models.Fila;
 import com.medqueue.medqueue.dto.FilaPacienteDTO;
-import com.medqueue.medqueue.dto.HistoricoFilaDTO;
 import com.medqueue.medqueue.dto.HistoricoPacienteAdminDTO;
 import com.medqueue.medqueue.service.admin.FilaPacienteService;
 import io.swagger.v3.oas.annotations.Operation;

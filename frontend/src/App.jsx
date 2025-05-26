@@ -13,6 +13,7 @@ import Register from "./pages/auth/Register";
 import LoginPage from "./pages/auth/Login";
 import TriagemInteligente from "./pages/paciente/TriagemInteligente";
 import HomePaciente from "./pages/paciente/HomePaciente";
+import Perfil from "./pages/Paciente/Perfil";
 
 import PrivateRoute from "./components/PrivateRoute";
 import HeaderLayout from "./components/HeaderLayout";
@@ -42,6 +43,7 @@ function App() {
             <Route path="filas/create" element={<FilaCreate />} />
             <Route path="filas/edit/:id" element={<FilaEdit />} />{" "}
             <Route path="filas/:id" element={<FilaPacientesList />} />
+            <Route path="perfil" element={<Perfil />} />
           </Route>
 
           {/* Pacient Routes  */}
@@ -51,6 +53,7 @@ function App() {
             <Route path="triagem" element={<TriagemInteligente />} />
             <Route path="fila-atual" element={<FilaAtual />} />
             <Route path="Historico" element={<HistoricoFilas />} />
+            <Route path="perfil" element={<Perfil />} />
           </Route>
         </Route>
 

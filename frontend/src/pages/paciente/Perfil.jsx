@@ -13,17 +13,19 @@ import {
   Paper,
   FormControlLabel,
   Switch,
+  Avatar,
+  InputAdornment,
+  IconButton,
 } from "@mui/material";
 import { styled } from "@mui/system";
 import {
   Edit as EditIcon,
   ArrowBack as ArrowBackIcon,
 } from "@mui/icons-material";
-import { useNavigate, useParams, Link } from "react-router-dom";
-import {
-  getPacienteById,
-  updatePaciente,
-} from "../../services/GerenciamentoPacienteService";
+import { useNavigate, Link } from "react-router-dom";
+import { getCurrentUser, updateUser } from "../../services/PacienteService";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
+
 
 const PaperWrapper = styled(Paper)({
   flexDirection: "column",
@@ -38,9 +40,12 @@ const Title = styled(Typography)({
   marginBottom: 18,
 });
 
-const PacienteEdit = () => {
-  const { id } = useParams(); // ID da rota
+const Perfil = () => {
   const navigate = useNavigate();
+
+  const [role, setRole] = useState("");
+  const [senha, setSenha] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const [paciente, setPaciente] = useState({
     nome: "",
@@ -49,8 +54,8 @@ const PacienteEdit = () => {
     telefone: "",
     dataNascimento: "",
     endereco: "",
-    sexo: "",
     senha: "",
+    sexo: "",
     role: "",
   });
 
@@ -60,7 +65,7 @@ const PacienteEdit = () => {
   useEffect(() => {
     const fetchPaciente = async () => {
       try {
-        const response = await getPacienteById(id);
+        const response = await getCurrentUser();
         setPaciente(response.data);
         setAtivo(paciente.role.includes("ADMIN"));
       } catch (err) {
@@ -70,7 +75,7 @@ const PacienteEdit = () => {
     };
 
     fetchPaciente();
-  }, [id]);
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -84,13 +89,13 @@ const PacienteEdit = () => {
     e.preventDefault();
 
     const userAtualizado = {
-      ...paciente,
-      role: ativo ? "ROLE_ADMIN" : "ROLE_USER",
+        ...paciente,
+        role: ativo ? "ROLE_ADMIN" : "ROLE_USER",
     };
-
+    
     try {
-      await updatePaciente(id, userAtualizado);
-      navigate("/admin/pacientes", {
+      await updateUser(userAtualizado);
+      navigate("/paciente", {
         state: {
           message: "Paciente atualizado com sucesso!",
           severity: "success",
@@ -100,6 +105,10 @@ const PacienteEdit = () => {
       console.error("Erro ao atualizar paciente", err);
       setError("Erro ao atualizar paciente.");
     }
+  };
+
+  const handleClickShowPassword = () => {
+    setShowPassword(!showPassword);
   };
 
   return (
@@ -121,7 +130,7 @@ const PacienteEdit = () => {
                 gridTemplateColumns: "1fr 9fr",
               }}
             >
-              <Link to="/admin/pacientes">
+              <Link to="/paciente">
                 <ArrowBackIcon sx={{ mt: "4px" }} />
               </Link>
 
@@ -130,12 +139,19 @@ const PacienteEdit = () => {
                 sx={{
                   display: "flex",
                   justifySelf: "center",
-                  paddingRight: "85px",
+                  paddingRight: "110px",
                 }}
               >
-                Editar Paciente
+                Editar dados do usuário
               </Title>
             </Box>
+
+            <Avatar
+              src={paciente?.photoUrl}
+              alt={paciente?.nome}
+              sx={{ width: 150, height: 150, mx: "auto", mb: 5 }}
+            />
+
             <form onSubmit={handleSubmit}>
               <Grid
                 container
@@ -146,7 +162,7 @@ const PacienteEdit = () => {
                   alignItems: "center",
                 }}
               >
-                <Grid item size={{ xs: 12, sm: 8 }}>
+                <Grid item size={{ xs: 5, sm: 6 }}>
                   <TextField
                     name="nome"
                     label="Nome Completo"
@@ -157,18 +173,17 @@ const PacienteEdit = () => {
                     required
                   />
                 </Grid>
-                <Grid item size={{ xs: 12, sm: 5 }}>
+                <Grid item size={{ xs: 6, sm: 4 }}>
                   <TextField
-                    name="email"
-                    label="E-mail"
+                    label="CPF"
                     variant="outlined"
                     fullWidth
-                    value={paciente.email}
+                    value={paciente.cpf}
                     onChange={handleChange}
-                    required
+                    disabled
                   />
                 </Grid>
-                <Grid item size={{ xs: 6, sm: 3 }}>
+                <Grid item size={{ xs: 4, sm: 4 }}>
                   <TextField
                     name="telefone"
                     label="Telefone"
@@ -179,7 +194,18 @@ const PacienteEdit = () => {
                     required
                   />
                 </Grid>
-                <Grid item size={{ xs: 12, sm: 8 }}>
+                <Grid item size={{ xs: 4, sm: 6 }}>
+                  <TextField
+                    name="email"
+                    label="E-mail"
+                    variant="outlined"
+                    fullWidth
+                    value={paciente.email}
+                    onChange={handleChange}
+                    required
+                  />
+                </Grid>
+                <Grid item size={{ xs: 4, sm: 6 }}>
                   <TextField
                     name="endereco"
                     label="Endereço"
@@ -190,40 +216,28 @@ const PacienteEdit = () => {
                     required
                   />
                 </Grid>
-                <Grid item size={{ xs: 6, sm: 5 }}>
+                <Grid item size={{ xs: 6, sm: 4 }}>
                   <TextField
-                    name="cpf"
-                    label="CPF"
-                    variant="outlined"
-                    fullWidth
-                    value={paciente.cpf}
-                    onChange={handleChange}
-                    required
-                  />
-                </Grid>
-                <Grid item size={{ xs: 6, sm: 3 }}>
-                  <TextField
-                    name="dataNascimento"
                     label="Data de Nascimento"
                     type="date"
                     variant="outlined"
                     fullWidth
                     value={paciente.dataNascimento}
                     onChange={handleChange}
-                    required
+                    disabled
                     InputLabelProps={{
                       shrink: true,
                     }}
                   />
                 </Grid>
-                <Grid item size={{ xs: 6, sm: 5 }}>
+                <Grid item size={{ xs: 4, sm: 3 }}>
                   <FormControl fullWidth required>
                     <InputLabel>Gênero</InputLabel>
                     <Select
-                      name="sexo"
                       value={paciente.sexo}
                       onChange={handleChange}
                       label="Gênero"
+                      disabled
                     >
                       <MenuItem value="M">Masculino</MenuItem>
                       <MenuItem value="F">Feminino</MenuItem>
@@ -231,9 +245,28 @@ const PacienteEdit = () => {
                     </Select>
                   </FormControl>
                 </Grid>
+                <Grid item size={{ xs: 4, sm: 5 }}>
+                  <TextField
+                    label="senha"
+                    variant="outlined"
+                    fullWidth
+                    value={senha}
+                    onChange={(e) => setSenha(e.target.value)}
+                    type={showPassword ? "text" : "password"}
+                    InputProps={{
+                        endAdornment: (
+                        <InputAdornment position="end">
+                            <IconButton onClick={handleClickShowPassword} edge="end">
+                            {showPassword ? <VisibilityOff /> : <Visibility />}
+                            </IconButton>
+                        </InputAdornment>
+                        ),
+                    }}
+                  />
+                </Grid>
                 <Grid
                   item
-                  size={{ xs: 12, sm: 3 }}
+                  size={{ xs: 12, sm: 2 }}
                   display="flex"
                   alignItems="center"
                   justifyContent="center"
@@ -241,10 +274,10 @@ const PacienteEdit = () => {
                   <FormControlLabel
                     control={
                       <Switch
-                        name="role"
                         checked={ativo}
                         onChange={(e) => setAtivo(e.target.checked)}
                         color="primary"
+                        disabled
                       />
                     }
                     label="Admin"
@@ -264,7 +297,7 @@ const PacienteEdit = () => {
                     mt: 1,
                   }}
                 >
-                  Atualizar Paciente
+                  Atualizar Dados
                 </Button>
               </Box>
             </form>
@@ -369,4 +402,4 @@ const PacienteEdit = () => {
   );
 };
 
-export default PacienteEdit;
+export default Perfil;

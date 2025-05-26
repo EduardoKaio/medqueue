@@ -12,10 +12,22 @@ import {
 import { Logout } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 
+import PersonIcon from '@mui/icons-material/Person';
+
 const UserMenu = ({ user }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
   const navigate = useNavigate();
+
+  const handlePerfil = () => {
+    if (user.role.includes("ADMIN")) {
+      navigate("/admin/perfil")
+    } else if (user.role.includes("USER")) {
+      navigate("/paciente/perfil")
+    } else {
+      console.log("Tipo de usuário inválido!")
+    }
+  }
 
   // Função para realizar o logout
   const handleLogout = () => {
@@ -83,6 +95,13 @@ const UserMenu = ({ user }) => {
             }
           </Typography>
         </Box>
+
+        <MenuItem onClick={handlePerfil} sx={{ px: 2, py: 1.5 }}>
+          <ListItemIcon>
+            <PersonIcon fontSize="medium"/>
+          </ListItemIcon>
+          <Typography variant="body1">Perfil</Typography>
+        </MenuItem>
 
         <MenuItem onClick={handleLogout} sx={{ px: 2, py: 1.5, color: "error.main" }}>
           <ListItemIcon>

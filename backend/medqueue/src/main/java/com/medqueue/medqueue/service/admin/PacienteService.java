@@ -1,16 +1,18 @@
 package com.medqueue.medqueue.service.admin;
 
-import com.medqueue.medqueue.dto.PacienteDTO;
-import com.medqueue.medqueue.models.Paciente;
-import com.medqueue.medqueue.repository.PacienteRepository;
-import jakarta.persistence.EntityNotFoundException;
-import lombok.RequiredArgsConstructor;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import com.medqueue.medqueue.dto.PacienteDTO;
+import com.medqueue.medqueue.models.Paciente;
+import com.medqueue.medqueue.repository.PacienteRepository;
+
+import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -74,6 +76,11 @@ public class PacienteService {
         String genero = pacienteDTO.getSexo();
         if (!genero.equalsIgnoreCase("M") && !genero.equalsIgnoreCase("F") && !genero.equalsIgnoreCase("Outro")) {
             throw new IllegalArgumentException("Gênero inválido. Os valores aceitos são: M, F ou Outro.");
+        }
+
+        // 4. Verificar se a senha foi alterada
+        if (!"".equals(pacienteDTO.getSenha())) {
+            pacienteDTO.setSenha(passwordEncoder.encode(pacienteDTO.getSenha()));   
         }
 
         // Atualiza e salva

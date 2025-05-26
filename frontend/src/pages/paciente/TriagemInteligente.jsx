@@ -27,6 +27,10 @@ import { enterQueue } from "../../services/PacienteService";
 import PriorityHighIcon from "@mui/icons-material/PriorityHigh";
 import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
 
+import { ArrowBack as ArrowBackIcon } from "@mui/icons-material";
+
+import { Link } from "react-router-dom";
+
 import { styled } from "@mui/material/styles";
 
 function TriagemInteligente() {
@@ -155,15 +159,35 @@ function TriagemInteligente() {
         sx={{ flexGrow: 1, bgcolor: "background.default", p: 3 }}
       >
         <Container maxWidth="md" sx={{ mt: 10 }}>
-          <Typography variant="h5" sx={{ mb: 3, fontWeight: "bold" }}>
-            Triagem Inteligente
-          </Typography>
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: "1fr 9fr",
+            }}
+          >
+            <Link to="/paciente">
+              <ArrowBackIcon sx={{ mt: "4px" }} />
+            </Link>
+
+            <Typography
+              variant="h5"
+              sx={{
+                mb: 3,
+                fontWeight: "bold",
+                display: "flex",
+                justifySelf: "center",
+                paddingRight: "60px",
+              }}
+            >
+              Triagem Inteligente
+            </Typography>
+          </Box>
 
           {/* Passo 1 */}
-          <Card sx={{ mb: 3 }}>
+          <Card>
             <CardContent>
-              <Typography variant="h6" gutterBottom>
-                1. Descreva seus sintomas
+              <Typography variant="h6" gutterBottom sx={{ mb: "20px" }}>
+                Descreva seus sintomas
               </Typography>
               <TextField
                 label="Digite seus sintomas"
@@ -174,17 +198,13 @@ function TriagemInteligente() {
                 value={sintomas}
                 onChange={(e) => setSintomas(e.target.value)}
               />
-            </CardContent>
-          </Card>
-
-          {/* Passo 2 */}
-          <Card sx={{ mb: 3 }}>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                2. O que você deseja fazer?
-              </Typography>
-              <Grid container spacing={2} mt={1}>
-                <Grid item xs={12} sm={6}>
+              <Grid
+                container
+                spacing={2}
+                mt={1}
+                sx={{ display: "flex", justifyContent: "end" }}
+              >
+                <Grid item xs={12} sm={6} sx={{ mt: "10px" }}>
                   <Button
                     variant="contained"
                     color="primary"

@@ -1,5 +1,18 @@
 package com.medqueue.medqueue.service.admin;
 
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
+
 import com.medqueue.medqueue.dto.FilaPacienteDTO;
 import com.medqueue.medqueue.dto.HistoricoFilaDTO;
 import com.medqueue.medqueue.dto.HistoricoPacienteAdminDTO;
@@ -13,15 +26,6 @@ import com.medqueue.medqueue.service.paciente.WhatsAppService;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
-
-import java.time.LocalDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -243,12 +247,6 @@ public class FilaPacienteService {
             filaPaciente.setCheckIn(true);
             filaPaciente.setStatus("Em atendimento");
             filaPacienteRepository.save(filaPaciente);
-
-            // Reorganizar posições: apenas dos que ainda não fizeram check-in e ainda não foram atendidos
-            List<FilaPaciente> filaRestante = filaPacienteRepository
-                    .findByFilaIdAndStatusAndCheckInFalseOrderByPosicao(filaId, "Na fila");
-                
-            // Código reorganização de posições...
 
             // Retorno correto do DTO
             return new FilaPacienteDTO(

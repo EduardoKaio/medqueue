@@ -34,7 +34,9 @@ import {
   TableChart,
 } from "@mui/icons-material";
 import { Link } from "react-router-dom";
-import { listarTodas, deletarFila } from "../../services/FilaService";
+import { listarTodas, deletarFila, criarFilaGeralDoDia } from "../../services/FilaService";
+
+import VisibilityIcon from '@mui/icons-material/Visibility';
 
 function FilaList() {
   const location = useLocation();
@@ -101,6 +103,16 @@ function FilaList() {
     f.nome.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const handlecriarFilaGeralDoDia = async (e) => {
+    e.preventDefault();
+
+    try {
+      await criarFilaGeralDoDia();
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   return (
     <Box sx={{ display: "flex" }}>
       <Box
@@ -148,6 +160,14 @@ function FilaList() {
                   Adicionar Fila
                 </Button>
               </Link>
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                sx={{ bgcolor: "#1976d2", ml: 2 }}
+                onClick={(e) => handlecriarFilaGeralDoDia(e)}
+              >
+                Criar fila geral
+              </Button>
             </Box>
           </Box>
 
@@ -231,7 +251,9 @@ function FilaList() {
                           <DeleteIcon />
                         </IconButton>
                         <Link to={`/admin/filas/${f.id}`}>
-                          <Button variant="outlined">V</Button>
+                          <IconButton>
+                            <VisibilityIcon />
+                          </IconButton>
                         </Link>
                       </TableCell>
                     </TableRow>

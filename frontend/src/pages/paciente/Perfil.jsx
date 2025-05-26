@@ -247,6 +247,7 @@ const Perfil = () => {
                 </Grid>
                 <Grid item size={{ xs: 4, sm: 5 }}>
                   <TextField
+                    name="senha"
                     label="senha"
                     variant="outlined"
                     fullWidth

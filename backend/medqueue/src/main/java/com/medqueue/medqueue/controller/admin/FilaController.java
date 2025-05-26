@@ -1,19 +1,28 @@
 package com.medqueue.medqueue.controller.admin;
 
-import com.medqueue.medqueue.models.Fila;
-import com.medqueue.medqueue.dto.FilaDTO;
-import com.medqueue.medqueue.service.admin.FilaService;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.medqueue.medqueue.dto.ErrorResponse;
+import com.medqueue.medqueue.dto.FilaDTO;
+import com.medqueue.medqueue.models.Fila;
+import com.medqueue.medqueue.service.admin.FilaService;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/admin/fila")
@@ -89,10 +98,10 @@ public class FilaController {
     }
 
     @PostMapping("/filaDoDia")
-    @Operation(summary = "Criar uma nova fila")
-    public ResponseEntity<?> criarFilaGeralDoDia(@RequestBody Fila filaGeralDoDia) {
+    @Operation(summary = "Criar uma nova fila geral para o dia de hoje")
+    public ResponseEntity<?> criarFilaGeralDoDia() {
         try {
-            Fila filaGeral = filaService.criarFilaGeralDoDia(filaGeralDoDia);
+            Fila filaGeral = filaService.criarFilaGeralDoDia();
             return ResponseEntity.ok(filaGeral);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest()

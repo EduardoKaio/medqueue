@@ -19,5 +19,5 @@ public interface FilaRepository extends JpaRepository<Fila, Long> {
     
     long countByAtivoTrue();
 
-    List<Fila> findAllByOrderByDataCriacaoDesc();
+    List<Fila> findAllByOrderByAtivoDescDataCriacaoDesc();
 }

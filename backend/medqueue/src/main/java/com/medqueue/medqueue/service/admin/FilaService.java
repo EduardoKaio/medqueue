@@ -1,6 +1,7 @@
 package com.medqueue.medqueue.service.admin;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -21,7 +22,7 @@ public class FilaService {
 
     public List<Fila> listarTodas() {
         try {
-            return filaRepository.findAllByOrderByDataCriacaoDesc();
+            return filaRepository.findAllByOrderByAtivoDescDataCriacaoDesc();
         } catch (Exception e) {
             throw new RuntimeException("Erro ao listar filas: " + e.getMessage(), e);
         }
@@ -43,6 +44,7 @@ public class FilaService {
 
         Fila fila = filaRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Fila não encontrada com ID: " + id));
+        
         filaRepository.delete(fila);
     }
 
@@ -132,12 +134,20 @@ public class FilaService {
         }
     }
 
-    public Fila criarFilaGeralDoDia(Fila filaGeralDoDia) {
+    public Fila criarFilaGeralDoDia() {
         desativarFilaDoDiaAnterior();
 
+        Fila filaGeralDoDia = new Fila();
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        String dataFormatada = LocalDate.now().format(formatter);
+
+        filaGeralDoDia.setNome("Fila geral do dia");
+        filaGeralDoDia.setDescricao("Fila criada automaticamente para o dia " + dataFormatada);
         filaGeralDoDia.setAtivo(true);
         filaGeralDoDia.setDataCriacao(LocalDate.now());
         filaGeralDoDia.setEspecialidade("geral");
+        filaGeralDoDia.setTempoMedio(20.0);
 
         boolean filaExistente = filaRepository.findByEspecialidadeAndAtivoTrue("geral").isPresent();
 
@@ -151,14 +161,13 @@ public class FilaService {
     public void desativarFilaDoDiaAnterior() {
         LocalDate ontem = LocalDate.now().minusDays(1);
 
-        Long idFilaDeOntem = filaRepository.findByDataCriacaoAndEspecialidade(ontem, "geral")
-                                    .orElseThrow(() -> new EntityNotFoundException("Não existe fila com essa especialidade, no dia anterior"))
-                                    .getId();
+        Fila filaDeOntem = filaRepository.findByDataCriacaoAndEspecialidade(ontem, "geral")
+                                    .orElse(null);
 
-        Fila filaDeOntem = buscarPorId(idFilaDeOntem);
+        if (filaDeOntem != null) {
+            filaDeOntem.setAtivo(false);
 
-        filaDeOntem.setAtivo(false);
-
-        filaRepository.save(filaDeOntem);
+            filaRepository.save(filaDeOntem);
+        }
     }
 }

@@ -85,6 +85,7 @@ const PacienteEdit = () => {
 
     const userAtualizado = {
       ...paciente,
+      senha: "",
       role: ativo ? "ROLE_ADMIN" : "ROLE_USER",
     };
 

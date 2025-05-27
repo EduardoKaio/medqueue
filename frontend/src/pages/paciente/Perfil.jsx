@@ -43,7 +43,6 @@ const Title = styled(Typography)({
 const Perfil = () => {
   const navigate = useNavigate();
 
-  const [role, setRole] = useState("");
   const [senha, setSenha] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
@@ -90,6 +89,7 @@ const Perfil = () => {
 
     const userAtualizado = {
         ...paciente,
+        senha: senha,
         role: ativo ? "ROLE_ADMIN" : "ROLE_USER",
     };
     

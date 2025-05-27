@@ -46,11 +46,11 @@ public class PacienteService {
         if (pacienteRepository.existsByCpf(pacienteDTO.getCpf())) {
             throw new IllegalArgumentException("Já existe um paciente com esse CPF.");
         }
-    
+
         Paciente paciente = modelMapper.map(pacienteDTO, Paciente.class);
-    
+
         paciente.setSenha(passwordEncoder.encode(paciente.getSenha()));
-    
+
         Paciente salvo = pacienteRepository.save(paciente);
         return modelMapper.map(salvo, PacienteDTO.class);
     }
@@ -78,13 +78,17 @@ public class PacienteService {
             throw new IllegalArgumentException("Gênero inválido. Os valores aceitos são: M, F ou Outro.");
         }
 
-        // 4. Verificar se a senha foi alterada
-        if (!"".equals(pacienteDTO.getSenha())) {
-            pacienteDTO.setSenha(passwordEncoder.encode(pacienteDTO.getSenha()));   
-        }
+        String senhaAntiga = existente.getSenha();
 
         // Atualiza e salva
         modelMapper.map(pacienteDTO, existente);
+
+        if (pacienteDTO.getSenha() != null && !pacienteDTO.getSenha().isBlank()) {
+            existente.setSenha(passwordEncoder.encode(pacienteDTO.getSenha()));
+        } else {
+            existente.setSenha(senhaAntiga);
+        }
+
         Paciente atualizado = pacienteRepository.save(existente);
 
         return modelMapper.map(atualizado, PacienteDTO.class);

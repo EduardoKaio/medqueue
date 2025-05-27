@@ -158,7 +158,7 @@ public class FilaService {
         return filaRepository.save(filaGeralDoDia);
     }
 
-    public void desativarFilaDoDiaAnterior() {
+    private void desativarFilaDoDiaAnterior() {
         LocalDate ontem = LocalDate.now().minusDays(1);
 
         Fila filaDeOntem = filaRepository.findByDataCriacaoAndEspecialidade(ontem, "geral")

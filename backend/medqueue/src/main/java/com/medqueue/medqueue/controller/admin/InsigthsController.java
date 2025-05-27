@@ -48,11 +48,11 @@ public class InsigthsController {
         } catch (IllegalStateException e) {
             return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage()));
         } catch (Exception e) {
-            e.printStackTrace();
             return ResponseEntity.internalServerError()
                 .body(new ErrorResponse("Erro interno ao calcular tempo médio por especialidade."));
         }
     }
+    
     @GetMapping("/pacientes-por-especialidade")
     @Operation(summary = "Obter quantidade de pacientes por especialidade")
     public ResponseEntity<?> obterPacientesPorEspecialidade() {
@@ -62,7 +62,6 @@ public class InsigthsController {
         } catch (IllegalStateException e) {
             return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage()));
         } catch (Exception e) {
-            e.printStackTrace();
             return ResponseEntity.internalServerError()
                 .body(new ErrorResponse("Erro interno ao calcular pacientes por especialidade."));
         }

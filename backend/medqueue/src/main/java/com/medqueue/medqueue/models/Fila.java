@@ -3,7 +3,6 @@ package com.medqueue.medqueue.models;
 import java.time.LocalDate;
 
 import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.SQLRestriction;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -23,7 +22,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @SQLDelete(sql = "UPDATE fila SET ativo = false WHERE id = ?")
-// @SQLRestriction("ativo = true")
 public class Fila {
 
     @Id

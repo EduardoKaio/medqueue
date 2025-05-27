@@ -46,7 +46,6 @@ public class FilaController {
         return ResponseEntity.ok(filas);
     }
 
-
     @PostMapping
     @Operation(summary = "Criar uma nova fila")
     public ResponseEntity<?> criarFila(@RequestBody Fila novaFila) {
@@ -57,7 +56,6 @@ public class FilaController {
             return ResponseEntity.badRequest()
                 .body(new ErrorResponse(e.getMessage()));
         } catch (Exception e) {
-            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new ErrorResponse("Erro interno ao processar a requisição."));
         }
@@ -107,7 +105,6 @@ public class FilaController {
             return ResponseEntity.badRequest()
                 .body(new ErrorResponse(e.getMessage()));
         } catch (Exception e) {
-            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new ErrorResponse("Erro interno ao processar a requisição."));
         }

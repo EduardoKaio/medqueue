@@ -3,22 +3,20 @@ package com.medqueue.medqueue.controller.auth;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.medqueue.medqueue.dto.AuthRequest;
 import com.medqueue.medqueue.dto.AuthResponse;
 import com.medqueue.medqueue.dto.PacienteDTO;
 import com.medqueue.medqueue.models.BlackListedToken;
-import com.medqueue.medqueue.models.Paciente;
 import com.medqueue.medqueue.repository.BlackListedRepository;
-import com.medqueue.medqueue.repository.PacienteRepository;
 import com.medqueue.medqueue.service.admin.PacienteService;
+import com.medqueue.medqueue.service.auth.AuthService;
 import com.medqueue.medqueue.util.JwtUtil;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -30,14 +28,11 @@ import lombok.RequiredArgsConstructor;
 public class AuthController {
 
     @Autowired
-    private AuthenticationManager authManager;
-
-    @Autowired
     private JwtUtil jwtUtil;
 
     private final PacienteService pacienteService;
 
-    private final PacienteRepository pacienteRepository;
+    private final AuthService authService;
 
     @Autowired
     private BlackListedRepository blacklistRepository;
@@ -52,21 +47,8 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody AuthRequest authRequest) {
         try {
-            Authentication auth = authManager.authenticate(
-                new UsernamePasswordAuthenticationToken(authRequest.getCpf(), authRequest.getSenha())
-            );
-
-            final UserDetails userDetails = (UserDetails) auth.getPrincipal();
-            String cpf = userDetails.getUsername();
-
-            // Buscar o paciente pelo CPF para pegar o ID
-            Paciente paciente = pacienteRepository.findByCpf(cpf)
-                .orElseThrow(() -> new UsernameNotFoundException("Paciente não encontrado"));
-
-            final String jwt = jwtUtil.generateToken(userDetails, paciente.getId());
-
-            return ResponseEntity.ok(new AuthResponse(jwt, paciente.getRole()));
-
+            AuthResponse response = authService.autenticar(authRequest);
+            return ResponseEntity.ok(response);
         } catch (AuthenticationException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credenciais inválidas");
         }

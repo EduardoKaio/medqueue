@@ -1,21 +1,29 @@
 package com.medqueue.medqueue.controller.admin;
 
-import com.medqueue.medqueue.models.FilaPaciente;
-import com.medqueue.medqueue.models.Fila;
-import com.medqueue.medqueue.dto.FilaPacienteDTO;
-import com.medqueue.medqueue.dto.HistoricoPacienteAdminDTO;
-import com.medqueue.medqueue.service.admin.FilaPacienteService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
-
 import java.util.List;
 import java.util.Map;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
+
+import com.medqueue.medqueue.dto.FilaPacienteDTO;
+import com.medqueue.medqueue.dto.HistoricoPacienteAdminDTO;
+import com.medqueue.medqueue.models.Fila;
+import com.medqueue.medqueue.models.FilaPaciente;
+import com.medqueue.medqueue.service.admin.FilaPacienteService;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/admin/fila-paciente")
@@ -24,7 +32,6 @@ import jakarta.persistence.EntityNotFoundException;
 public class FilaPacienteController {
 
     private final FilaPacienteService filaPacienteService;
-
 
     @Operation(summary = "Listar pacientes na fila")
     @GetMapping("/list")
@@ -59,13 +66,11 @@ public class FilaPacienteController {
         try {
             FilaPacienteDTO pacienteAtualizado = filaPacienteService.realizarCheckIn(filaId, pacienteId);
             return ResponseEntity.ok(pacienteAtualizado);
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (IllegalStateException e) {
+        } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Erro ao realizar check-in: " + e.getMessage());
+                    .body("Erro inesperado ao realizar check-in: " + e.getMessage());
         }
     }
 
@@ -75,13 +80,13 @@ public class FilaPacienteController {
             @PathVariable Long filaId,
             @PathVariable Long pacienteId,
             @RequestBody Map<String, String> statusRequest) {
-        
+
+        String status = statusRequest.get("status");
+        if (status == null || status.isEmpty()) {
+            return ResponseEntity.badRequest().body("Status não pode ser vazio");
+        }
+
         try {
-            String status = statusRequest.get("status");
-            if (status == null || status.isEmpty()) {
-                return ResponseEntity.badRequest().body("Status não pode ser vazio");
-            }
-            
             FilaPacienteDTO paciente = filaPacienteService.atualizarStatusPaciente(filaId, pacienteId, status);
             return ResponseEntity.ok(paciente);
         } catch (EntityNotFoundException e) {
@@ -91,7 +96,6 @@ public class FilaPacienteController {
             return ResponseEntity.badRequest()
                     .body(Map.of("erro", e.getMessage()));
         } catch (Exception e) {
-            e.printStackTrace(); // Log detalhado para depuração no console do servidor
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("erro", "Erro ao atualizar status: " + e.getMessage()));
         }
@@ -105,13 +109,12 @@ public class FilaPacienteController {
         } catch (ResponseStatusException e) {
             // Captura erros com status customizados do service
             return ResponseEntity.status(e.getStatusCode())
-                .body(Map.of("mensagem", e.getReason()));
+                    .body(Map.of("mensagem", e.getReason()));
         } catch (RuntimeException e) {
             // Erros genéricos, como paciente sem histórico
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(Map.of("mensagem", e.getMessage()));
+                    .body(Map.of("mensagem", e.getMessage()));
         }
     }
-    
 
 }

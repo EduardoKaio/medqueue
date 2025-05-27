@@ -34,7 +34,6 @@ public class InfoFilaPacienteController {
             }
             return ResponseEntity.ok(dto);
         } catch (Exception e) {
-            e.printStackTrace();
             return ResponseEntity.status(500).body(
                 Map.of("erro", "Erro ao buscar informações da fila.")
             );
@@ -49,7 +48,6 @@ public class InfoFilaPacienteController {
             Map<String, String> response = Map.of("mensagem", e.getMessage());
             return ResponseEntity.status(404).body(response);
         } catch (Exception e) {
-            e.printStackTrace();
             Map<String, String> response = Map.of("mensagem", "Erro ao buscar histórico de filas.");
             return ResponseEntity.status(500).body(response);
         }

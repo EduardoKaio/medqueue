@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.medqueue.medqueue.models.Fila;
 
-
 public interface FilaRepository extends JpaRepository<Fila, Long> {
 
     List<Fila> findByAtivoTrue();
@@ -16,7 +15,7 @@ public interface FilaRepository extends JpaRepository<Fila, Long> {
     Optional<Fila> findByEspecialidadeAndAtivoTrue(String especialidade);
 
     Optional<Fila> findByDataCriacaoAndEspecialidade(LocalDate dataCriacao, String especialidade);
-    
+
     long countByAtivoTrue();
 
     List<Fila> findAllByOrderByAtivoDescDataCriacaoDesc();

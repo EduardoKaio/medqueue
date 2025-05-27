@@ -162,8 +162,16 @@ const FilaEdit = () => {
           )}
 
           <form onSubmit={handleSubmit}>
-            <Grid container spacing={3}>
-              <Grid item xs={12} sm={6}>
+            <Grid
+              container
+              spacing={3}
+              sx={{
+                mt: "5px",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <Grid item size={{ xs: 12, sm: 6.4 }}>
                 <TextField
                   label="Nome da Fila"
                   variant="outlined"
@@ -173,31 +181,13 @@ const FilaEdit = () => {
                   required
                 />
               </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  label="Descrição"
-                  variant="outlined"
-                  fullWidth
-                  multiline
-                  rows={4}
-                  value={descricao}
-                  onChange={(e) => setDescricao(e.target.value)}
-                />
-              </Grid>
 
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  label="Tempo Médio (minutos)"
-                  type="number"
-                  variant="outlined"
-                  fullWidth
-                  inputProps={{ step: "0.01" }}
-                  value={tempoMedio}
-                  onChange={(e) => setTempoMedio(e.target.value)}
-                />
-              </Grid>
-
-              <Grid item xs={12} sm={6} display="flex" alignItems="center">
+              <Grid
+                item
+                size={{ xs: 12, sm: 1.6 }}
+                display="flex"
+                alignItems="center"
+              >
                 <FormControlLabel
                   control={
                     <Switch
@@ -210,7 +200,19 @@ const FilaEdit = () => {
                 />
               </Grid>
 
-              <Grid item xs={12} sm={6}>
+              <Grid item size={{ xs: 12, sm: 8 }}>
+                <TextField
+                  label="Descrição"
+                  variant="outlined"
+                  fullWidth
+                  multiline
+                  rows={4}
+                  value={descricao}
+                  onChange={(e) => setDescricao(e.target.value)}
+                />
+              </Grid>
+
+              <Grid item size={{ xs: 12, sm: 5 }}>
                 <TextField
                   label="Especialidade"
                   variant="outlined"
@@ -220,21 +222,33 @@ const FilaEdit = () => {
                   required
                 />
               </Grid>
+
+              <Grid item size={{ xs: 12, sm: 3 }}>
+                <TextField
+                  label="Tempo Médio (minutos)"
+                  type="number"
+                  variant="outlined"
+                  fullWidth
+                  inputProps={{ step: "0.01" }}
+                  value={tempoMedio}
+                  onChange={(e) => setTempoMedio(e.target.value)}
+                />
+              </Grid>
             </Grid>
 
-            <Box sx={{ mt: 4 }}>
+            <Box sx={{ mt: 2, display: "flex", justifyContent: "end" }}>
+              {error && <Typography color="error">{error}</Typography>}
               <Button
                 type="submit"
                 variant="contained"
                 color="primary"
-                startIcon={<SaveIcon />}
-                fullWidth
+                startIcon={<AddIcon />}
                 sx={{
                   bgcolor: "#1976d2",
                   "&:hover": { bgcolor: "#1565c0" },
                 }}
               >
-                Salvar Alterações
+                Editar Fila
               </Button>
             </Box>
           </form>

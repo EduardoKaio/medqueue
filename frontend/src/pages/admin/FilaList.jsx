@@ -66,7 +66,6 @@ function FilaList() {
 
   useEffect(() => {
     fetchFilas();
-
     if (location.state && location.state.message) {
       setSnackbar({
         open: true,
@@ -76,6 +75,7 @@ function FilaList() {
 
       window.history.replaceState({}, document.title);
     }
+    
   }, [location]);
 
   const handleDelete = (id) => {
@@ -108,7 +108,18 @@ function FilaList() {
 
     try {
       await criarFilaGeralDoDia();
+      setSnackbar({
+        open: true,
+        message: "Fila geral do dia criada com sucesso!",
+        severity: "success",
+      });
+      fetchFilas();
     } catch (error) {
+      setSnackbar({
+        open: true,
+        message: "Fila geral do dia já existe!",
+        severity: "error",
+      });
       console.log(error)
     }
   }

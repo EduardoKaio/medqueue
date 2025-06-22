@@ -13,7 +13,7 @@ import Register from "./pages/auth/Register";
 import LoginPage from "./pages/auth/Login";
 import TriagemInteligente from "./pages/paciente/TriagemInteligente";
 import HomePaciente from "./pages/paciente/HomePaciente";
-import Perfil from "./pages/Paciente/Perfil";
+import Perfil from "./pages/paciente/Perfil";
 
 import PrivateRoute from "./components/PrivateRoute";
 import HeaderLayout from "./components/HeaderLayout";

@@ -13,12 +13,12 @@ import java.util.Collection;
 import java.util.List;
 
 @Entity
-@Table(name = "user")
+@Table(name = "users")
 @Inheritance(strategy = InheritanceType.JOINED) 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@SQLDelete(sql = "UPDATE user SET ativo = false WHERE id = ?")
+@SQLDelete(sql = "UPDATE users SET ativo = false WHERE id = ?")
 @SQLRestriction("ativo = true")
 public abstract class User implements UserDetails {
 

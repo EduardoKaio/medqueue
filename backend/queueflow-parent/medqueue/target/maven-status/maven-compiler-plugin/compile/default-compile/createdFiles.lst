@@ -1,0 +1,4 @@
+com/queueflow/medqueue/config/FactoryConfig.class
+com/queueflow/medqueue/MedqueueApplication.class
+com/queueflow/medqueue/factory/PacienteFactory.class
+com/queueflow/medqueue/models/Paciente.class

@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS fila_user (
     data_entrada TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     atendido BOOLEAN DEFAULT FALSE,
-    FOREIGN KEY (user_id) REFERENCES user(id),
+    FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (fila_id) REFERENCES fila(id)
 );
 

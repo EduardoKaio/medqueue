@@ -5,12 +5,14 @@ import java.util.Optional;
 
 import com.queueflow.queueflow.models.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.NoRepositoryBean;
 
-public interface UserRepository extends JpaRepository<User, Long> {
+@NoRepositoryBean
+public interface UserRepository<T extends User> extends JpaRepository<T, Long> {
 
     boolean existsByCpf(String cpf);
 
-    List<User> findByAtivoTrue();
+    List<T> findByAtivoTrue();
 
-    Optional<User> findByCpf(String cpf);
+    Optional<T> findByCpf(String cpf);
 }

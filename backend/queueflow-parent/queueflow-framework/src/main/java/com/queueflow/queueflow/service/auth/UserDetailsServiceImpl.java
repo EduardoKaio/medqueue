@@ -14,15 +14,15 @@ import com.queueflow.queueflow.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 
-@Service
+// @Service
 @RequiredArgsConstructor
-public class UserDetailsServiceImpl implements UserDetailsService {
+public class UserDetailsServiceImpl<T extends User> implements UserDetailsService {
     
-    private final UserRepository userRepository;
+    private final UserRepository<T> userRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String cpf) throws UsernameNotFoundException {        
-        User user = userRepository.findByCpf(cpf)
+    public UserDetails loadUserByUsername(String cpf) throws UsernameNotFoundException {
+        T user = userRepository.findByCpf(cpf)
             .orElseThrow(() -> {
                 System.err.println("[ERRO] CPF não encontrado: " + cpf);
                 return new UsernameNotFoundException("Usuário não encontrado");
@@ -33,7 +33,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
         return new org.springframework.security.core.userdetails.User(
             user.getCpf(),
-            user.getSenha(), // DEVE SER UM HASH (ex: BCrypt)
+            user.getSenha(),
             List.of(new SimpleGrantedAuthority(roleString))
         );
     }

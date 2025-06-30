@@ -14,9 +14,9 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class UserService {
+public class UserService<T extends User> {
 
-    private final UserRepository userRepository;
+    private final UserRepository<T> userRepository;
     private final UserFactory userFactory;
     private final PasswordEncoder passwordEncoder;
 
@@ -45,18 +45,17 @@ public class UserService {
             throw new IllegalArgumentException("Já existe um usuário com esse CPF.");
         }
 
-        User user = userFactory.fromDTO(userDTO);
+        T user = (T) userFactory.fromDTO(userDTO);
         user.setSenha(passwordEncoder.encode(user.getSenha()));
 
-        User salvo = userRepository.save(user);
+        T salvo = userRepository.save(user);
         return userFactory.toDTO(salvo);
     }
 
     public UserDTO atualizar(Long id, UserDTO userDTO) {
-        User existente = userRepository.findById(id)
+        T existente = userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado com ID: " + id));
 
-        // 1. Verificar campos obrigatórios
         if (userDTO.getNome() == null || userDTO.getNome().isBlank()
                 || userDTO.getCpf() == null || userDTO.getCpf().isBlank()
                 || userDTO.getSexo() == null || userDTO.getSexo().isBlank()
@@ -64,19 +63,16 @@ public class UserService {
             throw new IllegalArgumentException("Todos os campos obrigatórios devem ser preenchidos.");
         }
 
-        // 2. Verificar se está alterando o CPF para um já existente
         if (!userDTO.getCpf().equals(existente.getCpf()) && userRepository.existsByCpf(userDTO.getCpf())) {
             throw new IllegalArgumentException("Já existe um usuário com esse CPF.");
         }
 
-        // 3. Verificar se o gênero é válido
         String genero = userDTO.getSexo();
         if (!genero.equalsIgnoreCase("M") && !genero.equalsIgnoreCase("F") && !genero.equalsIgnoreCase("Outro")) {
             throw new IllegalArgumentException("Gênero inválido. Os valores aceitos são: M, F ou Outro.");
         }
 
         String senhaAntiga = existente.getSenha();
-
         userFactory.updateFromDTO(userDTO, existente);
 
         if (userDTO.getSenha() != null && !userDTO.getSenha().isBlank()) {
@@ -85,12 +81,12 @@ public class UserService {
             existente.setSenha(senhaAntiga);
         }
 
-        User atualizado = userRepository.save(existente);
+        T atualizado = userRepository.save(existente);
         return userFactory.toDTO(atualizado);
     }
 
     public void deletar(Long id) {
-        User user = userRepository.findById(id)
+        T user = userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado com ID: " + id));
         userRepository.delete(user);
     }

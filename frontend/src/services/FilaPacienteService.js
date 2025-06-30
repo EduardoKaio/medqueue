@@ -1,6 +1,6 @@
 import axiosInstance from "./axiosInstance";
 
-const API_URL = "/admin/fila-paciente";
+const API_URL = "/admin/fila-user";
 
 export const listarFilaOrdenada = (filaId) =>
   axiosInstance.get(`${API_URL}/ordered-list`, { params: { filaId } });
@@ -8,7 +8,7 @@ export const listarFilaOrdenada = (filaId) =>
 // Função genérica para alterar o status de um paciente na fila
 export const alterarStatusFilaPaciente = (filaId, pacienteId, novoStatus) => {
   return axiosInstance.put(
-    `${API_URL}/${filaId}/paciente/${pacienteId}/status`,
+    `${API_URL}/${filaId}/user/${pacienteId}/status`,
     {
       status: novoStatus,
     }

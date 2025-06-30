@@ -29,19 +29,19 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class FilaUserService {
+public class FilaUserService<T extends User> {
     
     private final UserFactory userFactory;
     private final FilaUserRepository filaUserRepository;
     private final FilaRepository filaRepository;
-    private final UserRepository userRepository;
+    private final UserRepository<T> userRepository;
     private final WhatsAppService whatsAppService;
 
     @Transactional
     public void addUser(Long userId, Long filaId, Integer prioridade) {
         FilaUserValidator.validarParametrosEntrarNaFila(userId, filaId, prioridade);
 
-        User user = userRepository.findById(userId).orElse(null);
+        T user = userRepository.findById(userId).orElse(null);
         Fila fila = filaRepository.findById(filaId).orElse(null);
 
         FilaUserValidator.verificarUserExistente(user, userId);
@@ -249,7 +249,7 @@ public class FilaUserService {
 
     public HistoricoUserAdminDTO historicoFilaUserId(Long userId) {
 
-        var user = userRepository.findById(userId)
+        T user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User não encontrado."));
 
         List<FilaUser> filas = filaUserRepository.findAllByUserId(userId);
@@ -332,7 +332,7 @@ public class FilaUserService {
         }
     }
 
-    private void enviarMensagemBoasVindas(User user, int posicao) {
+    private void enviarMensagemBoasVindas(T user, int posicao) {
         try {
             String telefone = user.getTelefone();
             String primeiroNome = user.getNome().split(" ")[0];

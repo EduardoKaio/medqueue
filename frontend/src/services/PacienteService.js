@@ -1,6 +1,6 @@
 import axiosInstance from "./axiosInstance";
 
-const API_URL = "/paciente";
+const API_URL = "/user";
 
 export const getCurrentUser = () => axiosInstance.get(`${API_URL}/getProfile`);
 export const updateUser = (data) =>

@@ -13,6 +13,7 @@ import {
 import { Link, useNavigate, useParams } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import SaveIcon from "@mui/icons-material/Save";
+import EditIcon from '@mui/icons-material/Edit';
 import { buscarFilaPorId, atualizarFila } from "../../services/FilaService";
 
 const FilaEdit = () => {
@@ -242,7 +243,7 @@ const FilaEdit = () => {
                 type="submit"
                 variant="contained"
                 color="primary"
-                startIcon={<AddIcon />}
+                startIcon={<EditIcon />}
                 sx={{
                   bgcolor: "#1976d2",
                   "&:hover": { bgcolor: "#1565c0" },

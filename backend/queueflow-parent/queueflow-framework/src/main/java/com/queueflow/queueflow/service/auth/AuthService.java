@@ -18,10 +18,10 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class AuthService {
+public class AuthService<T extends User> {
 
     private final AuthenticationManager authManager;
-    private final UserRepository userRepository;
+    private final UserRepository<T> userRepository;
     private final JwtUtil jwtUtil;
 
     public Long getIdDoUsuario() {
@@ -31,7 +31,7 @@ public class AuthService {
             String cpf = authentication.getName();
 
             // Buscar o user pelo CPF para pegar o ID
-            User user = userRepository.findByCpf(cpf)
+            T user = userRepository.findByCpf(cpf)
                     .orElseThrow(() -> new UsernameNotFoundException("User não encontrado"));
 
             return user.getId();
@@ -45,7 +45,7 @@ public class AuthService {
         );
 
         UserDetails userDetails = (UserDetails) auth.getPrincipal();
-        User user = userRepository.findByCpf(userDetails.getUsername())
+        T user = userRepository.findByCpf(userDetails.getUsername())
                 .orElseThrow(() -> new UsernameNotFoundException("User não encontrado"));
 
         String jwt = jwtUtil.generateToken(userDetails, user.getId());

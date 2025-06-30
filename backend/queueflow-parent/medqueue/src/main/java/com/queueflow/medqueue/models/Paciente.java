@@ -6,10 +6,10 @@ import lombok.*;
 
 import java.util.List;
 
-@Table(name = "users")
 @Entity
 @Data
 @EqualsAndHashCode(callSuper = true)
+@DiscriminatorValue("PACIENTE")
 public class Paciente extends User {
     
 }

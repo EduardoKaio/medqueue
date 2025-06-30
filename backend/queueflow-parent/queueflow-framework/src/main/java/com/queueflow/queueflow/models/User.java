@@ -13,11 +13,14 @@ import java.util.Collection;
 import java.util.List;
 
 @Data
-@MappedSuperclass
+@Entity
+@Table(name = "users")
+@Inheritance(strategy = InheritanceType.JOINED)
 @NoArgsConstructor
 @AllArgsConstructor
 @SQLDelete(sql = "UPDATE users SET ativo = false WHERE id = ?")
 @SQLRestriction("ativo = true")
+@DiscriminatorColumn(name = "user_type")
 public abstract class User implements UserDetails {
 
     @Id

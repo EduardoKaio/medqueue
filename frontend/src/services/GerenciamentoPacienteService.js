@@ -1,6 +1,6 @@
 import axiosInstance from "./axiosInstance";
 
-const API_URL = '/admin/paciente';
+const API_URL = '/admin/user';
 
 export const getPacientes = () => axiosInstance.get(API_URL);
 export const getPacientesCount = () => axiosInstance.get(`${API_URL}/count`);

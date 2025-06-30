@@ -14,10 +14,11 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 })
 @EntityScan(basePackages = {
         "com.queueflow.queueflow.models",
-        "com.queueflow.medqueue.models",  // ajuste com o caminho dos seus @Entity
+        "com.queueflow.medqueue.models"  // ajuste com o caminho dos seus @Entity
 })
 @EnableJpaRepositories(basePackages = {
-        "com.queueflow.queueflow.repository" // ajuste com o caminho dos seus repositórios
+        "com.queueflow.queueflow.repository",
+        "com.queueflow.medqueue.repository" // ajuste com o caminho dos seus repositórios
 })
 public class MedqueueApplication {
 

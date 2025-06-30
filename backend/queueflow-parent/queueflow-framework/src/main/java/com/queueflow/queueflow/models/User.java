@@ -12,10 +12,8 @@ import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 
-@Entity
-@Table(name = "users")
-@Inheritance(strategy = InheritanceType.JOINED) 
 @Data
+@MappedSuperclass
 @NoArgsConstructor
 @AllArgsConstructor
 @SQLDelete(sql = "UPDATE users SET ativo = false WHERE id = ?")

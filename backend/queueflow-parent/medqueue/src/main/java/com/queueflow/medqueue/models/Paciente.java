@@ -6,8 +6,8 @@ import lombok.*;
 
 import java.util.List;
 
+@Table(name = "users")
 @Entity
-@Table(name = "paciente")
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class Paciente extends User {

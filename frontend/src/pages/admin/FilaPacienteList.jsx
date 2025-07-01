@@ -83,12 +83,12 @@ const FilaPacientesList = () => {
         (p) =>
           !p.checkIn &&
           p.status === "Na fila" &&
-          !delayedPatients.includes(p.pacienteId)
+          !delayedPatients.includes(p.userId)
       );
 
       const atrasadosDoBackend = response.data
         .filter((p) => p.status === "Atrasado")
-        .map((p) => p.pacienteId);
+        .map((p) => p.userId);
 
       if (atrasadosDoBackend.length > 0) {
         setDelayedPatients((prev) => {
@@ -105,8 +105,8 @@ const FilaPacientesList = () => {
       if (inQueuePatients.length > 0) {
         const firstPatient = inQueuePatients[0];
 
-        if (firstPatientId !== firstPatient.pacienteId) {
-          setFirstPatientId(firstPatient.pacienteId);
+        if (firstPatientId !== firstPatient.userId) {
+          setFirstPatientId(firstPatient.userId);
         }
       } else {
         setFirstPatientId(null);
@@ -130,9 +130,7 @@ const FilaPacientesList = () => {
       const tempoLimiteMs = filaDetalhes.tempoMedio * 60 * 1000;
 
       const verificarTimeout = () => {
-        const firstPatient = pacientes.find(
-          (p) => p.pacienteId === firstPatientId
-        );
+        const firstPatient = pacientes.find((p) => p.userId === firstPatientId);
 
         if (!firstPatient || !firstPatient.dataEntrada) {
           return;
@@ -212,7 +210,7 @@ const FilaPacientesList = () => {
 
   const handleMarcarAtendido = async (pacienteId) => {
     try {
-      const paciente = pacientes.find((p) => p.pacienteId === pacienteId);
+      const paciente = pacientes.find((p) => p.userId === pacienteId);
       if (!paciente) {
         console.error("Paciente não encontrado");
         return;
@@ -277,7 +275,7 @@ const FilaPacientesList = () => {
     (p) =>
       p.status === "Atrasado" ||
       p.status === "Removido" ||
-      delayedPatients.includes(p.pacienteId)
+      delayedPatients.includes(p.userId)
   );
 
   const calcularTempoEsperado = (index, pacienteId) => {
@@ -285,7 +283,7 @@ const FilaPacientesList = () => {
       return "Calculando...";
     }
 
-    const paciente = pacientes.find((p) => p.pacienteId === pacienteId);
+    const paciente = pacientes.find((p) => p.userId === pacienteId);
     if (!paciente || !paciente.dataEntrada) {
       return "Calculando...";
     }
@@ -431,7 +429,7 @@ const FilaPacientesList = () => {
                             return 0;
                           })
                           .map((paciente, index) => (
-                            <React.Fragment key={paciente.pacienteId}>
+                            <React.Fragment key={paciente.userId}>
                               <ListItem
                                 sx={{
                                   py: 2,
@@ -460,7 +458,7 @@ const FilaPacientesList = () => {
                                     variant="body1"
                                     fontWeight="medium"
                                   >
-                                    #{index + 1} - {paciente.nomePaciente}
+                                    #{index + 1} - {paciente.nomeUser}
                                   </Typography>
                                   <Typography
                                     variant="body2"
@@ -492,9 +490,7 @@ const FilaPacientesList = () => {
                                       color="success"
                                       size="small"
                                       onClick={() =>
-                                        handleMarcarAtendido(
-                                          paciente.pacienteId
-                                        )
+                                        handleMarcarAtendido(paciente.userId)
                                       }
                                       sx={{
                                         minWidth: "auto",
@@ -568,7 +564,7 @@ const FilaPacientesList = () => {
                     ) : (
                       <List disablePadding>
                         {inQueuePatients.map((paciente, index) => (
-                          <React.Fragment key={paciente.pacienteId}>
+                          <React.Fragment key={paciente.userId}>
                             <ListItem
                               sx={{
                                 py: 2,
@@ -608,7 +604,7 @@ const FilaPacientesList = () => {
                                 }}
                               >
                                 <Typography variant="body1" fontWeight="medium">
-                                  #{index + 1} - {paciente.nomePaciente}
+                                  #{index + 1} - {paciente.nomeUser}
                                 </Typography>
                                 <Typography variant="body1" fontWeight="medium">
                                   Prioridade: {paciente.prioridade}
@@ -619,11 +615,13 @@ const FilaPacientesList = () => {
                                     color:
                                       index === 0 &&
                                       firstPatientId &&
+                                      pacientes.find(
+                                        (p) => p.userId === firstPatientId
+                                      ) &&
                                       Date.now() -
                                         new Date(
                                           pacientes.find(
-                                            (p) =>
-                                              p.pacienteId === firstPatientId
+                                            (p) => p.userId === firstPatientId
                                           ).dataEntrada
                                         ) >
                                         240000
@@ -636,11 +634,13 @@ const FilaPacientesList = () => {
                                   filaDetalhes &&
                                   filaDetalhes.tempoMedio
                                     ? firstPatientId &&
+                                      pacientes.find(
+                                        (p) => p.userId === firstPatientId
+                                      ) &&
                                       Date.now() -
                                         new Date(
                                           pacientes.find(
-                                            (p) =>
-                                              p.pacienteId === firstPatientId
+                                            (p) => p.userId === firstPatientId
                                           ).dataEntrada
                                         ) >
                                         filaDetalhes.tempoMedio *
@@ -662,7 +662,7 @@ const FilaPacientesList = () => {
                                   Tempo estimado de espera:{" "}
                                   {calcularTempoEsperado(
                                     index,
-                                    paciente.pacienteId
+                                    paciente.userId
                                   )}
                                 </Typography>
                               </Box>
@@ -677,7 +677,7 @@ const FilaPacientesList = () => {
                                     color="primary"
                                     size="small"
                                     onClick={() =>
-                                      handleCheckIn(paciente.pacienteId)
+                                      handleCheckIn(paciente.userId)
                                     }
                                     sx={{
                                       minWidth: "auto",
@@ -701,7 +701,7 @@ const FilaPacientesList = () => {
                                     color="error"
                                     size="small"
                                     onClick={() =>
-                                      handleRemoverPaciente(paciente.pacienteId)
+                                      handleRemoverPaciente(paciente.userId)
                                     }
                                     sx={{
                                       minWidth: "auto",
@@ -775,7 +775,7 @@ const FilaPacientesList = () => {
                     ) : (
                       <List disablePadding>
                         {timeoutPatients.map((paciente, index) => (
-                          <React.Fragment key={paciente.pacienteId}>
+                          <React.Fragment key={paciente.userId}>
                             <ListItem
                               sx={{
                                 py: 2,
@@ -794,7 +794,7 @@ const FilaPacientesList = () => {
                                 }}
                               >
                                 <Typography variant="body1" fontWeight="medium">
-                                  #{index + 1} - {paciente.nomePaciente}
+                                  #{index + 1} - {paciente.nomeUser}
                                 </Typography>
                                 <Typography
                                   variant="body2"
@@ -819,7 +819,7 @@ const FilaPacientesList = () => {
                                     color="warning"
                                     size="small"
                                     onClick={() =>
-                                      handleCheckInAtrasado(paciente.pacienteId)
+                                      handleCheckInAtrasado(paciente.userId)
                                     }
                                     sx={{
                                       minWidth: "auto",

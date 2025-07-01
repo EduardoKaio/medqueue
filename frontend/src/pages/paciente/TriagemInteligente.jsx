@@ -17,10 +17,7 @@ import {
   Tooltip,
   tooltipClasses,
 } from "@mui/material";
-import {
-  avaliarPrioridade,
-  recomendarEspecialista,
-} from "../../services/LLMService";
+import { avaliarPrioridade } from "../../services/LLMService";
 import MuiAlert from "@mui/material/Alert";
 import { enterQueue } from "../../services/PacienteService";
 
@@ -35,8 +32,7 @@ import { styled } from "@mui/material/styles";
 
 function TriagemInteligente() {
   const [sintomas, setSintomas] = useState("");
-  const [prioridade, setPrioridade] = useState(null);
-  const [recomendacao, setRecomendacao] = useState(null);
+  const [resultadoTriagem, setResultadoTriagem] = useState(null);
   const [modalAberto, setModalAberto] = useState(false);
   const [snackbarAberto, setSnackbarAberto] = useState(false);
   const [snackbarErro, setSnackbarErro] = useState(false);
@@ -63,18 +59,13 @@ function TriagemInteligente() {
       // Simula tempo de processamento, se necessário
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      // Avalia prioridade
-      const respostaPrioridade = await avaliarPrioridade(sintomas);
-      setPrioridade({
-        nivel: respostaPrioridade.prioridade,
-        justificativa: respostaPrioridade.resposta,
-      });
-
-      // Recomenda especialista
-      const respostaEspecialista = await recomendarEspecialista(sintomas);
-      setRecomendacao({
-        especialista: respostaEspecialista.recomendacao_especialista,
-        justificativa: respostaEspecialista.justificativa,
+      // Avalia prioridade (agora retorna todos os dados necessários)
+      const resposta = await avaliarPrioridade(sintomas);
+      setResultadoTriagem({
+        prioridade: resposta.prioridade,
+        especialista: resposta.especialista,
+        justificativaPrioridade: resposta.justificativaPrioridade,
+        justificativaEspecialista: resposta.justificativaEspecialista,
       });
     } catch (error) {
       if (error.response) {
@@ -98,10 +89,14 @@ function TriagemInteligente() {
 
     try {
       if (!filaNaoEncontrada) {
-        await enterQueue(recomendacao.especialista, prioridade.nivel);
+        await enterQueue(
+          resultadoTriagem.especialista,
+          resultadoTriagem.prioridade
+        );
         setSnackbarAberto(true);
       } else {
-        await enterQueue("geral", prioridade.nivel);
+        // Tentar entrar na fila geral
+        await enterQueue("geral", resultadoTriagem.prioridade);
         setFilaNaoEncontrada(false);
         setSnackbarAberto(true);
       }
@@ -241,75 +236,73 @@ function TriagemInteligente() {
               </CardContent>
             </Card>
           ) : (
-            (prioridade || recomendacao) && (
+            resultadoTriagem && (
               <Card>
                 <CardContent>
                   <Typography variant="h6" gutterBottom>
                     Resultado
                   </Typography>
-                  {prioridade && (
-                    <>
-                      <Grid container spacing={2}>
-                        <Grid item size={{ xs: 12, sm: 12 }}>
-                          <TriagemTooltip
-                            title={
-                              <React.Fragment>
-                                <Typography color="inherit">
-                                  Justificativa da prioridade:
-                                </Typography>
-                                {prioridade.justificativa}
-                              </React.Fragment>
-                            }
-                            arrow
-                            placement="right"
+                  <>
+                    <Grid container spacing={2}>
+                      <Grid item size={{ xs: 12, sm: 12 }}>
+                        <TriagemTooltip
+                          title={
+                            <React.Fragment>
+                              <Typography color="inherit">
+                                Justificativa da prioridade:
+                              </Typography>
+                              {resultadoTriagem.justificativaPrioridade}
+                            </React.Fragment>
+                          }
+                          arrow
+                          placement="right"
+                        >
+                          <Button
+                            variant="contained"
+                            color="warning"
+                            startIcon={<PriorityHighIcon />}
                           >
-                            <Button
-                              variant="contained"
-                              color="warning"
-                              startIcon={<PriorityHighIcon />}
-                            >
-                              Prioridade: Nível {prioridade.nivel}
-                            </Button>
-                          </TriagemTooltip>
-                        </Grid>
-
-                        <Grid item size={{ xs: 12, sm: 12 }}>
-                          <TriagemTooltip
-                            title={
-                              <React.Fragment>
-                                <Typography color="inherit">
-                                  Justificativa da Recomendação:
-                                </Typography>
-                                {recomendacao.justificativa}
-                              </React.Fragment>
-                            }
-                            arrow
-                            placement="right"
-                          >
-                            <Button
-                              variant="contained"
-                              color="error"
-                              startIcon={<LocalHospitalIcon />}
-                            >
-                              Especialista: {recomendacao.especialista}
-                            </Button>
-                          </TriagemTooltip>
-                        </Grid>
+                            Prioridade: Nível {resultadoTriagem.prioridade}
+                          </Button>
+                        </TriagemTooltip>
                       </Grid>
 
-                      <Box display="flex" justifyContent="flex-end" mt={1}>
-                        <Button
-                          variant="contained"
-                          color="success"
-                          onClick={() => {
-                            setModalAberto(true);
-                          }}
+                      <Grid item size={{ xs: 12, sm: 12 }}>
+                        <TriagemTooltip
+                          title={
+                            <React.Fragment>
+                              <Typography color="inherit">
+                                Justificativa da Recomendação:
+                              </Typography>
+                              {resultadoTriagem.justificativaEspecialista}
+                            </React.Fragment>
+                          }
+                          arrow
+                          placement="right"
                         >
-                          Entrar na fila
-                        </Button>
-                      </Box>
-                    </>
-                  )}
+                          <Button
+                            variant="contained"
+                            color="error"
+                            startIcon={<LocalHospitalIcon />}
+                          >
+                            Especialista: {resultadoTriagem.especialista}
+                          </Button>
+                        </TriagemTooltip>
+                      </Grid>
+                    </Grid>
+
+                    <Box display="flex" justifyContent="flex-end" mt={1}>
+                      <Button
+                        variant="contained"
+                        color="success"
+                        onClick={() => {
+                          setModalAberto(true);
+                        }}
+                      >
+                        Entrar na fila
+                      </Button>
+                    </Box>
+                  </>
                 </CardContent>
               </Card>
             )
@@ -323,7 +316,8 @@ function TriagemInteligente() {
         <DialogContent>
           <Typography>
             Você está prestes a entrar na fila com prioridade{" "}
-            <strong>Nível {prioridade?.nivel}</strong>. Deseja continuar?
+            <strong>Nível {resultadoTriagem?.prioridade}</strong>. Deseja
+            continuar?
           </Typography>
         </DialogContent>
         <DialogActions>
@@ -365,8 +359,9 @@ function TriagemInteligente() {
         <DialogTitle>Fila com especialidade não encontrada</DialogTitle>
         <DialogContent>
           <Typography>
-            Não encotramos nenhuma fila com a especialidade esperada. Deseja
-            entrar em uma fila geral mantendo sua prioridade?
+            Não encontramos nenhuma fila com a especialidade "
+            {resultadoTriagem?.especialista}". Deseja entrar na primeira fila
+            disponível mantendo sua prioridade?
           </Typography>
         </DialogContent>
         <DialogActions>

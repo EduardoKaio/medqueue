@@ -5,10 +5,10 @@ const API_URL = "/user";
 export const getCurrentUser = () => axiosInstance.get(`${API_URL}/getProfile`);
 export const updateUser = (data) =>
   axiosInstance.put(`${API_URL}/update`, data);
-export const enterQueue = (especialidade, prioridade) =>
+export const enterQueue = (extraInfo, prioridade) =>
   axiosInstance.post(`${API_URL}/enterQueue`, null, {
     params: {
-      especialidade,
+      extraInfo,
       prioridade,
     },
   });

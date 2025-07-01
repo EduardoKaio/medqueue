@@ -22,6 +22,7 @@ import com.queueflow.queueflow.repository.FilaUserRepository;
 import com.queueflow.queueflow.repository.FilaRepository;
 import com.queueflow.queueflow.repository.UserRepository;
 import com.queueflow.queueflow.service.user.WhatsAppService;
+import com.queueflow.queueflow.strategy.QueueEntryStrategy;
 import com.queueflow.queueflow.util.FilaUserValidator;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -32,27 +33,35 @@ import lombok.RequiredArgsConstructor;
 public class FilaUserService<T extends User> {
     
     private final UserFactory userFactory;
+    private final QueueEntryStrategy queueEntryStrategy;
+
     private final FilaUserRepository filaUserRepository;
     private final FilaRepository filaRepository;
     private final UserRepository<T> userRepository;
     private final WhatsAppService whatsAppService;
 
     @Transactional
-    public void addUser(Long userId, Long filaId, Integer prioridade) {
-        FilaUserValidator.validarParametrosEntrarNaFila(userId, filaId, prioridade);
+    public void addUser(Long entityId, String extraInfo, Integer prioridade) {
+        if (extraInfo == null || extraInfo.isBlank()) {
+            extraInfo = "Geral";
+        }
+        
+        Long filaId = getFilaComEspecialidade(extraInfo);
 
-        T user = userRepository.findById(userId).orElse(null);
+        FilaUserValidator.validarParametrosEntrarNaFila(entityId, filaId, prioridade);
+
+        T user = userRepository.findById(entityId).orElse(null);
         Fila fila = filaRepository.findById(filaId).orElse(null);
 
-        FilaUserValidator.verificarUserExistente(user, userId);
+        FilaUserValidator.verificarUserExistente(user, entityId);
         FilaUserValidator.verificarFilaExistente(fila, filaId);
         FilaUserValidator.verificarFilaAtiva(fila);
 
-        verificarSeUserPodeEntrarNaFila(userId);
+        verificarSeUserPodeEntrarNaFila(entityId);
 
         // Verificação específica para a fila atual (verificar se já existe na mesma fila)
         Optional<FilaUser> existente = filaUserRepository
-                .findByUserIdAndFilaIdAndStatus(userId, filaId, "Na fila");
+                .findByUserIdAndFilaIdAndStatus(entityId, filaId, "Na fila");
 
         if (existente.isPresent()) {
             throw new IllegalStateException("User já está na fila com ID: " + filaId);
@@ -64,13 +73,7 @@ public class FilaUserService<T extends User> {
             atualizarPosicao(filaId);
         }
 
-        FilaUser filaUser = new FilaUser();
-        filaUser.setUser(user);
-        filaUser.setFila(fila);
-        filaUser.setPosicao(posicao);
-        filaUser.setStatus("Na fila");
-        filaUser.setDataEntrada(LocalDateTime.now());
-        filaUser.setPrioridade(prioridade);
+        FilaUser filaUser = queueEntryStrategy.queueEntry(fila, user, prioridade, posicao);
 
         filaUserRepository.save(filaUser);
 
@@ -350,5 +353,11 @@ public class FilaUserService<T extends User> {
         } catch (Exception e) {
             System.err.println("Erro ao enviar mensagem de boas-vindas: " + e.getMessage());
         }
+    }
+
+    private Long getFilaComEspecialidade(String especialidade) {
+        return filaRepository.findByEspecialidadeAndAtivoTrue(especialidade)
+                .orElseThrow(() -> new EntityNotFoundException("Não existe fila com essa especialidade"))
+                .getId();
     }
 }

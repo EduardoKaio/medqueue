@@ -111,12 +111,6 @@ public class FilaService {
         return filaRepository.save(novaFila);
     }
 
-    public Long getFilaComEspecialidade(String especialidade) {
-        return filaRepository.findByEspecialidadeAndAtivoTrue(especialidade)
-                .orElseThrow(() -> new EntityNotFoundException("Não existe fila com essa especialidade"))
-                .getId();
-    }
-
     public Fila buscarPorId(Long id) {
         if (id == null) {
             throw new IllegalArgumentException("ID da fila não pode ser nulo");

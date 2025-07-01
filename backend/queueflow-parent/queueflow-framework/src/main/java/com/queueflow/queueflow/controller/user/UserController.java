@@ -65,16 +65,15 @@ public class UserController {
 
     @PostMapping("/enterQueue")
     @Operation(summary = "User entra na fila")
-    public ResponseEntity<?> enterQueue(@RequestParam String especialidade, @RequestParam Integer prioridade) {
+    public ResponseEntity<?> enterQueue(@RequestParam String extraInfo, @RequestParam Integer prioridade) {
         try {
             Long userId = authService.getIdDoUsuario();
-            Long filaId = filaService.getFilaComEspecialidade(especialidade);
 
-            filaUserService.addUser(userId, filaId, prioridade);
+            filaUserService.addUser(userId, extraInfo, prioridade);
             return ResponseEntity.ok(Map.of(
                 "success", true,
                 "message", "User adicionado à fila com sucesso",
-                "filaId", filaId
+                "filaId", extraInfo
             ));
 
         } catch (EntityNotFoundException e) {

@@ -4,8 +4,6 @@ import com.queueflow.queueflow.models.User;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.List;
-
 @Entity
 @Data
 @EqualsAndHashCode(callSuper = true)

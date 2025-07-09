@@ -1,8 +1,6 @@
 package com.queueflow.medqueue.controller;
 
 import com.queueflow.queueflow.dto.PrioridadeRequestDTO;
-import com.queueflow.queueflow.dto.PrioridadeResponseDTO;
-import com.queueflow.queueflow.dto.RecomendacaoResponseDTO;
 import com.queueflow.queueflow.strategy.PrioridadeStrategy;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

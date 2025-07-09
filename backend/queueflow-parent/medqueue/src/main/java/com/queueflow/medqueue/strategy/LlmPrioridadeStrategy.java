@@ -2,7 +2,6 @@ package com.queueflow.medqueue.strategy;
 
 import com.queueflow.queueflow.dto.PrioridadeRequestDTO;
 import com.queueflow.queueflow.strategy.PrioridadeStrategy;
-import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Component;
 

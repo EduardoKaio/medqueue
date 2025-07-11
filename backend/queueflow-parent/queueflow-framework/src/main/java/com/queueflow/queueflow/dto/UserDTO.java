@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+
 public class UserDTO {
 
     private Long id;
@@ -33,4 +34,6 @@ public class UserDTO {
 
     private String role;
     private Boolean ativo;
+
+    private String tipoConta; 
 }

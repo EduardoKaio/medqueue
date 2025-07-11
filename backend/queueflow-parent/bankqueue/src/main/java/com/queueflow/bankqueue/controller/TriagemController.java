@@ -1,3 +1,3 @@
-public class TriagemController {
+// public class TriagemController {
     
-}
+// }

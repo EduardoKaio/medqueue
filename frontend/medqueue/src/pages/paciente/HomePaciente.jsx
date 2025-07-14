@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Button,
@@ -15,14 +15,36 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import MuiAlert from "@mui/material/Alert";
-import { enterQueue } from "../../services/PacienteService";
+import { enterQueue, getCurrentUser } from "../../services/PacienteService";
 
 function HomePaciente() {
   const [showAlert, setShowAlert] = useState(false);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const navigate = useNavigate();
 
-  const handleEntrarNaFila = () => {    
+  const [queueSubjectDTO, setQueueSubjectDTO] = useState({
+    userId: null,
+    entityId: null,
+  });
+
+  const fetchPaciente = () => {
+    getCurrentUser()
+      .then((res) => {
+        setQueueSubjectDTO((prevDto) => ({
+          ...prevDto,
+          userId: res.data.id,
+        }));
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  };
+
+  useEffect(() => {
+    fetchPaciente();
+  }, []);
+
+  const handleEntrarNaFila = () => {
     setConfirmDialogOpen(true); // Abre o modal de confirmação
   };
 
@@ -30,7 +52,7 @@ function HomePaciente() {
     e.preventDefault();
 
     try {
-      await enterQueue("geral", 3);
+      await enterQueue("geral", 3, queueSubjectDTO);
       setShowAlert(true); // Exibe o alerta de confirmação
     } catch (err) {
       console.error("Erro ao entrar na fila", err);

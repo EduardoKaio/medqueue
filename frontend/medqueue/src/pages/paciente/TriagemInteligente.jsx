@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Container,
@@ -19,7 +19,7 @@ import {
 } from "@mui/material";
 import { avaliarPrioridade } from "../../services/LLMService";
 import MuiAlert from "@mui/material/Alert";
-import { enterQueue } from "../../services/PacienteService";
+import { enterQueue, getCurrentUser } from "../../services/PacienteService";
 
 import PriorityHighIcon from "@mui/icons-material/PriorityHigh";
 import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
@@ -39,6 +39,27 @@ function TriagemInteligente() {
   const [mensagemErro, setMensagemErro] = useState("");
   const [loading, setLoading] = useState(false);
   const [filaNaoEncontrada, setFilaNaoEncontrada] = useState(false);
+  const [queueSubjectDTO, setQueueSubjectDTO] = useState({
+    userId: null,
+    entityId: null,
+  });
+
+  const fetchPaciente = () => {
+    getCurrentUser()
+      .then((res) => {
+        setQueueSubjectDTO((prevDto) => ({
+          ...prevDto,
+          userId: res.data.id,
+        }));
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  };
+
+  useEffect(() => {
+    fetchPaciente();
+  }, []);
 
   const TriagemTooltip = styled(({ className, ...props }) => (
     <Tooltip {...props} classes={{ popper: className }} />
@@ -87,16 +108,19 @@ function TriagemInteligente() {
   const handleEntrarNaFila = async (e) => {
     e.preventDefault();
 
+    console.log(queueSubjectDTO);
+
     try {
       if (!filaNaoEncontrada) {
         await enterQueue(
           resultadoTriagem.especialista,
-          resultadoTriagem.prioridade
+          resultadoTriagem.prioridade,
+          queueSubjectDTO,
         );
         setSnackbarAberto(true);
       } else {
         // Tentar entrar na fila geral
-        await enterQueue("geral", resultadoTriagem.prioridade);
+        await enterQueue("geral", resultadoTriagem.prioridade, queueSubjectDTO);
         setFilaNaoEncontrada(false);
         setSnackbarAberto(true);
       }
@@ -118,6 +142,7 @@ function TriagemInteligente() {
               "Erro ao entrar na fila. Tente novamente mais tarde."
             );
             setSnackbarErro(true);
+            console.log(err)
         }
       } else {
         setMensagemErro(

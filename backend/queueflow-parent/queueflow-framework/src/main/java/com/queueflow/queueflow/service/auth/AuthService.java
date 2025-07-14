@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import com.queueflow.queueflow.dto.AuthRequest;
 import com.queueflow.queueflow.dto.AuthResponse;
 import com.queueflow.queueflow.models.User;
-import com.queueflow.queueflow.repository.UserRepository;
+import com.queueflow.queueflow.repository.EntityRepository;
 import com.queueflow.queueflow.util.JwtUtil;
 
 import lombok.RequiredArgsConstructor;
@@ -21,7 +21,7 @@ import lombok.RequiredArgsConstructor;
 public class AuthService<T extends User> {
 
     private final AuthenticationManager authManager;
-    private final UserRepository<T> userRepository;
+    private final EntityRepository<T> entityRepository;
     private final JwtUtil jwtUtil;
 
     public Long getIdDoUsuario() {
@@ -31,7 +31,7 @@ public class AuthService<T extends User> {
             String cpf = authentication.getName();
 
             // Buscar o user pelo CPF para pegar o ID
-            T user = userRepository.findByCpf(cpf)
+            T user = entityRepository.findByCpf(cpf)
                     .orElseThrow(() -> new UsernameNotFoundException("User não encontrado"));
 
             return user.getId();
@@ -45,7 +45,7 @@ public class AuthService<T extends User> {
         );
 
         UserDetails userDetails = (UserDetails) auth.getPrincipal();
-        T user = userRepository.findByCpf(userDetails.getUsername())
+        T user = entityRepository.findByCpf(userDetails.getUsername())
                 .orElseThrow(() -> new UsernameNotFoundException("User não encontrado"));
 
         String jwt = jwtUtil.generateToken(userDetails, user.getId());

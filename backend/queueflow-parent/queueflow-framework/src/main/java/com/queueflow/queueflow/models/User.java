@@ -21,7 +21,7 @@ import java.util.List;
 @SQLDelete(sql = "UPDATE users SET ativo = false WHERE id = ?")
 @SQLRestriction("ativo = true")
 @DiscriminatorColumn(name = "user_type")
-public abstract class User implements UserDetails {
+public abstract class User implements UserDetails, QueueSubject {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

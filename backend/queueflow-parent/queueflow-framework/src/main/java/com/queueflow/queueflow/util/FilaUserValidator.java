@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.queueflow.queueflow.models.Fila;
-import com.queueflow.queueflow.models.User;
 
 import jakarta.persistence.EntityNotFoundException;
 
@@ -28,8 +27,8 @@ public class FilaUserValidator {
         }
     }
 
-    public static void verificarUserExistente(User user, Long id) {
-        if (user == null) {
+    public static <T> void verificarUserExistente(T entity, Long id) {
+        if (entity == null) {
             throw new EntityNotFoundException("User não encontrado com ID: " + id);
         }
     }

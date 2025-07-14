@@ -1,65 +1,72 @@
 package com.queueflow.queueflow.service.admin;
 
-import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import com.queueflow.queueflow.factory.UserFactory;
+
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.queueflow.queueflow.dto.FilaUserDTO;
 import com.queueflow.queueflow.dto.HistoricoFilaDTO;
 import com.queueflow.queueflow.dto.HistoricoUserAdminDTO;
+import com.queueflow.queueflow.dto.QueueSubjectDTO;
 import com.queueflow.queueflow.models.Fila;
 import com.queueflow.queueflow.models.FilaUser;
+import com.queueflow.queueflow.models.QueueSubject;
 import com.queueflow.queueflow.models.User;
-import com.queueflow.queueflow.repository.FilaUserRepository;
+import com.queueflow.queueflow.repository.EntityRepository;
 import com.queueflow.queueflow.repository.FilaRepository;
-import com.queueflow.queueflow.repository.UserRepository;
+import com.queueflow.queueflow.repository.FilaUserRepository;
 import com.queueflow.queueflow.service.user.WhatsAppService;
-import com.queueflow.queueflow.strategy.QueueEntryStrategy;
+import com.queueflow.queueflow.strategy.QueueStrategy;
 import com.queueflow.queueflow.util.FilaUserValidator;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
-@Service
 @RequiredArgsConstructor
-public class FilaUserService<T extends User> {
-    
-    private final UserFactory userFactory;
-    private final QueueEntryStrategy queueEntryStrategy;
+public abstract class AbstractFilaEntityService<T extends QueueSubject> {
+
+    private final QueueStrategy<T> queueEntryStrategy;
 
     private final FilaUserRepository filaUserRepository;
     private final FilaRepository filaRepository;
-    private final UserRepository<T> userRepository;
+    private final EntityRepository<T> entityRepository;
     private final WhatsAppService whatsAppService;
 
     @Transactional
-    public void addUser(Long entityId, String extraInfo, Integer prioridade) {
+    public void addUser(QueueSubjectDTO queueSubjectDTO, String extraInfo, Integer prioridade) {
+        Long entityId;
+
         if (extraInfo == null || extraInfo.isBlank()) {
             extraInfo = "Geral";
         }
-        
+
+        if (queueSubjectDTO.getEntityId() == null) {
+            entityId = queueSubjectDTO.getUserId();
+        } else {
+            entityId = queueSubjectDTO.getEntityId();
+        }
+
         Long filaId = getFilaComEspecialidade(extraInfo);
 
         FilaUserValidator.validarParametrosEntrarNaFila(entityId, filaId, prioridade);
 
-        T user = userRepository.findById(entityId).orElse(null);
+        T entity = entityRepository.findById(entityId).orElse(null);
         Fila fila = filaRepository.findById(filaId).orElse(null);
 
-        FilaUserValidator.verificarUserExistente(user, entityId);
+        FilaUserValidator.verificarUserExistente(entity, entityId);
         FilaUserValidator.verificarFilaExistente(fila, filaId);
         FilaUserValidator.verificarFilaAtiva(fila);
 
         verificarSeUserPodeEntrarNaFila(entityId);
 
-        // Verificação específica para a fila atual (verificar se já existe na mesma fila)
+        // Verificação específica para a fila atual (verificar se já existe na mesma
+        // fila)
         Optional<FilaUser> existente = filaUserRepository
                 .findByUserIdAndFilaIdAndStatus(entityId, filaId, "Na fila");
 
@@ -73,11 +80,13 @@ public class FilaUserService<T extends User> {
             atualizarPosicao(filaId);
         }
 
-        FilaUser filaUser = queueEntryStrategy.queueEntry(fila, user, prioridade, posicao);
+        FilaUser filaUser = queueEntryStrategy.queueEntry(fila, entity, prioridade, posicao);
 
         filaUserRepository.save(filaUser);
 
         // Enviar mensagem de boas-vindas
+        Long userId = queueSubjectDTO.getUserId();
+        T user = entityRepository.findById(userId).orElse(null);
         enviarMensagemBoasVindas(user, posicao);
     }
 
@@ -111,14 +120,7 @@ public class FilaUserService<T extends User> {
             }
 
             return filaUsers.stream()
-                    .map(fp -> new FilaUserDTO(
-                    fp.getUser().getId(),
-                    fp.getUser().getNome(),
-                    fp.getPosicao(),
-                    fp.getStatus(),
-                    fp.getDataEntrada(),
-                    fp.getCheckIn(),
-                    fp.getPrioridade()))
+                    .map(this::mapToFilaUserDTO)
                     .collect(Collectors.toList());
 
         } catch (EntityNotFoundException e) {
@@ -141,7 +143,8 @@ public class FilaUserService<T extends User> {
         FilaUserValidator.verificarIdExistente(filaId);
 
         try {
-            List<FilaUser> filaUsersOrdenada = filaUserRepository.findByFilaIdAndStatusOrderByPrioridade(filaId, "Na fila");
+            List<FilaUser> filaUsersOrdenada = filaUserRepository.findByFilaIdAndStatusOrderByPrioridade(filaId,
+                    "Na fila");
 
             int posicao = 0;
 
@@ -158,54 +161,9 @@ public class FilaUserService<T extends User> {
     }
 
     @Transactional
-    public FilaUserDTO realizarCheckIn(Long filaId, Long userId) {
-        FilaUserValidator.verificarIdExistente(filaId);
-        FilaUserValidator.verificarIdExistente(userId);
+    public FilaUserDTO atualizarStatusUser(Long filaId, Long entityId, String status) {
 
-        Fila fila = filaRepository.findById(filaId).orElse(null);
-        FilaUserValidator.verificarFilaExistente(fila, filaId);
-
-        // Buscar TODOS os registros do user na fila
-        List<FilaUser> registrosUser = filaUserRepository.findByUserIdAndFilaId(userId, filaId);
-
-        if (registrosUser.isEmpty()) {
-            throw new EntityNotFoundException("User não está na fila");
-        }
-
-        // Buscar o registro mais recente com status "Na fila" ou "Atrasado"
-        Optional<FilaUser> registroAtivo = registrosUser.stream()
-                .filter(fp -> "Na fila".equals(fp.getStatus()) || "Atrasado".equals(fp.getStatus()))
-                .max(Comparator.comparing(FilaUser::getDataEntrada));
-
-        if (registroAtivo.isEmpty()) {
-            throw new EntityNotFoundException("User não está na fila com status que permite check-in");
-        }
-
-        FilaUser filaUser = registroAtivo.get();
-
-        if (filaUser.getCheckIn()) {
-            throw new IllegalStateException("User já realizou check-in");
-        }
-
-        filaUser.setCheckIn(true);
-        filaUser.setStatus("Em atendimento");
-        filaUserRepository.save(filaUser);
-
-        // Retorno correto do DTO
-        return new FilaUserDTO(
-                filaUser.getUser().getId(),
-                filaUser.getUser().getNome(),
-                filaUser.getPosicao(),
-                filaUser.getStatus(),
-                filaUser.getDataEntrada(),
-                filaUser.getCheckIn(),
-                filaUser.getPrioridade()
-        );
-    }
-
-    @Transactional
-    public FilaUserDTO atualizarStatusUser(Long filaId, Long userId, String status) {
-        FilaUserValidator.validarParametrosAtualizarStatus(filaId, userId, status);
+        FilaUserValidator.validarParametrosAtualizarStatus(filaId, entityId, status);
         FilaUserValidator.validarStatusPermitido(status);
 
         Fila fila = filaRepository.findById(filaId).orElse(null);
@@ -214,14 +172,15 @@ public class FilaUserService<T extends User> {
         FilaUserValidator.verificarFilaAtiva(fila);
 
         // Buscar TODOS os registros do user na fila
-        List<FilaUser> registrosUser = filaUserRepository.findByUserIdAndFilaId(userId, filaId);
+        List<FilaUser> registrosUser = filaUserRepository.findByUserIdAndFilaId(entityId, filaId);
 
         if (registrosUser.isEmpty()) {
-            throw new EntityNotFoundException("User com ID " + userId + " não está na fila com ID " + filaId);
+            throw new EntityNotFoundException("User com ID " + entityId + " não está na fila com ID " + filaId);
         }
 
         FilaUser filaUser = obterRegistroAtivo(registrosUser)
-                .orElseThrow(() -> new EntityNotFoundException("Não há nenhum registro ativo do user na fila para atualizar status"));
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Não há nenhum registro ativo do user na fila para atualizar status"));
 
         String statusAntigo = filaUser.getStatus();
         filaUser.setStatus(status);
@@ -240,19 +199,12 @@ public class FilaUserService<T extends User> {
 
         filaUserRepository.save(filaUser);
 
-        return new FilaUserDTO(
-                filaUser.getUser().getId(),
-                filaUser.getUser().getNome(),
-                filaUser.getPosicao(),
-                filaUser.getStatus(),
-                filaUser.getDataEntrada(),
-                filaUser.getCheckIn(),
-                filaUser.getPrioridade());
+        return mapToFilaUserDTO(filaUser);
     }
 
     public HistoricoUserAdminDTO historicoFilaUserId(Long userId) {
 
-        T user = userRepository.findById(userId)
+        T user = entityRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User não encontrado."));
 
         List<FilaUser> filas = filaUserRepository.findAllByUserId(userId);
@@ -264,13 +216,12 @@ public class FilaUserService<T extends User> {
         List<HistoricoFilaDTO> historicoFilas = filas.stream()
                 .filter(filaUser -> filaUser.getFila() != null)
                 .map(filaUser -> new HistoricoFilaDTO(
-                filaUser.getFila().getId(),
-                filaUser.getFila().getNome(),
-                filaUser.getFila().getEspecialidade(),
-                filaUser.getPrioridade(),
-                filaUser.getStatus(),
-                filaUser.getDataEntrada()
-        ))
+                        filaUser.getFila().getId(),
+                        filaUser.getFila().getNome(),
+                        filaUser.getFila().getEspecialidade(),
+                        filaUser.getPrioridade(),
+                        filaUser.getStatus(),
+                        filaUser.getDataEntrada()))
                 .collect(Collectors.toList());
 
         return new HistoricoUserAdminDTO(user.getNome(), historicoFilas);
@@ -305,12 +256,15 @@ public class FilaUserService<T extends User> {
         try {
             String telefone = novoProximo.getUser().getTelefone();
             String primeiroNome = novoProximo.getUser().getNome().split(" ")[0];
+
+            String sistema = getSystemName();
+
             String mensagem = String.format(
-                    "👋 Olá %s! Aqui é da equipe *MedQueue* 🏥\n\n"
+                    "👋 Olá %s! Aqui é da equipe *%s* 🏥\n\n"
                     + "Você é o *próximo da fila* para ser atendido! 🔔\n"
                     + "Fique atento e se prepare para o seu atendimento.\n\n"
                     + "Agradecemos pela sua paciência! 😊",
-                    primeiroNome
+                    primeiroNome, sistema
             );
 
             whatsAppService.sendWhatsAppMessage(telefone, mensagem);
@@ -324,11 +278,9 @@ public class FilaUserService<T extends User> {
     private void verificarSeUserPodeEntrarNaFila(Long userId) {
         List<FilaUser> registros = filaUserRepository.findAllByUserId(userId);
 
-        boolean emFilaAtiva = registros.stream().anyMatch(fp
-                -> fp.getFila().getAtivo()
+        boolean emFilaAtiva = registros.stream().anyMatch(fp -> fp.getFila().getAtivo()
                 && !fp.getStatus().equals("Atendido")
-                && !fp.getStatus().equals("Atendido - Atrasado")
-        );
+                && !fp.getStatus().equals("Atendido - Atrasado"));
 
         if (emFilaAtiva) {
             throw new IllegalStateException("User já está em uma fila ativa e ainda não foi atendido.");
@@ -340,13 +292,18 @@ public class FilaUserService<T extends User> {
             String telefone = user.getTelefone();
             String primeiroNome = user.getNome().split(" ")[0];
 
+            String sistema = getSystemName();
+
+            // A linha que muda! A mensagem é gerada por um método abstrato.
             String mensagem = String.format(
-                    "👋 Olá %s! Aqui é da equipe *MedQueue* 🏥\n\n"
-                    + "Você entrou na fila com sucesso! 🎉\n"
-                    + "Sua posição atual é: *%d*.\n"
-                    + "Acompanhe seu status e fique atento para o seu atendimento.\n\n"
-                    + "Agradecemos por utilizar o MedQueue! 😊",
-                    primeiroNome, posicao
+
+                    "👋 Olá %s! Aqui é da equipe *%s* 🏥\n\n"
+                            + "Você entrou na fila com sucesso! 🎉\n"
+                            + "Sua posição atual é: *%d*.\n"
+                            + "Acompanhe seu status e fique atento para o seu atendimento.\n\n"
+                            + "Agradecemos por utilizar o %s! 😊",
+                    primeiroNome, sistema, posicao, sistema
+
             );
 
             whatsAppService.sendWhatsAppMessage(telefone, mensagem);
@@ -360,4 +317,10 @@ public class FilaUserService<T extends User> {
                 .orElseThrow(() -> new EntityNotFoundException("Não existe fila com essa especialidade"))
                 .getId();
     }
+
+    // Método que agora é abstrato e será implementado pelos filhos
+    protected abstract FilaUserDTO mapToFilaUserDTO(FilaUser filaUser);
+
+    // Outros métodos abstratos para flexibilidade, como as mensagens
+    protected abstract String getSystemName();
 }

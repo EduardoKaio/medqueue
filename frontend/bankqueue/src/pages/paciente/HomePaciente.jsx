@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -15,12 +15,33 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import MuiAlert from "@mui/material/Alert";
-import { enterQueue } from "../../services/PacienteService";
+import { enterQueue, getCurrentUser } from "../../services/PacienteService";
 
 function HomePaciente() {
   const [showAlert, setShowAlert] = useState(false);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const navigate = useNavigate();
+  const [setQueueSubjectDTO, queueSubjectDTO] = useState({
+    userId: null,
+    entityId: null
+  });
+
+  const fetchPaciente = () => {
+    getCurrentUser()
+      .then((res) => setQueueSubjectDTO(prevDTO => ({
+        ...prevDTO,
+        userId: res.id
+      })))
+      .catch((err) => {
+        console.error("Erro ao encontrar id do paciente", err);
+
+      });
+  };
+
+  useEffect(() => {
+    fetchPaciente();
+    console.log(queueSubjectDTO);
+  }, []);
 
   const handleEntrarNaFila = () => {    
     setConfirmDialogOpen(true); // Abre o modal de confirmação

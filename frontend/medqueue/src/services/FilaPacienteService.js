@@ -7,12 +7,9 @@ export const listarFilaOrdenada = (filaId) =>
 
 // Função genérica para alterar o status de um paciente na fila
 export const alterarStatusFilaPaciente = (filaId, pacienteId, novoStatus) => {
-  return axiosInstance.put(
-    `${API_URL}/${filaId}/user/${pacienteId}/status`,
-    {
-      status: novoStatus,
-    }
-  );
+  return axiosInstance.put(`${API_URL}/${filaId}/user/${pacienteId}/status`, {
+    status: novoStatus,
+  });
 };
 
 // Funções específicas que usam a função genérica

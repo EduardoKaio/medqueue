@@ -11,8 +11,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.queueflow.queueflow.dto.QueueSubjectDTO;
 import com.queueflow.queueflow.dto.UserDTO;
-import com.queueflow.queueflow.service.admin.FilaUserService;
+import com.queueflow.queueflow.service.admin.AbstractFilaEntityService;
 import com.queueflow.queueflow.service.admin.FilaService;
 import com.queueflow.queueflow.service.admin.UserService;
 import com.queueflow.queueflow.service.auth.AuthService;
@@ -30,7 +31,7 @@ public class UserController {
 
     private final UserService userService;
 
-    private final FilaUserService filaUserService;
+    private final AbstractFilaEntityService filaUserService;
 
     private final AuthService authService;
 
@@ -65,11 +66,9 @@ public class UserController {
 
     @PostMapping("/enterQueue")
     @Operation(summary = "User entra na fila")
-    public ResponseEntity<?> enterQueue(@RequestParam String extraInfo, @RequestParam Integer prioridade) {
+    public ResponseEntity<?> enterQueue(@RequestParam String extraInfo, @RequestParam Integer prioridade, @RequestBody QueueSubjectDTO queueSubjectDTO) {
         try {
-            Long userId = authService.getIdDoUsuario();
-
-            filaUserService.addUser(userId, extraInfo, prioridade);
+            filaUserService.addUser(queueSubjectDTO, extraInfo, prioridade);
             return ResponseEntity.ok(Map.of(
                 "success", true,
                 "message", "User adicionado à fila com sucesso",

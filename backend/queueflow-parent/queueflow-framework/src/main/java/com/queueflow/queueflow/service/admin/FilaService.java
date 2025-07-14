@@ -153,15 +153,19 @@ public class FilaService {
     }
 
     private void desativarFilaDoDiaAnterior() {
-        LocalDate ontem = LocalDate.now().minusDays(1);
+        LocalDate hoje = LocalDate.now();
 
-        Fila filaDeOntem = filaRepository.findByDataCriacaoAndEspecialidade(ontem, "geral")
-                                    .orElse(null);
+        // 1. Buscar todas as filas cuja data de criação é anterior à data atual
+        List<Fila> filasAntigas = filaRepository.findByDataCriacaoBeforeAndEspecialidade(hoje, "geral");
 
-        if (filaDeOntem != null) {
-            filaDeOntem.setAtivo(false);
-
-            filaRepository.save(filaDeOntem);
+        // 2. Iterar sobre as filas encontradas e desativá-las
+        for (Fila fila : filasAntigas) {
+            if (fila.getAtivo()) { // Desativa apenas se já estiver ativa
+                fila.setAtivo(false);
+                filaRepository.save(fila); // Salva a fila desativada
+            }
         }
+        // Opcional: Você pode adicionar um log aqui para indicar quantas filas foram desativadas
+        System.out.println("Desativadas " + filasAntigas.size() + " filas de dias anteriores.");
     }
 }

@@ -5,7 +5,7 @@ import java.util.stream.Collectors;
 
 import com.queueflow.queueflow.dto.UserDTO;
 import com.queueflow.queueflow.factory.UserFactory;
-import com.queueflow.queueflow.repository.UserRepository;
+import com.queueflow.queueflow.repository.EntityRepository;
 import com.queueflow.queueflow.models.User;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -16,44 +16,44 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class UserService<T extends User> {
 
-    private final UserRepository<T> userRepository;
+    private final EntityRepository<T> entityRepository;
     private final UserFactory userFactory;
     private final PasswordEncoder passwordEncoder;
 
     public List<UserDTO> listarTodos() {
-        return userRepository.findAll()
+        return entityRepository.findAll()
                 .stream()
                 .map(userFactory::toDTO)
                 .collect(Collectors.toList());
     }
 
     public List<UserDTO> listarAtivos() {
-        return userRepository.findByAtivoTrue()
+        return entityRepository.findByAtivoTrue()
                 .stream()
                 .map(userFactory::toDTO)
                 .collect(Collectors.toList());
     }
 
     public UserDTO buscarPorId(Long id) {
-        User user = userRepository.findById(id)
+        User user = entityRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado com ID: " + id));
         return userFactory.toDTO(user);
     }
 
     public UserDTO criar(UserDTO userDTO) {
-        if (userRepository.existsByCpf(userDTO.getCpf())) {
+        if (entityRepository.existsByCpf(userDTO.getCpf())) {
             throw new IllegalArgumentException("Já existe um usuário com esse CPF.");
         }
 
         T user = (T) userFactory.fromDTO(userDTO);
         user.setSenha(passwordEncoder.encode(user.getSenha()));
 
-        T salvo = userRepository.save(user);
+        T salvo = entityRepository.save(user);
         return userFactory.toDTO(salvo);
     }
 
     public UserDTO atualizar(Long id, UserDTO userDTO) {
-        T existente = userRepository.findById(id)
+        T existente = entityRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado com ID: " + id));
 
         if (userDTO.getNome() == null || userDTO.getNome().isBlank()
@@ -63,7 +63,7 @@ public class UserService<T extends User> {
             throw new IllegalArgumentException("Todos os campos obrigatórios devem ser preenchidos.");
         }
 
-        if (!userDTO.getCpf().equals(existente.getCpf()) && userRepository.existsByCpf(userDTO.getCpf())) {
+        if (!userDTO.getCpf().equals(existente.getCpf()) && entityRepository.existsByCpf(userDTO.getCpf())) {
             throw new IllegalArgumentException("Já existe um usuário com esse CPF.");
         }
 
@@ -81,17 +81,17 @@ public class UserService<T extends User> {
             existente.setSenha(senhaAntiga);
         }
 
-        T atualizado = userRepository.save(existente);
+        T atualizado = entityRepository.save(existente);
         return userFactory.toDTO(atualizado);
     }
 
     public void deletar(Long id) {
-        T user = userRepository.findById(id)
+        T user = entityRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado com ID: " + id));
-        userRepository.delete(user);
+        entityRepository.delete(user);
     }
 
     public long getContagem() {
-        return userRepository.count();
+        return entityRepository.count();
     }
 }

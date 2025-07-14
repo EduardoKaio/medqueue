@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.queueflow.queueflow.models.User;
 import com.queueflow.queueflow.models.User.Role;
-import com.queueflow.queueflow.repository.UserRepository;
+import com.queueflow.queueflow.repository.EntityRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -18,11 +18,11 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UserDetailsServiceImpl<T extends User> implements UserDetailsService {
     
-    private final UserRepository<T> userRepository;
+    private final EntityRepository<T> entityRepository;
 
     @Override
     public UserDetails loadUserByUsername(String cpf) throws UsernameNotFoundException {
-        T user = userRepository.findByCpf(cpf)
+        T user = entityRepository.findByCpf(cpf)
             .orElseThrow(() -> {
                 System.err.println("[ERRO] CPF não encontrado: " + cpf);
                 return new UsernameNotFoundException("Usuário não encontrado");

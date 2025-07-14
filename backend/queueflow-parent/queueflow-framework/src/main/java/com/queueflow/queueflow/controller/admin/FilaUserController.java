@@ -16,9 +16,10 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.queueflow.queueflow.dto.FilaUserDTO;
 import com.queueflow.queueflow.dto.HistoricoUserAdminDTO;
+import com.queueflow.queueflow.dto.QueueSubjectDTO;
 import com.queueflow.queueflow.models.Fila;
 import com.queueflow.queueflow.models.FilaUser;
-import com.queueflow.queueflow.service.admin.FilaUserService;
+import com.queueflow.queueflow.service.admin.AbstractFilaEntityService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -31,13 +32,17 @@ import lombok.RequiredArgsConstructor;
 @Tag(name = "Admin - Fila User", description = "Gerenciamento de users nas filas")
 public class FilaUserController {
 
-    private final FilaUserService filaUserService;
+    private final AbstractFilaEntityService filaUserService;
 
     @Operation(summary = "Listar users na fila")
     @GetMapping("/list")
     public ResponseEntity<List<FilaUser>> listarUsers(@RequestParam Long filaId) {
-        List<FilaUser> users = filaUserService.listarUsers(filaId);
-        return ResponseEntity.ok(users);
+        try {
+            List<FilaUser> users = filaUserService.listarUsers(filaId);
+            return ResponseEntity.ok(users);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(null);
+        }
     }
 
     @Operation(summary = "Listar fila ordenada", description = "Retorna a lista de users em uma fila específica, ordenada pela posição.")
@@ -58,27 +63,11 @@ public class FilaUserController {
         return ResponseEntity.ok(filasAtivas);
     }
 
-    @PutMapping("/{filaId}/user/{userId}/check-in")
-    @Operation(summary = "Realizar check-in do user na fila")
-    public ResponseEntity<?> realizarCheckIn(
-            @PathVariable Long filaId,
-            @PathVariable Long userId) {
-        try {
-            FilaUserDTO userAtualizado = filaUserService.realizarCheckIn(filaId, userId);
-            return ResponseEntity.ok(userAtualizado);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Erro inesperado ao realizar check-in: " + e.getMessage());
-        }
-    }
-
-    @PutMapping("/{filaId}/user/{userId}/status")
+    @PutMapping("/{filaId}/user/{entityId}/status")
     @Operation(summary = "Atualiza o status de um user na fila")
     public ResponseEntity<?> atualizarStatusUser(
             @PathVariable Long filaId,
-            @PathVariable Long userId,
+            @PathVariable Long entityId,
             @RequestBody Map<String, String> statusRequest) {
 
         String status = statusRequest.get("status");
@@ -87,7 +76,7 @@ public class FilaUserController {
         }
 
         try {
-            FilaUserDTO user = filaUserService.atualizarStatusUser(filaId, userId, status);
+            FilaUserDTO user = filaUserService.atualizarStatusUser(filaId, entityId, status);
             return ResponseEntity.ok(user);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)

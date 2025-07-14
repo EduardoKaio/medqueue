@@ -19,4 +19,6 @@ public interface FilaRepository extends JpaRepository<Fila, Long> {
     long countByAtivoTrue();
 
     List<Fila> findAllByOrderByAtivoDescDataCriacaoDesc();
+
+    List<Fila> findByDataCriacaoBeforeAndEspecialidade(LocalDate date, String especialidade);
 }

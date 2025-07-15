@@ -45,10 +45,17 @@ public class AnimalController {
         List<AnimalDTO> dtos = animalService.getAnimalsByDono(donoId);
         return ResponseEntity.ok(dtos);
     }
+
     @GetMapping("/dono/{cpf}")
     public ResponseEntity<Long> getDonoIdByCpf(@PathVariable String cpf) {
         Long donoId = donoService.getDonoIdByCpf(cpf);
         return ResponseEntity.ok(donoId);
+    }
+
+    @GetMapping("/list-all-animals")
+    public ResponseEntity<List<AnimalDTO>> listarTodos() {
+        List<AnimalDTO> animals = animalService.listarTodos();
+        return ResponseEntity.ok(animals);
     }
 
 }

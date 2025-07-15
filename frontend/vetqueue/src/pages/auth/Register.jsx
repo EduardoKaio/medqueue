@@ -25,7 +25,7 @@ const Root = styled(Box)({
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
-  backgroundColor: "#388E3C",
+  backgroundColor: "#0079CD",
 });
 
 const PaperWrapper = styled(Paper)({

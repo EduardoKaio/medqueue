@@ -33,26 +33,28 @@ public class BankPrioridadeStrategy implements PrioridadeStrategy {
         }
 
         String prompt = """
-            Considere a seguinte escala de prioridade médica:
+            Considere a seguinte escala de prioridade bancária:
             1 = alta, 2 = intermediária, 3 = baixa.
 
-            Com base nessa escala, avalie a prioridade de atendimento para um usuário com os seguintes sintomas: %s
+            Com base nessa escala, avalie a prioridade de atendimento para um cliente de banco com a seguinte solicitação: %s
 
-            Além disso, recomende o especialista médico mais indicado para esse caso.
+            Além disso, recomende apenas UM setor ou serviço bancário mais indicado para esse caso (ex: caixa eletrônico, guichê de atendimento, gerente de conta). Não use 'ou', não liste múltiplos setores, indique apenas UM nome de setor/serviço.
 
             Responda no seguinte formato:
 
             Prioridade: [1|2|3]
             Justificativa da prioridade: [explicação curta]
-            Especialista: [Nome do especialista]
-            Justificativa do especialista: [explicação curta]
+            Setor: [Nome do setor ou serviço]
+            Justificativa do setor: [explicação curta]
             """.formatted(sintomas);
 
         String resposta = chatClient.prompt().user(prompt).call().content();
 
-        ultimoEspecialista = extrairCampoString(resposta, "Especialista", "Não identificado");
+
+        // Para manter compatibilidade com o frontend, os campos abaixo são preenchidos conforme esperado
+        ultimoEspecialista = extrairCampoString(resposta, "Setor", "Não identificado");
         justificativaPrioridade = extrairCampoString(resposta, "Justificativa da prioridade", "Não fornecida");
-        justificativaEspecialista = extrairCampoString(resposta, "Justificativa do especialista", "Não fornecida");
+        justificativaEspecialista = extrairCampoString(resposta, "Justificativa do setor", "Não fornecida");
 
         return extrairCampoInt(resposta, "Prioridade", 3);
     }

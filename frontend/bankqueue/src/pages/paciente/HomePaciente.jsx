@@ -19,42 +19,67 @@ import { enterQueue, getCurrentUser } from "../../services/PacienteService";
 
 function HomePaciente() {
   const [showAlert, setShowAlert] = useState(false);
+  const [snackbarErro, setSnackbarErro] = useState(false);
+  const [mensagemErro, setMensagemErro] = useState("");
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const navigate = useNavigate();
-  const [setQueueSubjectDTO, queueSubjectDTO] = useState({
+  const [queueSubjectDTO, setQueueSubjectDTO] = useState({
     userId: null,
-    entityId: null
+    entityId: null,
   });
 
+  // Busca o usuário atual para preencher o DTO
   const fetchPaciente = () => {
     getCurrentUser()
-      .then((res) => setQueueSubjectDTO(prevDTO => ({
-        ...prevDTO,
-        userId: res.id
-      })))
+      .then((res) => {
+        console.log("getCurrentUser FULL RESPONSE:", res);
+        setQueueSubjectDTO((prevDTO) => ({
+          ...prevDTO,
+          userId: res.data && res.data.id ? res.data.id : null,
+        }));
+      })
       .catch((err) => {
         console.error("Erro ao encontrar id do paciente", err);
-
       });
   };
 
   useEffect(() => {
     fetchPaciente();
-    console.log(queueSubjectDTO);
   }, []);
 
-  const handleEntrarNaFila = () => {    
-    setConfirmDialogOpen(true); // Abre o modal de confirmação
+  // Abre o modal de confirmação
+  const handleEntrarNaFila = () => {
+    setConfirmDialogOpen(true);
   };
 
+  // Confirma a entrada na fila
   const handleConfirmarEntradaFila = async (e) => {
     e.preventDefault();
 
     try {
-      await enterQueue("geral", 3);
+      await enterQueue("Guichê de Atendimento", 3, queueSubjectDTO);
       setShowAlert(true); // Exibe o alerta de confirmação
     } catch (err) {
-      console.error("Erro ao entrar na fila", err);
+      if (err.response && err.response.data) {
+        const { errorCode, message } = err.response.data;
+        switch (errorCode) {
+          case "PACIENTE_JA_NA_FILA":
+          case "PACIENTE_EM_OUTRA_FILA":
+            setMensagemErro(message);
+            setSnackbarErro(true);
+            break;
+          default:
+            setMensagemErro(
+              "Erro ao entrar na fila. Tente novamente mais tarde."
+            );
+            setSnackbarErro(true);
+        }
+      } else {
+        setMensagemErro(
+          "Erro ao conectar com o servidor. Verifique sua conexão."
+        );
+        setSnackbarErro(true);
+      }
     }
 
     setConfirmDialogOpen(false); // Fecha o modal
@@ -168,6 +193,23 @@ function HomePaciente() {
             variant="filled"
           >
             Você foi inserido na fila com prioridade <strong>3 (baixa)</strong>
+          </MuiAlert>
+        </Snackbar>
+
+        {/* Snackbar de erro */}
+        <Snackbar
+          open={snackbarErro}
+          autoHideDuration={6000}
+          onClose={() => setSnackbarErro(false)}
+          anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        >
+          <MuiAlert
+            severity="error"
+            onClose={() => setSnackbarErro(false)}
+            elevation={6}
+            variant="filled"
+          >
+            {mensagemErro}
           </MuiAlert>
         </Snackbar>
       </Box>

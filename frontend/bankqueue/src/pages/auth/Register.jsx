@@ -38,7 +38,7 @@ const PaperWrapper = styled(Paper)({
   width: "100%",
   height: "100%",
   maxWidth: "600px",
-  maxHeight: "600px",
+  maxHeight: "670px",
   boxShadow: "2px 4px 6px rgba(0, 0, 0, 0.29)",
   borderRadius: "16px",
 });
@@ -86,8 +86,8 @@ const Register = () => {
         },
       });
     } catch (err) {
-      console.error("Erro ao criar paciente", err);
-      setError("Erro ao criar paciente.");
+      console.error("Erro ao criar cliente", err);
+      setError("Erro ao criar cliente.");
     }
   };
 
@@ -228,11 +228,7 @@ const Register = () => {
               variant="contained"
               color="primary"
               fullWidth
-              sx={{
-                bgcolor: "#1976d2",
-                "&:hover": { bgcolor: "#1565c0" },
-                mt: 1,
-              }}
+              sx={{ mt: 1 }}
             >
               Cadastre-se
             </Button>

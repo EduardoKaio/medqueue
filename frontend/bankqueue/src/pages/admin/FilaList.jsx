@@ -209,7 +209,7 @@ function FilaList() {
                       Tempo Médio
                     </TableCell>
                     <TableCell sx={{ color: "white", fontWeight: "bold" }}>
-                      Especialidade
+                      Serviço
                     </TableCell>
                     <TableCell sx={{ color: "white", fontWeight: "bold" }}>
                       Status

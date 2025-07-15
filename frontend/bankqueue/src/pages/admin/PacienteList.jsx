@@ -269,7 +269,7 @@ function PacienteList() {
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
         <DialogTitle>Confirmar exclusão</DialogTitle>
         <DialogContent>
-          Deseja realmente excluir o paciente{" "}
+          Deseja realmente excluir o cliente{" "}
           <strong>{pacienteSelecionado?.nome}</strong>?
         </DialogContent>
         <DialogActions>

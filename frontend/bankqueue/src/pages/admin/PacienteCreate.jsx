@@ -78,7 +78,6 @@ const PacienteCreate = () => {
     }
   };
 
-
   return (
     <Box sx={{ display: "flex" }}>
       <Box
@@ -90,8 +89,8 @@ const PacienteCreate = () => {
           mt: 8,
         }}
       >
-        <Container sx={{ display: "flex", justifyContent: "center", }}>
-          <PaperWrapper sx={{ bgcolor: "background.default", }}>
+        <Container sx={{ display: "flex", justifyContent: "center" }}>
+          <PaperWrapper sx={{ bgcolor: "background.default" }}>
             <Box
               sx={{
                 display: "grid",
@@ -110,11 +109,11 @@ const PacienteCreate = () => {
                   paddingRight: "90px",
                 }}
               >
-                Adicionar Novo Paciente
+                Adicionar Novo Cliente
               </Title>
             </Box>
-            <form onSubmit={handleSubmit} >
-              <Grid container spacing={3} sx={{ mt: "5px", }}>
+            <form onSubmit={handleSubmit}>
+              <Grid container spacing={3} sx={{ mt: "5px" }}>
                 <Grid item size={{ xs: 12, sm: 8 }}>
                   <TextField
                     label="Nome Completo"
@@ -229,13 +228,9 @@ const PacienteCreate = () => {
                   type="submit"
                   variant="contained"
                   color="primary"
-                  sx={{
-                    bgcolor: "#1976d2",
-                    "&:hover": { bgcolor: "#1565c0" },
-                    mt: 1,
-                  }}
+                  sx={{ mt: 1 }}
                 >
-                  Cadastre-se
+                  Cadastrar
                 </Button>
               </Box>
             </form>

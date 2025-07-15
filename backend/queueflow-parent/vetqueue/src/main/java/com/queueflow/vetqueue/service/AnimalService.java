@@ -57,9 +57,17 @@ public class AnimalService {
                 .map(animalFactory::toDTO)
                 .collect(Collectors.toList());
     }
+
     public Long getDonoIdByCpf(String cpf) {
         Dono dono = donoRepository.findByCpf(cpf)
                 .orElseThrow(() -> new RuntimeException("Dono não encontrado para CPF: " + cpf));
         return dono.getId();
+    }
+
+    public List<AnimalDTO> listarTodos() {
+        return animalRepository.findAll()
+                .stream()
+                .map(animalFactory::toDTO)
+                .collect(Collectors.toList());
     }
 }

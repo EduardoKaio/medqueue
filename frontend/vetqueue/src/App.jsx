@@ -22,6 +22,7 @@ import HeaderLayout from "./components/HeaderLayout";
 import FilaAtual from "./pages/paciente/FilaAtual";
 import HistoricoFilas from "./pages/paciente/HistoricoFilas";
 import HistoricoPacienteAdmin from "./pages/admin/historicoPacienteAdmin";
+import AnimaisList from "./pages/admin/AnimaisList";
 
 function App() {
   return (
@@ -46,6 +47,7 @@ function App() {
             <Route path="filas/edit/:id" element={<FilaEdit />} />{" "}
             <Route path="filas/:id" element={<FilaPacientesList />} />
             <Route path="perfil" element={<Perfil />} />
+            <Route path="animais" element={<AnimaisList />} />
           </Route>
 
           {/* Pacient Routes  */}

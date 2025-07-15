@@ -56,6 +56,7 @@ function AnimalList() {
   const fetchAnimals = (donoId) => {
     getAnimalsByDono(donoId)
       .then((res) => setAnimals(res.data))
+      console.log(res.data)
       .catch((err) => {
         console.error("Erro ao buscar animais:", err);
         setSnackbar({

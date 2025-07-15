@@ -5,8 +5,11 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import com.queueflow.queueflow.dto.FilaUserDTO;
 import com.queueflow.queueflow.dto.HistoricoFilaDTO;
 import com.queueflow.queueflow.dto.InfoFilaParaUserDTO;
+import com.queueflow.queueflow.mapper.GenericMapper;
+import com.queueflow.queueflow.models.Fila;
 import com.queueflow.queueflow.models.FilaUser;
 import com.queueflow.queueflow.repository.FilaUserRepository;
 import com.queueflow.queueflow.service.auth.AuthService;
@@ -15,9 +18,9 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class InfoFilaUserService {
+public class InfoFilaUserService<F extends FilaUser, D extends FilaUserDTO> {
 
-    private final FilaUserRepository filaUserRepository;
+    private final FilaUserRepository<F> filaUserRepository;
     private final AuthService authService;
 
     public InfoFilaParaUserDTO infoFilaUser() {
@@ -47,7 +50,7 @@ public class InfoFilaUserService {
     public List<HistoricoFilaDTO> historicoFilasUser() {
         Long userId = authService.getIdDoUsuario();
 
-        List<FilaUser> filas = filaUserRepository.findAllByUserId(userId);
+        List<F> filas = filaUserRepository.findAllByUserId(userId);
 
         if (filas.isEmpty()) {
             throw new RuntimeException("O user ainda não possui histórico de filas.");

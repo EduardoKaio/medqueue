@@ -21,3 +21,6 @@ export const getAnimalById = (id) =>
 // Busca todos os animais de um dono pelo id do dono
 export const getAnimalsByDono = (donoId) =>
   axiosInstance.get(`${API_URL}/by-dono/${donoId}`);
+
+export const getAnimals = () =>
+  axiosInstance.get(`${API_URL}/list-all-animals`);

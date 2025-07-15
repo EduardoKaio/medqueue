@@ -2,6 +2,7 @@ package com.queueflow.vetqueue.models;
 
 import jakarta.persistence.*;
 import lombok.*;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 @Entity
 @Data
@@ -9,7 +10,7 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 @Table(name = "animais")
-public class Animal {
+public class Animal{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,8 +24,13 @@ public class Animal {
 
     private Integer idade;
 
+    private Boolean ativo = true;
+
+    private String cpf;
+
     @ManyToOne
     @JoinColumn(name = "dono_id")
+    @JsonBackReference
     private Dono dono;
 
 }

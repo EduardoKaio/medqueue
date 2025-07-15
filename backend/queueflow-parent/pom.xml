@@ -19,9 +19,9 @@
 
   <modules>
     <module>queueflow-framework</module>
-    <!-- <module>medqueue</module> -->
-    <!-- <module>vetqueue</module> -->
-    <module>bankqueue</module>
+    <module>medqueue</module>
+    <module>vetqueue</module>
+    <!-- <module>bankqueue</module> -->
   </modules>
 
   <properties>

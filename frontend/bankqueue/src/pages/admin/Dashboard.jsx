@@ -29,7 +29,7 @@ function Dashboard() {
     Promise.all([
       getPacientesCount()
         .then((res) => setPatientCount(res.data.count))
-        .catch((err) => console.error("Erro ao buscar contagem de pacientes", err)),
+        .catch((err) => console.error("Erro ao buscar contagem de clientes", err)),
       getFilasAtivasCount()
         .then((res) => setQueueCount(res.data.count))
         .catch((err) => console.error("Erro ao buscar contagem de filas", err)),
@@ -52,7 +52,7 @@ function Dashboard() {
           const valores = Object.values(res.data);
           setPacientesPorEspecialidade({ categorias, valores });
         })
-        .catch((err) => console.error("Erro ao buscar pacientes por especialidade", err)),
+        .catch((err) => console.error("Erro ao buscar clientes por especialidade", err)),
     ]).finally(() => setLoading(false));
   }, []);
 

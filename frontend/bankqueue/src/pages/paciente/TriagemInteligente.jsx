@@ -27,7 +27,7 @@ import { Link } from "react-router-dom";
 import { styled } from "@mui/material/styles";
 
 function TriagemInteligente() {
-  const [sintomas, setSintomas] = useState("");
+  const [solicitacao, setSolicitacao] = useState("");
   const [resultadoTriagem, setResultadoTriagem] = useState(null);
   const [modalAberto, setModalAberto] = useState(false);
   const [snackbarAberto, setSnackbarAberto] = useState(false);
@@ -86,7 +86,7 @@ function TriagemInteligente() {
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
       // Avalia prioridade (agora retorna todos os dados necessários)
-      const resposta = await avaliarPrioridade(sintomas);
+      const resposta = await avaliarPrioridade(solicitacao);
       setResultadoTriagem({
         prioridade: resposta.prioridade,
         especialista: resposta.especialista,
@@ -225,16 +225,17 @@ function TriagemInteligente() {
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom sx={{ mb: "20px" }}>
-                Descreva seus sintomas
+                Descreva sua solicitação bancária
               </Typography>
               <TextField
-                label="Digite seus sintomas"
+                label="Descreva o que você precisa resolver no banco"
                 variant="outlined"
                 fullWidth
                 multiline
                 rows={4}
-                value={sintomas}
-                onChange={(e) => setSintomas(e.target.value)}
+                value={solicitacao}
+                onChange={(e) => setSolicitacao(e.target.value)}
+                placeholder="Ex: Quero abrir uma conta, preciso de atendimento para empréstimo, resolver problema com cartão, etc."
               />
               <Grid
                 container

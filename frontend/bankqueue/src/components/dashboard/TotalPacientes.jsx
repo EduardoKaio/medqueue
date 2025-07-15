@@ -25,7 +25,7 @@ const TotalPacientes = ({ diff, trend, sx, value }) => {
           <Stack direction="row" sx={{ alignItems: 'flex-start', justifyContent: 'space-between' }} spacing={5}>
             <Stack spacing={1}>
               <Typography color="text.secondary" variant="overline">
-                Pacientes Registrados
+                Clientes Registrados
               </Typography>
               <Typography variant="h4">{value}</Typography>
             </Stack>

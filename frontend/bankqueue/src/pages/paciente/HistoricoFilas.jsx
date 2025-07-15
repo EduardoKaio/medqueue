@@ -31,10 +31,7 @@ function HistoricoFilas() {
         console.error("Erro ao buscar histórico:", err);
 
         // Se for erro 404 com mensagem específica
-        if (
-          err.response?.status === 404 &&
-          err.response?.data?.mensagem
-        ) {
+        if (err.response?.status === 404 && err.response?.data?.mensagem) {
           setMensagem("Você não possui histórico de filas no momento.");
         } else {
           setError("Não foi possível carregar o histórico");
@@ -85,21 +82,27 @@ function HistoricoFilas() {
 
   return (
     <Box sx={{ display: "flex" }}>
-      <Box component="main" sx={{ flexGrow: 1, bgcolor: "background.default", p: 3 }}>
+      <Box
+        component="main"
+        sx={{ flexGrow: 1, bgcolor: "background.default", p: 3 }}
+      >
         <Toolbar />
 
         <Container maxWidth="lg">
           <Typography
             variant="h4"
-            sx={{ fontWeight: "bold", color: "#1976d2", mb: 3 }}
+            sx={{ fontWeight: "bold", color: "primary.main", mb: 3 }}
           >
             Histórico de Filas
           </Typography>
 
-          <TableContainer component={Paper} sx={{ borderRadius: 2, boxShadow: 3 }}>
+          <TableContainer
+            component={Paper}
+            sx={{ borderRadius: 2, boxShadow: 3 }}
+          >
             <Table>
               <TableHead>
-                <TableRow sx={{ backgroundColor: "#1976d2" }}>
+                <TableRow sx={{ backgroundColor: "primary.main" }}>
                   <TableCell sx={{ color: "white", fontWeight: "bold" }}>
                     Data de Entrada
                   </TableCell>
@@ -120,10 +123,15 @@ function HistoricoFilas() {
                     key={fila.id}
                     sx={{
                       backgroundColor: index % 2 === 0 ? "#f9f9f9" : "white",
-                      "&:hover": { backgroundColor: "#e3f2fd" },
+                      "&:hover": {
+                        backgroundColor: "primary.main",
+                        opacity: 0.08,
+                      },
                     }}
                   >
-                    <TableCell>{new Date(fila.dataEntrada).toLocaleString()}</TableCell>
+                    <TableCell>
+                      {new Date(fila.dataEntrada).toLocaleString()}
+                    </TableCell>
                     <TableCell>{fila.especialidade}</TableCell>
                     <TableCell>{fila.prioridade}</TableCell>
                     <TableCell>{fila.status}</TableCell>

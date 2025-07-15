@@ -49,6 +49,7 @@ public class FilaUserController {
     @GetMapping("/ordered-list")
     public ResponseEntity<List<FilaUserDTO>> listarFilaOrdenada(@RequestParam Long filaId) {
         try {
+            System.out.println("Entrou no controller para listar a fila ordenada");
             List<FilaUserDTO> filaOrdenada = filaUserService.listarFilaOrdenada(filaId);
             return ResponseEntity.ok(filaOrdenada);
         } catch (EntityNotFoundException e) {

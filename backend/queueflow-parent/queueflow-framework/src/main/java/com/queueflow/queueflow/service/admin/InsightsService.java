@@ -6,17 +6,19 @@ import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
+import com.queueflow.queueflow.dto.FilaUserDTO;
 import com.queueflow.queueflow.models.Fila;
+import com.queueflow.queueflow.models.FilaUser;
 import com.queueflow.queueflow.models.QueueSubject;
 
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class InsightsService<T extends QueueSubject> {
+public class InsightsService<E, T extends QueueSubject, F extends FilaUserDTO, D extends FilaUser> {
 
     private final FilaService filaService; // Dependência do FilaService para acessar as filas
-    private final AbstractFilaEntityService<T> filaUserService;
+    private final AbstractFilaEntityService<E, T, F, D> filaUserService;
 
     public Map<String, Object> calcularTempoMedioEspera() {
         List<Fila> filasAtivas = filaService.listarAtivas(); // Lista de filas ativas

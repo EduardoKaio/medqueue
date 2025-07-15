@@ -36,7 +36,7 @@ import { buscarFilaPorId } from "../../services/FilaService";
 
 const FilaPacientesList = () => {
   const { id } = useParams();
-  const [pacientes, setPacientes] = useState([]);
+  const [animais, setAnimais] = useState([]);
   const [loading, setLoading] = useState(true);
   const [notification, setNotification] = useState({
     open: false,
@@ -59,10 +59,10 @@ const FilaPacientesList = () => {
   }, [id]);
 
   useEffect(() => {
-    fetchPacientes();
+    fetchAnimals();
     fetchFilaDetalhes();
 
-    const interval = setInterval(fetchPacientes, 30000);
+    const interval = setInterval(fetchAnimals, 30000);
     return () => clearInterval(interval);
   }, [id, fetchFilaDetalhes]);
 
@@ -74,19 +74,24 @@ const FilaPacientesList = () => {
     return () => clearInterval(timerInterval);
   }, []);
 
-  const fetchPacientes = useCallback(async () => {
+  const fetchAnimals = useCallback(async () => {
     try {
       const response = await listarFilaOrdenada(id);
-      setPacientes(response.data);
+      
+      const listaDePacientes = Array.isArray(response.data)
+        ? response.data
+        : [];
 
-      const inQueuePatients = response.data.filter(
+      setAnimais(listaDePacientes);
+
+      const inQueuePatients = listaDePacientes.filter(
         (p) =>
           !p.checkIn &&
           p.status === "Na fila" &&
           !delayedPatients.includes(p.userId)
       );
 
-      const atrasadosDoBackend = response.data
+      const atrasadosDoBackend = listaDePacientes
         .filter((p) => p.status === "Atrasado")
         .map((p) => p.userId);
 
@@ -119,18 +124,18 @@ const FilaPacientesList = () => {
   }, [id, delayedPatients, firstPatientId]);
 
   useEffect(() => {
-    fetchPacientes();
+    fetchAnimals();
 
-    const interval = setInterval(fetchPacientes, 30000);
+    const interval = setInterval(fetchAnimals, 30000);
     return () => clearInterval(interval);
-  }, [id, fetchPacientes]);
+  }, [id, fetchAnimals]);
 
   useEffect(() => {
     if (firstPatientId && filaDetalhes && filaDetalhes.tempoMedio) {
       const tempoLimiteMs = filaDetalhes.tempoMedio * 60 * 1000;
 
       const verificarTimeout = () => {
-        const firstPatient = pacientes.find((p) => p.userId === firstPatientId);
+        const firstPatient = animais.find((p) => p.userId === firstPatientId);
 
         if (!firstPatient || !firstPatient.dataEntrada) {
           return;
@@ -145,7 +150,7 @@ const FilaPacientesList = () => {
 
           marcarComoAtrasado(id, firstPatientId)
             .then(() => {
-              fetchPacientes();
+              fetchAnimals();
 
               setNotification({
                 open: true,
@@ -164,7 +169,7 @@ const FilaPacientesList = () => {
       const intervalo = setInterval(verificarTimeout, 1000);
       return () => clearInterval(intervalo);
     }
-  }, [firstPatientId, filaDetalhes, pacientes, id, fetchPacientes]);
+  }, [firstPatientId, filaDetalhes, animais, id, fetchAnimals]);
 
   const handleCheckIn = async (pacienteId) => {
     try {
@@ -177,7 +182,7 @@ const FilaPacientesList = () => {
         message: "Check-in realizado com sucesso!",
         severity: "success",
       });
-      fetchPacientes();
+      fetchAnimals();
     } catch (error) {
       console.error("Erro ao realizar check-in:", error);
       setNotification({
@@ -197,7 +202,7 @@ const FilaPacientesList = () => {
         message: "Check-in de paciente atrasado realizado com sucesso!",
         severity: "success",
       });
-      fetchPacientes();
+      fetchAnimals();
     } catch (error) {
       console.error("Erro ao realizar check-in de paciente atrasado:", error);
       setNotification({
@@ -210,7 +215,7 @@ const FilaPacientesList = () => {
 
   const handleMarcarAtendido = async (pacienteId) => {
     try {
-      const paciente = pacientes.find((p) => p.userId === pacienteId);
+      const paciente = animais.find((p) => p.animal.id === pacienteId);
       if (!paciente) {
         console.error("Paciente não encontrado");
         return;
@@ -228,7 +233,7 @@ const FilaPacientesList = () => {
         message: "Paciente marcado como atendido com sucesso!",
         severity: "success",
       });
-      fetchPacientes();
+      fetchAnimals();
     } catch (error) {
       console.error("Erro ao marcar paciente como atendido:", error);
       setNotification({
@@ -250,7 +255,7 @@ const FilaPacientesList = () => {
         message: "Paciente removido da fila com sucesso!",
         severity: "warning",
       });
-      fetchPacientes();
+      fetchAnimals();
     } catch (error) {
       console.error("Erro ao remover paciente:", error);
       setNotification({
@@ -265,17 +270,18 @@ const FilaPacientesList = () => {
     setNotification({ ...notification, open: false });
   };
 
-  const otherPatients = pacientes.filter(
+  const otherPatients = animais.filter(
     (p) => p.checkIn || p.status === "Atendido"
   );
-  const inQueuePatients = pacientes.filter(
+  const inQueuePatients = animais.filter(
     (p) => !p.checkIn && p.status === "Na fila"
   );
-  const timeoutPatients = pacientes.filter(
+  const timeoutPatients = animais.filter(
     (p) =>
+      
       p.status === "Atrasado" ||
       p.status === "Removido" ||
-      delayedPatients.includes(p.userId)
+      delayedPatients.includes(p.animal.id)
   );
 
   const calcularTempoEsperado = (index, pacienteId) => {
@@ -283,7 +289,7 @@ const FilaPacientesList = () => {
       return "Calculando...";
     }
 
-    const paciente = pacientes.find((p) => p.userId === pacienteId);
+    const paciente = animais.find((p) => p.userId === pacienteId);
     if (!paciente || !paciente.dataEntrada) {
       return "Calculando...";
     }
@@ -351,7 +357,7 @@ const FilaPacientesList = () => {
             <Box sx={{ display: "flex", justifyContent: "center", my: 8 }}>
               <CircularProgress />
             </Box>
-          ) : pacientes.length === 0 ? (
+          ) : animais.length === 0 ? (
             <Paper
               elevation={2}
               sx={{
@@ -429,7 +435,7 @@ const FilaPacientesList = () => {
                             return 0;
                           })
                           .map((paciente, index) => (
-                            <React.Fragment key={paciente.userId}>
+                            <React.Fragment key={paciente.animal.id}>
                               <ListItem
                                 sx={{
                                   py: 2,
@@ -458,7 +464,7 @@ const FilaPacientesList = () => {
                                     variant="body1"
                                     fontWeight="medium"
                                   >
-                                    #{index + 1} - {paciente.nomeUser}
+                                    #{index + 1} - {paciente.animal.nome}
                                   </Typography>
                                   <Typography
                                     variant="body2"
@@ -490,7 +496,7 @@ const FilaPacientesList = () => {
                                       color="success"
                                       size="small"
                                       onClick={() =>
-                                        handleMarcarAtendido(paciente.userId)
+                                        handleMarcarAtendido(paciente.animal.id)
                                       }
                                       sx={{
                                         minWidth: "auto",
@@ -564,7 +570,7 @@ const FilaPacientesList = () => {
                     ) : (
                       <List disablePadding>
                         {inQueuePatients.map((paciente, index) => (
-                          <React.Fragment key={paciente.userId}>
+                          <React.Fragment key={paciente.animal.id}>
                             <ListItem
                               sx={{
                                 py: 2,
@@ -604,7 +610,7 @@ const FilaPacientesList = () => {
                                 }}
                               >
                                 <Typography variant="body1" fontWeight="medium">
-                                  #{index + 1} - {paciente.nomeUser}
+                                  #{index + 1} - {paciente.animal.nome}
                                 </Typography>
                                 <Typography variant="body1" fontWeight="medium">
                                   Prioridade: {paciente.prioridade}
@@ -615,13 +621,13 @@ const FilaPacientesList = () => {
                                     color:
                                       index === 0 &&
                                       firstPatientId &&
-                                      pacientes.find(
-                                        (p) => p.userId === firstPatientId
+                                      animais.find(
+                                        (p) => p.animal.id === firstPatientId
                                       ) &&
                                       Date.now() -
                                         new Date(
-                                          pacientes.find(
-                                            (p) => p.userId === firstPatientId
+                                          animais.find(
+                                            (p) => p.animal.id === firstPatientId
                                           ).dataEntrada
                                         ) >
                                         240000
@@ -634,13 +640,13 @@ const FilaPacientesList = () => {
                                   filaDetalhes &&
                                   filaDetalhes.tempoMedio
                                     ? firstPatientId &&
-                                      pacientes.find(
-                                        (p) => p.userId === firstPatientId
+                                      animais.find(
+                                        (p) => p.animal.id === firstPatientId
                                       ) &&
                                       Date.now() -
                                         new Date(
-                                          pacientes.find(
-                                            (p) => p.userId === firstPatientId
+                                          animais.find(
+                                            (p) => p.animal.id === firstPatientId
                                           ).dataEntrada
                                         ) >
                                         filaDetalhes.tempoMedio *
@@ -662,7 +668,7 @@ const FilaPacientesList = () => {
                                   Tempo estimado de espera:{" "}
                                   {calcularTempoEsperado(
                                     index,
-                                    paciente.userId
+                                    paciente.animal.id
                                   )}
                                 </Typography>
                               </Box>
@@ -677,7 +683,7 @@ const FilaPacientesList = () => {
                                     color="primary"
                                     size="small"
                                     onClick={() =>
-                                      handleCheckIn(paciente.userId)
+                                      handleCheckIn(paciente.animal.id)
                                     }
                                     sx={{
                                       minWidth: "auto",
@@ -701,7 +707,7 @@ const FilaPacientesList = () => {
                                     color="error"
                                     size="small"
                                     onClick={() =>
-                                      handleRemoverPaciente(paciente.userId)
+                                      handleRemoverPaciente(paciente.animal.id)
                                     }
                                     sx={{
                                       minWidth: "auto",
@@ -775,7 +781,7 @@ const FilaPacientesList = () => {
                     ) : (
                       <List disablePadding>
                         {timeoutPatients.map((paciente, index) => (
-                          <React.Fragment key={paciente.userId}>
+                          <React.Fragment key={paciente.animal.id}>
                             <ListItem
                               sx={{
                                 py: 2,
@@ -794,7 +800,7 @@ const FilaPacientesList = () => {
                                 }}
                               >
                                 <Typography variant="body1" fontWeight="medium">
-                                  #{index + 1} - {paciente.nomeUser}
+                                  #{index + 1} - {paciente.animal.nome}
                                 </Typography>
                                 <Typography
                                   variant="body2"
@@ -819,7 +825,7 @@ const FilaPacientesList = () => {
                                     color="warning"
                                     size="small"
                                     onClick={() =>
-                                      handleCheckInAtrasado(paciente.userId)
+                                      handleCheckInAtrasado(paciente.animal.id)
                                     }
                                     sx={{
                                       minWidth: "auto",

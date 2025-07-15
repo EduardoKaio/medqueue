@@ -329,11 +329,11 @@ const FilaPacientesList = () => {
             <Link to="/admin/filas">
               <IconButton
                 sx={{
-                  backgroundColor: "#1976d2",
+                  backgroundColor: "primary.main",
                   color: "white",
                   mr: 2,
                   "&:hover": {
-                    backgroundColor: "#1565c0",
+                    backgroundColor: "primary.dark",
                   },
                 }}
               >
@@ -342,9 +342,9 @@ const FilaPacientesList = () => {
             </Link>
             <Typography
               variant="h4"
-              sx={{ color: "#1976d2", fontWeight: "bold" }}
+              sx={{ color: "primary.main", fontWeight: "bold" }}
             >
-              Pacientes da Fila
+              Clientes da Fila
             </Typography>
           </Box>
           {loading ? (

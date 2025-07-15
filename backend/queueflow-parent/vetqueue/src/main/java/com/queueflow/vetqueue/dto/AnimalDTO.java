@@ -10,4 +10,6 @@ public class AnimalDTO {
     private String raca;
     private Integer idade;
     private Long donoId;  // FK para associar ao Dono
+    private Boolean ativo;
+    private String cpf;
 }

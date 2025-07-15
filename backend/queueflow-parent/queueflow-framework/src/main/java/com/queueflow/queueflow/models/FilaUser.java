@@ -26,40 +26,40 @@ public class FilaUser {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    protected Long id;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    protected User user;
 
     @ManyToOne
     @JoinColumn(name = "fila_id", nullable = false)
-    private Fila fila;
+    protected Fila fila;
 
     @Column(nullable = false)
-    private Integer posicao;
+    protected Integer posicao;
 
     @Builder.Default
     @Column(name = "data_entrada", nullable = false, updatable = false)
-    private LocalDateTime dataEntrada = LocalDateTime.now();
+    protected LocalDateTime dataEntrada = LocalDateTime.now();
 
     @Builder.Default
     @Column(nullable = false)
-    private String status = "Na fila";
+    protected String status = "Na fila";
 
     @Builder.Default
     @Column(nullable = false)
-    private Boolean notificado = false;
+    protected Boolean notificado = false;
 
     @Builder.Default
     @Column(name = "check_in", nullable = false)
-    private Boolean checkIn = false;
+    protected Boolean checkIn = false;
 
     @Builder.Default
     @Column(name = "prioridade", nullable = false)
-    private Integer prioridade = 3;
+    protected Integer prioridade = 3;
 
-    private LocalDateTime createdAt;
+    protected LocalDateTime createdAt;
 
     public LocalDateTime getCreatedAt() {
         return createdAt;

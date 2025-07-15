@@ -134,7 +134,7 @@ const PacienteEdit = () => {
                   paddingRight: "85px",
                 }}
               >
-                Editar Paciente
+                Editar Cliente
               </Title>
             </Box>
             <form onSubmit={handleSubmit}>
@@ -259,13 +259,9 @@ const PacienteEdit = () => {
                   variant="contained"
                   color="primary"
                   startIcon={<EditIcon />}
-                  sx={{
-                    bgcolor: "#1976d2",
-                    "&:hover": { bgcolor: "#1565c0" },
-                    mt: 1,
-                  }}
+                  sx={{ mt: 1 }}
                 >
-                  Atualizar Paciente
+                  Atualizar Cliente
                 </Button>
               </Box>
             </form>

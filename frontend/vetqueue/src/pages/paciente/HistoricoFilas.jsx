@@ -27,6 +27,7 @@ function HistoricoFilas() {
       try {
         const response = await getHistoricoFilas();
         setHistoricoFilas(response.data);
+        console.log(response.data)
       } catch (err) {
         console.error("Erro ao buscar histórico:", err);
 

@@ -102,8 +102,8 @@ const Perfil = () => {
         },
       });
     } catch (err) {
-      console.error("Erro ao atualizar paciente", err);
-      setError("Erro ao atualizar paciente.");
+      console.error("Erro ao atualizar cliente", err);
+      setError("Erro ao atualizar cliente.");
     }
   };
 

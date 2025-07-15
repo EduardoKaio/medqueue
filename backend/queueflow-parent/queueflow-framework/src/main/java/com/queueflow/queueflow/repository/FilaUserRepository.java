@@ -7,27 +7,27 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.queueflow.queueflow.models.FilaUser;
 
-public interface FilaUserRepository extends JpaRepository<FilaUser, Long> {
+public interface FilaUserRepository<F extends FilaUser> extends JpaRepository<F, Long> {
 
-    List<FilaUser> findByFilaIdAndStatusOrderByPosicao(Long filaId, String status);
+    List<F> findByFilaIdAndStatusOrderByPosicao(Long filaId, String status);
 
-    FilaUser findFirstByFilaIdAndStatusOrderByPosicao(Long filaId, String status);
+    F findFirstByFilaIdAndStatusOrderByPosicao(Long filaId, String status);
 
-    Optional<FilaUser> findByUserIdAndFilaIdAndStatus(Long userId, Long filaId, String status);
+    Optional<F> findByUserIdAndFilaIdAndStatus(Long userId, Long filaId, String status);
 
-    Optional<FilaUser> findFirstByUserIdAndStatusAndFilaAtivoTrue(Long userId, String status);
+    Optional<F> findFirstByUserIdAndStatusAndFilaAtivoTrue(Long userId, String status);
 
-    List<FilaUser> findByFilaIdAndStatusAndCheckInFalseOrderByPosicao(Long filaId, String status);
+    List<F> findByFilaIdAndStatusAndCheckInFalseOrderByPosicao(Long filaId, String status);
 
-    List<FilaUser> findByFilaId(Long filaId);
+    List<F> findByFilaId(Long filaId);
 
-    List<FilaUser> findByFilaIdOrderByPosicao(Long filaId);
+    List<F> findByFilaIdOrderByPosicao(Long filaId);
 
-    List<FilaUser> findByFilaIdAndStatusOrderByPrioridade(Long filaId, String status);
+    List<F> findByFilaIdAndStatusOrderByPrioridade(Long filaId, String status);
 
-    List<FilaUser> findAllByUserId(Long userId);
+    List<F> findAllByUserId(Long userId);
 
-    Optional<FilaUser> findByUserIdAndFilaIdAndStatusIn(Long userId, Long filaId, List<String> statusList);
+    Optional<F> findByUserIdAndFilaIdAndStatusIn(Long userId, Long filaId, List<String> statusList);
 
-    List<FilaUser> findByUserIdAndFilaId(Long userId, Long filaId);
+    List<F> findByUserIdAndFilaId(Long userId, Long filaId);
 }

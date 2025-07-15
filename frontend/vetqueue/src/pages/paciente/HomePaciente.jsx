@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Button,
@@ -12,25 +12,94 @@ import {
   DialogContent,
   DialogContentText,
   DialogActions,
+  RadioGroup,
+  FormControlLabel,
+  Radio,
+  FormControl,
+  FormLabel,
+  CircularProgress,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import MuiAlert from "@mui/material/Alert";
-import { enterQueue } from "../../services/PacienteService";
+import { enterQueue, getCurrentUser } from "../../services/PacienteService";
+import { getAnimalsByDono } from "../../services/AnimalService";
 
 function HomePaciente() {
   const [showAlert, setShowAlert] = useState(false);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [selecionarAnimalDialog, setSelecionarAnimalDialog] = useState(false);
   const navigate = useNavigate();
+  const [userId, setUserId] = useState();
 
-  const handleEntrarNaFila = () => {    
+  const [animaisDoUsuario, setAnimaisDoUsuario] = useState([]);
+  const [animalSelecionado, setAnimalSelecionado] = useState(Number); // Armazena o ID do animal selecionado
+  const [loadingAnimais, setLoadingAnimais] = useState(true);
+  const [erroAoCarregarAnimais, setErroAoCarregarAnimais] = useState(null);
+
+  const [queueSubjectDTO, setQueueSubjectDTO] = useState({
+    userId: null,
+    entityId: null,
+  });
+
+  const fetchPaciente = () => {
+    getCurrentUser()
+      .then((res) => setUserId(res.data.id))
+      .catch((err) => {
+        console.error(err);
+      });
+  };
+
+  useEffect(() => {
+    fetchPaciente();
+  }, []);
+
+  const fetchAnimais = async () => {
+    setLoadingAnimais(true);
+    setErroAoCarregarAnimais(null);
+    try {
+      getAnimalsByDono(userId)
+        .then((res) => setAnimaisDoUsuario(res.data))
+        .catch((err) => {
+          console.error(err);
+        });
+
+      if (animaisDoUsuario.length > 0) {
+        setAnimalSelecionado(animaisDoUsuario[0].id); // Seleciona o primeiro por padrão
+      }
+    } catch (error) {
+      console.error("Erro ao carregar animais:", error);
+      setErroAoCarregarAnimais(
+        "Não foi possível carregar seus animais. Tente novamente."
+      );
+    } finally {
+      setLoadingAnimais(false);
+    }
+  };
+
+  const handleChangeAnimal = (event) => {
+    setAnimalSelecionado(event.target.value);
+  };
+
+  const handleEntrarNaFila = () => {
+    console.log(animalSelecionado)
+    setQueueSubjectDTO({
+      userId: userId,
+      entityId: animalSelecionado
+    })
+    console.log(queueSubjectDTO)
     setConfirmDialogOpen(true); // Abre o modal de confirmação
+  };
+
+  const handleSelecionarAnimal = () => {
+    fetchAnimais();
+    setSelecionarAnimalDialog(true); //Abre modal para selecionar o animal que vai entrar na fila
   };
 
   const handleConfirmarEntradaFila = async (e) => {
     e.preventDefault();
 
     try {
-      await enterQueue("geral", 3);
+      await enterQueue("geral", 3, queueSubjectDTO);
       setShowAlert(true); // Exibe o alerta de confirmação
     } catch (err) {
       console.error("Erro ao entrar na fila", err);
@@ -70,9 +139,9 @@ function HomePaciente() {
                   variant="contained"
                   color="primary"
                   fullWidth
-                  onClick={handleEntrarNaFila}
+                  onClick={handleSelecionarAnimal}
                 >
-                  Entrar na Fila
+                  Abrir Seleção de Animal
                 </Button>
 
                 <Button
@@ -87,6 +156,87 @@ function HomePaciente() {
             </CardContent>
           </Card>
         </Container>
+
+        {/* Modal de confirmação */}
+        <Dialog
+          open={selecionarAnimalDialog}
+          onClose={() => setSelecionarAnimalDialog(false)}
+        >
+          <DialogTitle sx={{ fontWeight: "bold" }}>Entrar na Fila</DialogTitle>
+          <DialogContent>
+            <DialogContentText sx={{ mt: 1 }}>
+              Antes de entrar na fila Selecione qual dos seus animais deverá ser
+              o que vai entrar na fila.
+            </DialogContentText>
+
+            {loadingAnimais ? (
+              <CircularProgress
+                sx={{ display: "block", margin: "20px auto" }}
+              />
+            ) : erroAoCarregarAnimais ? (
+              <Typography color="error" sx={{ mt: 2 }}>
+                {erroAoCarregarAnimais}
+              </Typography>
+            ) : animaisDoUsuario.length === 0 ? (
+              <Typography color="text.secondary" sx={{ mt: 2 }}>
+                Você não possui animais cadastrados para entrar na fila.
+              </Typography>
+            ) : (
+              <FormControl component="fieldset" sx={{ mt: 2, width: "100%" }}>
+                <FormLabel
+                  component="legend"
+                  sx={{ mb: 1, fontWeight: "bold" }}
+                >
+                  Seus Animais
+                </FormLabel>
+                <RadioGroup
+                  aria-label="animais"
+                  name="animalSelection"
+                  value={animalSelecionado}
+                  onChange={handleChangeAnimal}
+                >
+                  {animaisDoUsuario.map((animal) => (
+                    <FormControlLabel
+                      key={animal.id}
+                      value={animal.id}
+                      control={<Radio />}
+                      label={animal.nome}
+                    />
+                  ))}
+                </RadioGroup>
+              </FormControl>
+            )}
+          </DialogContent>
+          <DialogActions sx={{ px: 3, pb: 2 }}>
+            <Button
+              onClick={() => setSelecionarAnimalDialog(false)}
+              sx={{
+                color: "error.main",
+                fontWeight: "bold",
+                borderRadius: 1,
+                "&:hover": {
+                  backgroundColor: "rgba(211, 47, 47, 0.1)", // vermelho claro com transparência
+                },
+              }}
+            >
+              Cancelar
+            </Button>
+            <Button
+              onClick={handleEntrarNaFila}
+              sx={{
+                color: "success.main",
+                fontWeight: "bold",
+                borderRadius: 1,
+                "&:hover": {
+                  backgroundColor: "rgba(46, 125, 50, 0.1)", // verde claro com transparência
+                },
+              }}
+              autoFocus
+            >
+              Confirmar
+            </Button>
+          </DialogActions>
+        </Dialog>
 
         {/* Modal de confirmação */}
         <Dialog

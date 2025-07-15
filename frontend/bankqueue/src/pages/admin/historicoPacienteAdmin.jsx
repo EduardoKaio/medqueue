@@ -42,7 +42,7 @@ function HistoricoPacienteAdmin() {
           err.response?.status === 404 &&
           err.response?.data?.mensagem
         ) {
-          setMensagem("Este paciente ainda não possui histórico de filas.");
+          setMensagem("Este cliente ainda não possui histórico de filas.");
         } else {
           setError("Não foi possível carregar o histórico");
         }
@@ -113,7 +113,7 @@ function HistoricoPacienteAdmin() {
               variant="h4"
               sx={{ fontWeight: "bold", color: "#1976d2" }}
             >
-              Histórico do Paciente
+              Histórico do Cliente
             </Typography>
             <Typography></Typography>
           </Box>

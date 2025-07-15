@@ -23,6 +23,7 @@ import {
   HowToReg as HowToRegIcon,
   TaskAlt as TaskAltIcon,
   Delete as DeleteIcon,
+  Sms as SmsIcon,
 } from "@mui/icons-material";
 import {
   listarFilaOrdenada,
@@ -33,6 +34,7 @@ import {
   marcarComoRemovido,
 } from "../../services/FilaPacienteService";
 import { buscarFilaPorId } from "../../services/FilaService";
+import { notificarProximoAtendimento } from "../../services/SmsService";
 
 const FilaPacientesList = () => {
   const { id } = useParams();
@@ -256,6 +258,24 @@ const FilaPacientesList = () => {
       setNotification({
         open: true,
         message: "Erro ao remover paciente da fila.",
+        severity: "error",
+      });
+    }
+  };
+
+  const handleNotificarSms = async (pacienteId) => {
+    try {
+      await notificarProximoAtendimento(id, pacienteId);
+      setNotification({
+        open: true,
+        message: "SMS enviado com sucesso!",
+        severity: "success",
+      });
+    } catch (error) {
+      console.error("Erro ao enviar SMS:", error);
+      setNotification({
+        open: true,
+        message: "Erro ao enviar SMS de notificação.",
         severity: "error",
       });
     }
@@ -690,6 +710,33 @@ const FilaPacientesList = () => {
                                     <HowToRegIcon />
                                   </Button>
                                 </Tooltip>
+
+                                {/* Botão SMS - mostrar apenas para o primeiro da fila */}
+                                {index === 0 && (
+                                  <Tooltip
+                                    title="Notificar por SMS"
+                                    arrow
+                                    placement="top"
+                                  >
+                                    <Button
+                                      variant="contained"
+                                      color="warning"
+                                      size="small"
+                                      onClick={() =>
+                                        handleNotificarSms(paciente.userId)
+                                      }
+                                      sx={{
+                                        minWidth: "auto",
+                                        width: 48,
+                                        height: 48,
+                                        borderRadius: "50%",
+                                        padding: 0,
+                                      }}
+                                    >
+                                      <SmsIcon />
+                                    </Button>
+                                  </Tooltip>
+                                )}
 
                                 <Tooltip
                                   title="Remover da fila"

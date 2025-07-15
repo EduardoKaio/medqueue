@@ -9,6 +9,7 @@ import FilaList from "./pages/admin/FilaList";
 import FilaCreate from "./pages/admin/FilaCreate";
 import FilaEdit from "./pages/admin/FilaEdit";
 import FilaPacientesList from "./pages/admin/FilaPacienteList";
+import HistoricoSms from "./pages/admin/HistoricoSms";
 import Register from "./pages/Auth/Register";
 import LoginPage from "./pages/Auth/Login";
 import HomePaciente from "./pages/paciente/HomePaciente";
@@ -45,6 +46,7 @@ function App() {
             <Route path="filas/create" element={<FilaCreate />} />
             <Route path="filas/edit/:id" element={<FilaEdit />} />{" "}
             <Route path="filas/:id" element={<FilaPacientesList />} />
+            <Route path="sms-historico" element={<HistoricoSms />} />
             <Route path="perfil" element={<Perfil />} />
           </Route>
 

@@ -13,6 +13,7 @@ import { getTempoMedioEspera, getTamanhoMedioFila, getPacientesPorEspecialidade,
 import FilasAtivas from "../../components/dashboard/FilasAtivas";
 import TempoMedioEspera from "../../components/dashboard/TempoMedioEspera";
 import TamanhoMedioFilas from "../../components/dashboard/TamanhoMedioFilas";
+import SmsCard from "../../components/dashboard/SmsCard";
 import GraficoEsperaPorSetor from "../../components/dashboard/GraficoEsperaPorSetor";
 import GraficoPizzaDistPacienteSetor from "../../components/dashboard/GraficoPizzaDistPacienteSetor";
 
@@ -94,25 +95,28 @@ function Dashboard() {
 
           {/* Linha 1: Cards informativos com ícones e cores */}
           <Grid container spacing={3} sx={{ mb: 2, width: "100%", alignItems: "stretch" }}>
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid item xs={12} sm={6} md={2.4}>
               <FilasAtivas
                 trend="up"
                 diff={14}
                 value={queueCount.toLocaleString("pt-BR")}
               />
             </Grid>
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid item xs={12} sm={6} md={2.4}>
               <TamanhoMedioFilas value={tamanhoMedioFilas} />
             </Grid>
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid item xs={12} sm={6} md={2.4}>
               <TotalPacientes
                 trend="up"
                 diff={14}
                 value={patientCount.toLocaleString("pt-BR")}
               />
             </Grid>
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid item xs={12} sm={6} md={2.4}>
               <TempoMedioEspera tempoMedio={tempoMedioEspera.toFixed()} />
+            </Grid>
+            <Grid item xs={12} sm={6} md={2.4}>
+              <SmsCard />
             </Grid>
           </Grid>
 

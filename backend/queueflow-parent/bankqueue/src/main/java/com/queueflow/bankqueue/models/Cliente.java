@@ -10,7 +10,6 @@ import lombok.*;
 @EqualsAndHashCode(callSuper = true)
 @DiscriminatorValue("CLIENTE")
 @NoArgsConstructor
-@AllArgsConstructor
 public class Cliente extends User {
     
     @Column(name = "numero_conta", nullable = false, unique = true)
@@ -23,6 +22,11 @@ public class Cliente extends User {
     @Column(name = "tipo_conta", nullable = false)
     private TipoConta tipoConta;
 
+    public Cliente(String numeroConta, String agencia, TipoConta tipoConta) {
+        this.numeroConta = numeroConta;
+        this.agencia = agencia;
+        this.tipoConta = tipoConta;
+    }
 
     public enum TipoConta {
         CORRENTE,

@@ -1,31 +1,32 @@
 package com.queueflow.bankqueue.service;
 
-import com.queueflow.queueflow.dto.FilaUserDTO;
-import com.queueflow.queueflow.models.FilaUser;
+import com.queueflow.bankqueue.dto.FilaClienteDTO;
 import com.queueflow.bankqueue.models.Cliente;
+import com.queueflow.bankqueue.models.FilaCliente;
+import com.queueflow.bankqueue.repository.FilaClienteRepository;
 import com.queueflow.queueflow.service.admin.AbstractFilaEntityService;
 import com.queueflow.queueflow.strategy.QueueStrategy;
-import com.queueflow.queueflow.repository.FilaUserRepository;
 import com.queueflow.queueflow.repository.FilaRepository;
 import com.queueflow.queueflow.repository.EntityRepository;
 import com.queueflow.queueflow.service.user.WhatsAppService;
 import org.springframework.stereotype.Service;
 
 @Service
-public class FilaEntityService extends AbstractFilaEntityService<Cliente> {
+public class FilaEntityService extends AbstractFilaEntityService<Cliente, Cliente, FilaClienteDTO, FilaCliente> {
+    
     public FilaEntityService(
-        QueueStrategy<Cliente> queueEntryStrategy,
-        FilaUserRepository filaUserRepository,
+        QueueStrategy<Cliente, FilaCliente> queueStrategy,
+        FilaClienteRepository filaUserRepository,
         FilaRepository filaRepository,
-        EntityRepository<Cliente> entityRepository,
-        WhatsAppService whatsAppService
+        WhatsAppService whatsAppService,
+        EntityRepository<Cliente> entityRepository
     ) {
-        super(queueEntryStrategy, filaUserRepository, filaRepository, entityRepository, whatsAppService);
+        super(queueStrategy, filaUserRepository, filaRepository, whatsAppService, entityRepository);
     }
 
     @Override
-    protected FilaUserDTO mapToFilaUserDTO(FilaUser filaUser) {
-        return new FilaUserDTO(
+    protected FilaClienteDTO mapToFilaUserDTO(FilaCliente filaUser) {
+        return new FilaClienteDTO(
             filaUser.getUser().getId(),
             filaUser.getUser().getNome(),
             filaUser.getPosicao(),
@@ -39,5 +40,10 @@ public class FilaEntityService extends AbstractFilaEntityService<Cliente> {
     @Override
     protected String getSystemName() {
         return "BankQueue";
+    }
+    
+    @Override
+    protected Cliente createQueueSubject(Cliente entity) {
+        return entity; // Cliente já implementa QueueSubject através de User
     }
 }

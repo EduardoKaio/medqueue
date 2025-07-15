@@ -12,8 +12,11 @@ import {
   DialogContent,
   DialogContentText,
   DialogActions,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
 import MuiAlert from "@mui/material/Alert";
 import { enterQueue, getCurrentUser } from "../../services/PacienteService";
 
@@ -22,24 +25,32 @@ function HomePaciente() {
   const [snackbarErro, setSnackbarErro] = useState(false);
   const [mensagemErro, setMensagemErro] = useState("");
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
-  const navigate = useNavigate();
-  const [queueSubjectDTO, setQueueSubjectDTO] = useState({
-    userId: null,
-    entityId: null,
-  });
+  const filaOptions = [
+    { label: "Caixa Eletrônico", value: "Caixa Eletrônico" },
+    { label: "Guichê de Atendimento", value: "Guichê de Atendimento" },
+    { label: "Gerente de Conta", value: "Gerente de Conta" },
+  ];
+  const [filaSelecionada, setFilaSelecionada] = useState("");
 
-  // Busca o usuário atual para preencher o DTO
+  // Novos estados para perguntas de prioridade
+  const [deficiente, setDeficiente] = useState("");
+  const [gestante, setGestante] = useState("");
+  const [sexo, setSexo] = useState("");
+  const [dataNascimento, setDataNascimento] = useState("");
+  const [userId, setUserId] = useState(null);
+
+  // Busca o usuário atual para preencher dados do cadastro
   const fetchPaciente = () => {
     getCurrentUser()
       .then((res) => {
-        console.log("getCurrentUser FULL RESPONSE:", res);
-        setQueueSubjectDTO((prevDTO) => ({
-          ...prevDTO,
-          userId: res.data && res.data.id ? res.data.id : null,
-        }));
+        setUserId(res.data && res.data.id ? res.data.id : null);
+        setSexo(res.data && res.data.sexo ? res.data.sexo : "");
+        setDataNascimento(
+          res.data && res.data.dataNascimento ? res.data.dataNascimento : ""
+        );
       })
       .catch((err) => {
-        console.error("Erro ao encontrar id do paciente", err);
+        console.error("Erro ao encontrar dados do paciente", err);
       });
   };
 
@@ -49,15 +60,36 @@ function HomePaciente() {
 
   // Abre o modal de confirmação
   const handleEntrarNaFila = () => {
+    if (!filaSelecionada) {
+      setMensagemErro("Selecione uma fila antes de confirmar.");
+      setSnackbarErro(true);
+      return;
+    }
     setConfirmDialogOpen(true);
   };
 
   // Confirma a entrada na fila
   const handleConfirmarEntradaFila = async (e) => {
     e.preventDefault();
+    // Calcula prioridade baseada nos dados do paciente usando a escala do BankQueue
+    // 1 = prioridade alta (deficiente, idoso, gestante)
+    // 3 = prioridade comum (sem condições especiais)
+    const temPrioridade =
+      deficiente === "sim" || (sexo === "F" && gestante === "sim");
+    const prioridade = temPrioridade ? 1 : 3;
+
+    // Monta o objeto queueSubject com dados do paciente
+    const queueSubjectData = {
+      userId: userId,
+      entityId: userId,
+      deficiente: deficiente === "sim",
+      sexo,
+      gestante: sexo === "F" ? gestante === "sim" : false,
+      dataNascimento,
+    };
 
     try {
-      await enterQueue("Guichê de Atendimento", 3, queueSubjectDTO);
+      await enterQueue(filaSelecionada, prioridade, queueSubjectData);
       setShowAlert(true); // Exibe o alerta de confirmação
     } catch (err) {
       if (err.response && err.response.data) {
@@ -81,13 +113,10 @@ function HomePaciente() {
         setSnackbarErro(true);
       }
     }
-
     setConfirmDialogOpen(false); // Fecha o modal
   };
 
-  const handleTriagem = () => {
-    navigate("/paciente/triagem");
-  };
+  // Removido botão de triagem
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -107,27 +136,71 @@ function HomePaciente() {
                 Bem-vindo à sua área de atendimento
               </Typography>
               <Typography variant="body1" sx={{ mb: 4 }}>
-                Aqui você pode entrar diretamente na fila ou realizar uma
-                triagem inteligente para obter um atendimento mais preciso.
+                Escolha a fila desejada e informe seus dados para entrar na fila
+                de atendimento.
               </Typography>
 
               <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                <FormControl fullWidth sx={{ mb: 2 }}>
+                  <InputLabel id="fila-select-label">Fila</InputLabel>
+                  <Select
+                    labelId="fila-select-label"
+                    value={filaSelecionada}
+                    label="Fila"
+                    onChange={(e) => setFilaSelecionada(e.target.value)}
+                  >
+                    {filaOptions.map((fila) => (
+                      <MenuItem key={fila.value} value={fila.value}>
+                        {fila.label}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+
+                {/* Pergunta: Pessoa com deficiência */}
+                <FormControl fullWidth sx={{ mb: 2 }}>
+                  <InputLabel id="deficiente-label">
+                    Pessoa com deficiência?
+                  </InputLabel>
+                  <Select
+                    labelId="deficiente-label"
+                    value={deficiente}
+                    label="Pessoa com deficiência?"
+                    onChange={(e) => setDeficiente(e.target.value)}
+                  >
+                    <MenuItem value="sim">Sim</MenuItem>
+                    <MenuItem value="nao">Não</MenuItem>
+                  </Select>
+                </FormControl>
+
+                {/* Pergunta: Gestante (apenas se mulher) */}
+                {sexo === "F" && (
+                  <FormControl fullWidth sx={{ mb: 2 }}>
+                    <InputLabel id="gestante-label">Está grávida?</InputLabel>
+                    <Select
+                      labelId="gestante-label"
+                      value={gestante}
+                      label="Está grávida?"
+                      onChange={(e) => setGestante(e.target.value)}
+                    >
+                      <MenuItem value="sim">Sim</MenuItem>
+                      <MenuItem value="nao">Não</MenuItem>
+                    </Select>
+                  </FormControl>
+                )}
+
                 <Button
                   variant="contained"
                   color="primary"
                   fullWidth
                   onClick={handleEntrarNaFila}
+                  disabled={
+                    !filaSelecionada ||
+                    !deficiente ||
+                    (sexo === "F" && !gestante)
+                  }
                 >
                   Entrar na Fila
-                </Button>
-
-                <Button
-                  variant="outlined"
-                  color="secondary"
-                  fullWidth
-                  onClick={handleTriagem}
-                >
-                  Triagem Inteligente
                 </Button>
               </Box>
             </CardContent>
@@ -142,10 +215,23 @@ function HomePaciente() {
           <DialogTitle sx={{ fontWeight: "bold" }}>Entrar na Fila</DialogTitle>
           <DialogContent>
             <DialogContentText sx={{ mt: 1 }}>
-              Você está prestes a entrar na fila{" "}
-              <strong>sem realizar a triagem</strong>. Isso significa que sua
-              prioridade será definida automaticamente como{" "}
-              <strong>3 (baixa)</strong>. Deseja continuar assim mesmo?
+              Confira suas respostas antes de entrar na fila.
+              <br />
+              Sua prioridade será definida automaticamente conforme as
+              informações fornecidas:
+              <ul style={{ marginTop: 8, marginBottom: 8 }}>
+                <li>
+                  Deficiência:{" "}
+                  <strong>{deficiente === "sim" ? "Sim" : "Não"}</strong>
+                </li>
+                {sexo === "F" && (
+                  <li>
+                    Gestante:{" "}
+                    <strong>{gestante === "sim" ? "Sim" : "Não"}</strong>
+                  </li>
+                )}
+              </ul>
+              Deseja continuar?
             </DialogContentText>
           </DialogContent>
           <DialogActions sx={{ px: 3, pb: 2 }}>
@@ -192,7 +278,7 @@ function HomePaciente() {
             elevation={6}
             variant="filled"
           >
-            Você foi inserido na fila com prioridade <strong>3 (baixa)</strong>
+            Você foi inserido na fila com prioridade <strong>normal</strong>
           </MuiAlert>
         </Snackbar>
 

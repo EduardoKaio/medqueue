@@ -7,7 +7,6 @@ import { getCurrentUser } from "../services/PacienteService";
 
 import {
   Home as HomeIcon,
-  Assignment as AssignmentIcon,
   FormatListNumbered as QueueIcon,
   Dashboard as DashboardIcon,
   Person as PersonIcon,
@@ -36,7 +35,6 @@ const HeaderLayout = () => {
     if (pathname.startsWith("/admin/filas/")) return "Fila Detalhada";
     if (pathname.startsWith("/admin/filas")) return "Filas";
 
-    if (pathname.startsWith("/paciente/triagem")) return "Triagem Inteligente";
     if (pathname.startsWith("/paciente")) return "Área do Cliente";
 
     return "Bankqueue";
@@ -62,17 +60,17 @@ const HeaderLayout = () => {
     {
       label: "Dashboard",
       path: "/admin/dashboard",
-      icon: <DashboardIcon sx={{ color: '#FF8F00' }} />,
+      icon: <DashboardIcon sx={{ color: "#FF8F00" }} />,
     },
     {
       label: "Clientes",
       path: "/admin/pacientes",
-      icon: <PersonIcon sx={{ color: '#FF8F00' }} />,
+      icon: <PersonIcon sx={{ color: "#FF8F00" }} />,
     },
     {
       label: "Filas",
       path: "/admin/filas",
-      icon: <PeopleAltIcon sx={{ color: '#FF8F00' }} />,
+      icon: <PeopleAltIcon sx={{ color: "#FF8F00" }} />,
     },
   ];
 
@@ -80,24 +78,19 @@ const HeaderLayout = () => {
     {
       label: "Início",
       path: "/paciente",
-      icon: <HomeIcon sx={{ color: '#FF8F00' }} />,
-    },
-    {
-      label: "Verificar Prioridade",
-      path: "/paciente/triagem",
-      icon: <AssignmentIcon sx={{ color: '#FF8F00' }} />,
+      icon: <HomeIcon sx={{ color: "#FF8F00" }} />,
     },
     {
       label: "Fila Atual",
       path: "/paciente/fila-atual",
 
-      icon: <QueueIcon sx={{ color: '#FF8F00' }} />,
+      icon: <QueueIcon sx={{ color: "#FF8F00" }} />,
     },
     {
       label: "Histórico",
       path: "/paciente/historico",
 
-      icon: <HistoryIcon sx={{ color: '#FF8F00' }} />,
+      icon: <HistoryIcon sx={{ color: "#FF8F00" }} />,
     },
   ];
 

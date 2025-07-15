@@ -2,20 +2,15 @@ package com.queueflow.bankqueue.strategy;
 
 import com.queueflow.queueflow.dto.PrioridadeRequestDTO;
 import com.queueflow.queueflow.strategy.PrioridadeStrategy;
-import org.springframework.ai.chat.client.ChatClient;
+// ...existing code...
 import org.springframework.stereotype.Component;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+// ...existing code...
 
 @Component
 public class BankPrioridadeStrategy implements PrioridadeStrategy {
 
-    private final ChatClient chatClient;
-
-    public BankPrioridadeStrategy(ChatClient.Builder builder) {
-        this.chatClient = builder.build();
-    }
+    // Removido ChatClient e construtor relacionado
 
     private String ultimoEspecialista = "Não identificado";
     private String justificativaPrioridade = "Não fornecida";
@@ -23,40 +18,49 @@ public class BankPrioridadeStrategy implements PrioridadeStrategy {
 
     @Override
     public int calcularPrioridade(PrioridadeRequestDTO dados) {
-        String sintomas = dados.getSintomas();
+        Boolean deficiente = dados.getDeficiente();
+        String sexo = dados.getSexo(); // "M" ou "F"
+        Boolean gestante = dados.getGestante();
+        String dataNascimento = dados.getDataNascimento(); // formato "yyyy-MM-dd"
 
-        if (sintomas == null || sintomas.isBlank()) {
-            ultimoEspecialista = "Não identificado";
-            justificativaPrioridade = "Sintomas não informados";
-            justificativaEspecialista = "Sintomas não informados";
-            return 3;
+        // 1. Deficiente
+        if (Boolean.TRUE.equals(deficiente)) {
+            ultimoEspecialista = "Guichê prioritário";
+            justificativaPrioridade = "Cliente com deficiência";
+            justificativaEspecialista = "Atendimento prioritário por lei";
+            return 1;
         }
 
-        String prompt = """
-            Considere a seguinte escala de prioridade bancária:
-            1 = alta, 2 = intermediária, 3 = baixa.
+        // 2. Idoso (>= 60 anos)
+        if (dataNascimento != null && !dataNascimento.isBlank()) {
+            try {
+                java.time.LocalDate nascimento = java.time.LocalDate.parse(dataNascimento);
+                java.time.LocalDate hoje = java.time.LocalDate.now();
+                int idade = java.time.Period.between(nascimento, hoje).getYears();
+                if (idade >= 60) {
+                    ultimoEspecialista = "Guichê prioritário";
+                    justificativaPrioridade = "Cliente idoso (>= 60 anos)";
+                    justificativaEspecialista = "Atendimento prioritário por lei";
+                    return 1;
+                }
+            } catch (Exception e) {
+                // data inválida, ignora prioridade de idoso
+            }
+        }
 
-            Com base nessa escala, avalie a prioridade de atendimento para um cliente de banco com a seguinte solicitação: %s
+        // 3. Gestante (só se mulher)
+        if ("F".equalsIgnoreCase(sexo) && Boolean.TRUE.equals(gestante)) {
+            ultimoEspecialista = "Guichê prioritário";
+            justificativaPrioridade = "Cliente gestante";
+            justificativaEspecialista = "Atendimento prioritário por lei";
+            return 1;
+        }
 
-            Além disso, recomende apenas UM setor ou serviço bancário mais indicado para esse caso (ex: caixa eletrônico, guichê de atendimento, gerente de conta). Não use 'ou', não liste múltiplos setores, indique apenas UM nome de setor/serviço.
-
-            Responda no seguinte formato:
-
-            Prioridade: [1|2|3]
-            Justificativa da prioridade: [explicação curta]
-            Setor: [Nome do setor ou serviço]
-            Justificativa do setor: [explicação curta]
-            """.formatted(sintomas);
-
-        String resposta = chatClient.prompt().user(prompt).call().content();
-
-
-        // Para manter compatibilidade com o frontend, os campos abaixo são preenchidos conforme esperado
-        ultimoEspecialista = extrairCampoString(resposta, "Setor", "Não identificado");
-        justificativaPrioridade = extrairCampoString(resposta, "Justificativa da prioridade", "Não fornecida");
-        justificativaEspecialista = extrairCampoString(resposta, "Justificativa do setor", "Não fornecida");
-
-        return extrairCampoInt(resposta, "Prioridade", 3);
+        // Se nenhuma condição prioritária
+        ultimoEspecialista = "Guichê comum";
+        justificativaPrioridade = "Cliente sem prioridade especial";
+        justificativaEspecialista = "Atendimento padrão";
+        return 3;
     }
 
     public String getUltimoEspecialista() {
@@ -71,15 +75,5 @@ public class BankPrioridadeStrategy implements PrioridadeStrategy {
         return justificativaEspecialista;
     }
 
-    private int extrairCampoInt(String texto, String campo, int defaultValue) {
-        Pattern pattern = Pattern.compile(campo + ":\\s*(\\d+)");
-        Matcher matcher = pattern.matcher(texto);
-        return matcher.find() ? Integer.parseInt(matcher.group(1)) : defaultValue;
-    }
-
-    private String extrairCampoString(String texto, String campo, String defaultValue) {
-        Pattern pattern = Pattern.compile(campo + ":\\s*(.+)");
-        Matcher matcher = pattern.matcher(texto);
-        return matcher.find() ? matcher.group(1).trim() : defaultValue;
-    }
+    // ...existing code...
 }

@@ -225,15 +225,15 @@ const FilaPacientesList = () => {
 
       setNotification({
         open: true,
-        message: "Paciente marcado como atendido com sucesso!",
+        message: "Cliente marcado como atendido com sucesso!",
         severity: "success",
       });
       fetchPacientes();
     } catch (error) {
-      console.error("Erro ao marcar paciente como atendido:", error);
+      console.error("Erro ao marcar cliente como atendido:", error);
       setNotification({
         open: true,
-        message: "Erro ao marcar paciente como atendido.",
+        message: "Erro ao marcar cliente como atendido.",
         severity: "error",
       });
     }

@@ -13,5 +13,7 @@ public class PrioridadeRequestDTO {
     private Boolean gestante;          // usado em apps como VetQueue ou Banco
     private Boolean deficiente;
     private Boolean idoso;
+    private String sexo;               // "M" ou "F" - OPCIONAL
+    private String dataNascimento;     // formato "yyyy-MM-dd" - OPCIONAL
     private String[] respostasFormulario; // perguntas personalizadas
 }

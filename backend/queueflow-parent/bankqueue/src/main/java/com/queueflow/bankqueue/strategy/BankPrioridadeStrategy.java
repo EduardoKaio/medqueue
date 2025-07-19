@@ -2,15 +2,11 @@ package com.queueflow.bankqueue.strategy;
 
 import com.queueflow.queueflow.dto.PrioridadeRequestDTO;
 import com.queueflow.queueflow.strategy.PrioridadeStrategy;
-// ...existing code...
 import org.springframework.stereotype.Component;
-
-// ...existing code...
 
 @Component
 public class BankPrioridadeStrategy implements PrioridadeStrategy {
 
-    // Removido ChatClient e construtor relacionado
 
     private String ultimoEspecialista = "Não identificado";
     private String justificativaPrioridade = "Não fornecida";
@@ -21,7 +17,7 @@ public class BankPrioridadeStrategy implements PrioridadeStrategy {
         Boolean deficiente = dados.getDeficiente();
         String sexo = dados.getSexo(); // "M" ou "F"
         Boolean gestante = dados.getGestante();
-        String dataNascimento = dados.getDataNascimento(); // formato "yyyy-MM-dd"
+        String dataNascimento = dados.getDataNascimento(); 
 
         // 1. Deficiente
         if (Boolean.TRUE.equals(deficiente)) {
@@ -44,7 +40,7 @@ public class BankPrioridadeStrategy implements PrioridadeStrategy {
                     return 1;
                 }
             } catch (Exception e) {
-                // data inválida, ignora prioridade de idoso
+                
             }
         }
 
@@ -75,5 +71,4 @@ public class BankPrioridadeStrategy implements PrioridadeStrategy {
         return justificativaEspecialista;
     }
 
-    // ...existing code...
 }

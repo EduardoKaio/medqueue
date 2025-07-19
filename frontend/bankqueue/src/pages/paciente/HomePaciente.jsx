@@ -74,8 +74,28 @@ function HomePaciente() {
     // Calcula prioridade baseada nos dados do paciente usando a escala do BankQueue
     // 1 = prioridade alta (deficiente, idoso, gestante)
     // 3 = prioridade comum (sem condições especiais)
+
+    // Verificar se é idoso (>= 60 anos)
+    let isIdoso = false;
+    if (dataNascimento) {
+      const nascimento = new Date(dataNascimento);
+      const hoje = new Date();
+      const idade = hoje.getFullYear() - nascimento.getFullYear();
+      const mesAtual = hoje.getMonth();
+      const mesNascimento = nascimento.getMonth();
+
+      // Ajustar idade se ainda não fez aniversário este ano
+      const idadeAjustada =
+        mesAtual < mesNascimento ||
+        (mesAtual === mesNascimento && hoje.getDate() < nascimento.getDate())
+          ? idade - 1
+          : idade;
+
+      isIdoso = idadeAjustada >= 60;
+    }
+
     const temPrioridade =
-      deficiente === "sim" || (sexo === "F" && gestante === "sim");
+      deficiente === "sim" || (sexo === "F" && gestante === "sim") || isIdoso;
     const prioridade = temPrioridade ? 1 : 3;
 
     // Monta o objeto queueSubject com dados do paciente
@@ -278,7 +298,28 @@ function HomePaciente() {
             elevation={6}
             variant="filled"
           >
-            Você foi inserido na fila com prioridade <strong>normal</strong>
+            Você foi inserido na fila com prioridade{" "}
+            <strong>
+              {deficiente === "sim" ||
+              (sexo === "F" && gestante === "sim") ||
+              (dataNascimento &&
+                (() => {
+                  const nascimento = new Date(dataNascimento);
+                  const hoje = new Date();
+                  const idade = hoje.getFullYear() - nascimento.getFullYear();
+                  const mesAtual = hoje.getMonth();
+                  const mesNascimento = nascimento.getMonth();
+                  const idadeAjustada =
+                    mesAtual < mesNascimento ||
+                    (mesAtual === mesNascimento &&
+                      hoje.getDate() < nascimento.getDate())
+                      ? idade - 1
+                      : idade;
+                  return idadeAjustada >= 60;
+                })())
+                ? "alta"
+                : "normal"}
+            </strong>
           </MuiAlert>
         </Snackbar>
 

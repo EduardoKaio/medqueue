@@ -627,7 +627,10 @@ const FilaPacientesList = () => {
                                   #{index + 1} - {paciente.nomeUser}
                                 </Typography>
                                 <Typography variant="body1" fontWeight="medium">
-                                  Prioridade: {paciente.prioridade}
+                                  Prioridade:{" "}
+                                  {paciente.prioridade === 1
+                                    ? "ALTA"
+                                    : "NORMAL"}
                                 </Typography>
                                 <Typography
                                   variant="body2"

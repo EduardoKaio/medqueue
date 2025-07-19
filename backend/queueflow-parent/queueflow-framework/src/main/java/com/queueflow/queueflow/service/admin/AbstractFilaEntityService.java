@@ -71,19 +71,20 @@ public abstract class AbstractFilaEntityService<E, T extends QueueSubject, F ext
             throw new IllegalStateException("User já está na fila com ID: " + filaId);
         }
 
-        int posicao = filaUserRepository.findByFilaIdAndStatusOrderByPosicao(filaId, "Na fila").size() + 1;
+        T subject = createQueueSubject(entity);
 
+        // Primeiro inserir o usuário com posição temporária
+        int posicaoTemporaria = filaUserRepository.findByFilaIdAndStatusOrderByPosicao(filaId, "Na fila").size() + 1;
+        D filaUser = queueStrategy.queueEntry(fila, subject, prioridade, posicaoTemporaria);
+        
+        filaUserRepository.save(filaUser);
+
+        // Depois reorganizar toda a fila por prioridade se necessário
         if (prioridade != 3) {
             atualizarPosicao(filaId);
         }
 
-        T subject = createQueueSubject(entity);
-
-        D filaUser = queueStrategy.queueEntry(fila, subject, prioridade, posicao);
-
-        filaUserRepository.save(filaUser);
-
-        enviarMensagemBoasVindas(entity, posicao);
+        enviarMensagemBoasVindas(entity, posicaoTemporaria);
     }
 
     public List<D> listarUsers(Long filaId) {
